@@ -7,11 +7,13 @@ try {
     // raw urldecode
     $requestUrl = rawurldecode($requestUrl);
     
-    list($controllerName, $actionName) = explode('/', $requestUrl);
-    if ($controllerName) {
+    $routerArr = explode('/', $requestUrl);
+    if (isset($routerArr[0])) {
+        $controllerName = $routerArr[0];
         $fullControllerName = ucfirst($controllerName) . 'Controller';
         $controller = new $fullControllerName();
-        if ($actionName) {
+        if (isset($routerArr[1])) {
+            $actionName = $routerArr[1];
             $fullActionName = ucfirst($actionName) . 'Action';
             if (method_exists($controller, $fullActionName)) {
                 $result = $controller->$fullActionName();
