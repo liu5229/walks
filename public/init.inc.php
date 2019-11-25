@@ -10,11 +10,11 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
     include CONFIG_DIR . "config.private.php";
 }
 
-!defined('DB_HOST') && define('DB_HOST', '192.168.0.8');
+!defined('DB_HOST') && define('DB_HOST', '192.168.0.25');
 !defined('DB_PORT') && define('DB_PORT', 3306);
-!defined('DB_USERNAME') && define('DB_USERNAME', 'ebd_dev');
-!defined('DB_PASSWORD') && define('DB_PASSWORD', 'ebd');
-!defined('DB_DATABASE') && define('DB_DATABASE', 'ebd_main');
+!defined('DB_USERNAME') && define('DB_USERNAME', 'root');
+!defined('DB_PASSWORD') && define('DB_PASSWORD', '123456');
+!defined('DB_DATABASE') && define('DB_DATABASE', 'jy_walk');
 
 function autoload ($controllerName) {
     $fileAutoFindArr = array(ROOT_DIR . 'controller/', ROOT_DIR . 'core/');

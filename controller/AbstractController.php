@@ -3,12 +3,15 @@
  Class AbstractController {
     protected $temp = array();
     protected $mode = '';
+    protected $paranObj;
     
     public function __construct()
     {
-        if ($this->mode) {
-            echo 'to do';//
-        }
+        $this->paramObj = json_decode(file_get_contents('php://input'));
+//        $this->mode = 'POST';
+//        if ($this->mode) {
+//            echo 'to do';//
+//        }
     }
 
     public function __get($name) 

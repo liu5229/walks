@@ -53,11 +53,10 @@ Class AdminBaseController extends AbstractController {
 //        resIcon: 'xtxg',
 //      },
 //    ],
-        return  array('list' => array(array(
-        'id' => 10063,
-        'resName' => '用户管理',
-        'resKey'=> 'list',
-        'resIcon'=> 'pgmb')));
+        return  array('list' => array(
+            array( 'id' => 10063, 'resName' => '用户管理', 'resKey'=> 'list', 'resIcon'=> 'pgmb'),
+            array( 'id' => 2, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics')
+        ));
     }
     
     public function userInfoAction () {
