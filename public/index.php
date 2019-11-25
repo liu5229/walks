@@ -8,11 +8,11 @@ try {
     $requestUrl = rawurldecode($requestUrl);
     
     $routerArr = explode('/', $requestUrl);
-    if (isset($routerArr[0])) {
-        $controllerName = $routerArr[0];
-        $fullControllerName = ucfirst($controllerName) . 'Controller';
+    if (isset($routerArr[0]) && $routerArr[0]) {
+        $controllerName = preg_replace('/\s+/', '', ucwords(str_replace('-', ' ', $routerArr[0])));
+        $fullControllerName = $controllerName . 'Controller';
         $controller = new $fullControllerName();
-        if (isset($routerArr[1])) {
+        if (isset($routerArr[1]) && $routerArr[1]) {
             $actionName = $routerArr[1];
             $fullActionName = ucfirst($actionName) . 'Action';
             if (method_exists($controller, $fullActionName)) {
