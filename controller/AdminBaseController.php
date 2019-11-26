@@ -3,6 +3,14 @@
 Class AdminBaseController extends AbstractController {
     
     public function loginAction() {
+        if (isset($_POST['username']) && isset($_POST['password'])) {
+            if ('admin' == $_POST['username']) {
+                $verifyPass = $_POST['password'];
+                if (md5('HA@yMMWqki') == $_POST['password']) {
+                    return array();
+                }
+            }
+        }
 //        $this->mode = 'POST';
 //        $sql = 'SELECT * FROM t_order LIMIT 1';
 //        var_dump($this->db->getRow($sql));
@@ -12,9 +20,7 @@ Class AdminBaseController extends AbstractController {
 //  },
 //  msg: '操作成功',
 //  status: 1,
-        return array(
-            'ticket' => 'ticket',
-            'token' => '11111');
+        throw new \Exception("Login failure");
     }
     
     public function menuAction() {
@@ -54,7 +60,7 @@ Class AdminBaseController extends AbstractController {
 //      },
 //    ],
         return  array('list' => array(
-            array( 'id' => 10063, 'resName' => '用户管理', 'resKey'=> 'list', 'resIcon'=> 'pgmb'),
+//            array( 'id' => 10063, 'resName' => '用户管理', 'resKey'=> 'list', 'resIcon'=> 'pgmb'),
             array( 'id' => 2, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics')
         ));
     }
