@@ -17,6 +17,7 @@
         if (!isset($this->temp[$name])) {
             switch ($name) {
                 case 'db':
+                    echo 'mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT;
                     $this->temp['db'] = new newPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
                     break;
                 default :
