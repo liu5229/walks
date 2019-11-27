@@ -6,8 +6,14 @@ Class AdminActivityController extends AbstractController {
         $totalCount = $this->db->getOne($sql);
         $list = array();
         if ($totalCount) {
-            $limitStart = ($_POST['pageNo'] - 1) * $_POST['pageSize'];
-            $limitCount = $_POST['pageSize'];
+            $limitStart = 0;
+            $limitCount = 10;
+            if (isset($_POST['pageSize'])) {
+                $limitCount = $_POST['pageSize'];
+                if (isset($_POST['pageNo'])) {
+                    $limitStart = ($_POST['pageNo'] - 1) * $_POST['pageSize'];
+                }
+            }
             $sql = "SELECT * FROM jy_activity ORDER BY activity_id LIMIT {$limitStart}, {$limitCount}";
             $list = $this->db->getAll($sql);
         }
