@@ -2,6 +2,26 @@
 
 Class UserController extends AbstractController {
     
+    public function infoAction() {
+        if (isset($_POST['deviceId'])) {
+            $userInfo = array(
+                'userId' => 10000,
+                'accessToken' => 'sdffe234fasdf',
+                'nickname' => 'sdffe234fasdf',
+                'sex' => 1,
+                'province' => 'shangHai',
+                'city' => 'shangHai',
+                'country' => 'China',
+                'headimgurl' => 'http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/0',
+                'isRegistered' => true,
+                'hasCashed' => true
+            );
+            return new apiReturn($userInfo);
+        } else {
+            return new apiReturn('', 301, 'miss device id');
+        }
+    }
+    
     public function listAction() {
 //        $this->mode = 'POST';
 //        $sql = 'SELECT * FROM t_order LIMIT 1';

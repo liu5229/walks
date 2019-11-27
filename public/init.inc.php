@@ -25,6 +25,6 @@ function autoload ($controllerName) {
             return true;
         }
     }
-    throw new \Exception("Can't autoload controller " . $controllerName);
+    throw new \Exception("Can't autoload class " . $controllerName);
 }
 spl_autoload_register('autoload');

@@ -26,7 +26,11 @@ try {
     } else {
         throw new \Exception("Need a controller");
     }
-    $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
+    if ($result instanceof apiReturn) {
+        $return = array('code' => $result->code, 'data' => $result->data, 'msg' => $result->msg);
+    } else {
+        $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
+    }
 } catch(\Exception $e) {
     $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
 }
