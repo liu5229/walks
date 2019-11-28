@@ -3,9 +3,11 @@
  Class AbstractController {
     protected $temp = array();
     protected $mode = '';
+    protected $inputData;
     
     public function __construct()
     {
+        $this->inputData = json_decode(file_get_contents("php://input"), TRUE);
 //        $this->mode = 'POST';
 //        if ($this->mode) {
 //            echo 'to do';//

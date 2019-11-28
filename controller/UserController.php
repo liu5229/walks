@@ -3,9 +3,12 @@
 Class UserController extends AbstractController {
     
     public function infoAction() {
-        $data = file_get_contents("php://input");
-        $data = json_decode($data, true);
-        if (isset($data['deviceId'])) {
+        if (isset($this->inputData['deviceId'])) {
+            if ($this->inputData['accessToken']) {
+                
+            } else {
+                
+            }
             $userInfo = array(
                 'userId' => 10000,
                 'accessToken' => 'sdffe234fasdf',
@@ -22,6 +25,10 @@ Class UserController extends AbstractController {
         } else {
             return new apiReturn('', 301, 'miss device id');
         }
+    }
+    
+    public function sendPhoneAuthenticationCodeAction () {
+        var_dump(getallheaders());
     }
     
     public function listAction() {
