@@ -3,7 +3,8 @@
 Class UserController extends AbstractController {
     
     public function infoAction() {
-        var_dump($GLOBALS);
+        $data = file_get_contents("php://input");
+        var_dump($data);
         if (isset($_POST['deviceId'])) {
             $userInfo = array(
                 'userId' => 10000,
