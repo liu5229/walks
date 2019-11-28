@@ -38,7 +38,7 @@ Class UserController extends AbstractController {
         return new apiReturn('', 303, 'sending failure');
     }
     
-    public function bulidPhoneAction () {
+    public function buildPhoneAction () {
         if (!isset($this->inputData['phone'])) {
             return new apiReturn('', 302, 'miss phone number');
         }

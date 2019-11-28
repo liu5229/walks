@@ -14,7 +14,7 @@ try {
         $controller = new $fullControllerName();
         if (isset($routerArr[1]) && $routerArr[1]) {
             $actionName = preg_replace('/\s+/', '', ucwords(str_replace('-', ' ', $routerArr[1])));
-            $fullActionName = ucfirst($actionName) . 'Action';
+            $fullActionName = $actionName . 'Action';
             if (method_exists($controller, $fullActionName)) {
                 $result = $controller->$fullActionName();
             } else {
