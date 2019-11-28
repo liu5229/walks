@@ -5,6 +5,8 @@ Class UserController extends AbstractController {
     public function infoAction() {
         $data = file_get_contents("php://input");
         var_dump($data);
+        var_dump(json_decode($data));
+        var_dump(json_decode($data, true));
         if (isset($_POST['deviceId'])) {
             $userInfo = array(
                 'userId' => 10000,
