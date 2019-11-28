@@ -22,6 +22,7 @@
                     $this->temp['db'] = new newPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
                     break;
                 case 'model':
+                    echo 111;
                     $this->temp['model'] = new model();
                 default :
                     throw new \Exception("Can't find plugin " . $name);
