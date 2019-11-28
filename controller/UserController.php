@@ -28,7 +28,7 @@ Class UserController extends AbstractController {
     }
     
     public function sendPhoneAuthenticationCodeAction () {
-        var_dump(getallheaders());
+        var_dump($_SERVER);
     }
     
     public function listAction() {
