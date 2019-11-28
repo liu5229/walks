@@ -4,7 +4,7 @@ Class UserController extends AbstractController {
     
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
-            if ($this->inputData['accessToken']) {
+            if (isset($this->inputData['accessToken'])) {
                 
             } else {
                 
