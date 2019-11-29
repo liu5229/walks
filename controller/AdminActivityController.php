@@ -2,7 +2,7 @@
 
 Class AdminActivityController extends AbstractController {
     public function listAction () {
-        $sql = "SELECT COUNT(*) FROM jy_activity";
+        $sql = "SELECT COUNT(*) FROM t_activity";
         $totalCount = $this->db->getOne($sql);
         $list = array();
         if ($totalCount) {
@@ -14,7 +14,7 @@ Class AdminActivityController extends AbstractController {
                     $limitStart = ($_POST['pageNo'] - 1) * $_POST['pageSize'];
                 }
             }
-            $sql = "SELECT * FROM jy_activity ORDER BY activity_id LIMIT {$limitStart}, {$limitCount}";
+            $sql = "SELECT * FROM t_activity ORDER BY activity_id LIMIT {$limitStart}, {$limitCount}";
             $list = $this->db->getAll($sql);
         }
         return array(
@@ -28,7 +28,7 @@ Class AdminActivityController extends AbstractController {
             switch ($_POST['action']) {
                 case 'edit':
                     if (isset($_POST['id'])) {
-                        $sql = "UPDATE jy_activity SET
+                        $sql = "UPDATE t_activity SET
                                 activity_award = :activity_award,
                                 activity_type = :activity_type,
                                 activity_desc = :activity_desc
@@ -45,7 +45,7 @@ Class AdminActivityController extends AbstractController {
                     }
                     break;
                 case 'add':
-                    $sql = "INSERT INTO jy_activity SET
+                    $sql = "INSERT INTO t_activity SET
                             activity_award = :activity_award,
                             activity_type = :activity_type,
                             activity_desc = :activity_desc";
@@ -62,7 +62,7 @@ Class AdminActivityController extends AbstractController {
         }
         $activityInfo = array();
         if (isset($_POST['activity_id'])) {
-            $sql = "SELECT * FROM jy_activity WHERE activity_id = ?";
+            $sql = "SELECT * FROM t_activity WHERE activity_id = ?";
             $activityInfo = $this->db->getRow($sql, $_POST['activity_id']);
         }
         if ($activityInfo) {

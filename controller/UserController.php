@@ -9,18 +9,7 @@ Class UserController extends AbstractController {
             } else {
                 
             }
-            $userInfo = array(
-                'userId' => 10000,
-                'accessToken' => 'sdffe234fasdf',
-                'nickname' => 'sdffe234fasdf',
-                'sex' => 1,
-                'province' => 'shangHai',
-                'city' => 'shangHai',
-                'country' => 'China',
-                'headimgurl' => 'http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/0',
-                'isRegistered' => true,
-                'hasCashed' => true
-            );
+            $userInfo = $this->model->user->getUserInfo();
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 301, 'miss device id');
