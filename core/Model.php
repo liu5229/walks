@@ -10,7 +10,7 @@
 class model {
     
     public function __get($name) {
-        $className = $name . 'Model';
+        $className = ucfirst($name) . 'Model';
         return new $className();
     }
 }

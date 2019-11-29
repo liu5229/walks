@@ -21,32 +21,34 @@ Class UserController extends AbstractController {
                 'isRegistered' => true,
                 'hasCashed' => true
             );
-            return new apiReturn($userInfo);
+            return new ApiReturn($userInfo);
         } else {
-            return new apiReturn('', 301, 'miss device id');
+            return new ApiReturn('', 301, 'miss device id');
         }
     }
     
     public function sendSmsCodeAction () {
         if (!isset($this->inputData['phone'])) {
-            return new apiReturn('', 302, 'miss phone number');
+            return new ApiReturn('', 302, 'miss phone number');
         }
 //        var_dump($_SERVER);
-        return new apiReturn('');
+        return new ApiReturn('');
         
         //insert error log
-        return new apiReturn('', 303, 'sending failure');
+        return new ApiReturn('', 303, 'sending failure');
     }
     
     public function buildPhoneAction () {
+        $userInfo = $this->model->user->getUserInfo();
+        return new ApiReturn($userInfo);
         if (!isset($this->inputData['phone'])) {
-            return new apiReturn('', 302, 'miss phone number');
+            return new ApiReturn('', 302, 'miss phone number');
         }
         if (!isset($this->inputData['smsCode'])) {
-            return new apiReturn('', 304, 'miss smsCode');
+            return new ApiReturn('', 304, 'miss smsCode');
         }
         $userInfo = $this->model->user->getUserInfo();
-        return new apiReturn($userInfo);
+        return new ApiReturn($userInfo);
         
     }
     

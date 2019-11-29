@@ -7,7 +7,7 @@
  */
 
 
-class userModel {
+class UserModel {
     
     public function getUserInfo($token = '') {
         return  array(

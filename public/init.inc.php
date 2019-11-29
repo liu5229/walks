@@ -2,6 +2,9 @@
 
 define('ROOT_DIR', dirname(__DIR__)  . '/');
 define('CONFIG_DIR', ROOT_DIR  . '/config/');
+define('CORE_DIR', ROOT_DIR  . '/core/');
+define('CONTROLLER_DIR', ROOT_DIR  . '/controller/');
+define('MODEL_DIR', ROOT_DIR  . '/model/');
 
 /**
  * load the private configure
@@ -16,15 +19,8 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 !defined('DB_PASSWORD') && define('DB_PASSWORD', '123456');
 !defined('DB_DATABASE') && define('DB_DATABASE', 'jy_walk');
 
-function autoload ($controllerName) {
-    $fileAutoFindArr = array(ROOT_DIR . 'controller/', ROOT_DIR . 'core/');
-    foreach ($fileAutoFindArr as $fileDir) {
-        $file = $fileDir . $controllerName . '.php';
-        if (file_exists($file)) {
-            require_once $file;
-            return true;
-        }
-    }
-    throw new \Exception("Can't autoload class " . $controllerName);
-}
-spl_autoload_register('autoload');
+/**
+ * register autoload
+ */
+require CORE_DIR . 'AutoLoad.php';
+AutoLoad::register();

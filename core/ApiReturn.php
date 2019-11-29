@@ -7,7 +7,7 @@
  */
 
 
-class apiReturn {
+class ApiReturn {
     
     protected $msg = '';
     protected $data = array();
@@ -17,6 +17,11 @@ class apiReturn {
         $this->data = $data;
         $this->code = $code;
         $this->msg = $msg;
+    }
+    
+    public static function init($data, $code = 200, $msg = '')
+    {
+        return new self($data, $code, $msg);
     }
     
     public function __set($name, $value) {
