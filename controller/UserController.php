@@ -9,7 +9,7 @@ Class UserController extends AbstractController {
             } else {
                 
             }
-            $userInfo = $this->model->user->getUserInfo();
+            $userInfo = $this->model->user->getUserInfo(10000);
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 301, 'miss device id');
@@ -28,7 +28,7 @@ Class UserController extends AbstractController {
     }
     
     public function buildPhoneAction () {
-        $userInfo = $this->model->user->getUserInfo();
+        $userInfo = $this->model->user->getUserInfo(10000);
         return new ApiReturn($userInfo);
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
@@ -36,7 +36,7 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['smsCode'])) {
             return new ApiReturn('', 304, 'miss smsCode');
         }
-        $userInfo = $this->model->user->getUserInfo();
+        $userInfo = $this->model->user->getUserInfo(10000);
         return new ApiReturn($userInfo);
         
     }

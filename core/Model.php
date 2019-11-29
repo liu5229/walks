@@ -7,7 +7,7 @@
  */
 
 
-class model {
+class Model {
     
     public function __get($name) {
         $className = ucfirst($name) . 'Model';
