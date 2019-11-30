@@ -16,6 +16,7 @@ class walkCounter extends AbstractModel
         10000 => 80);
     protected $userId;
     protected $stepCount;
+    protected $todayDate;
 
     /**
      * Constructor
@@ -24,24 +25,29 @@ class walkCounter extends AbstractModel
     {
         $this->userId = $userId;
         $this->stepCount = $stepCount;
+        $this->todayDate = date('Y-m-d');
         $this->calculationReward();
     }
     
-//    public function  () {
-//        
-//    }
+    public function unreceivedList () {
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 0 ORDER BY receive_id LIMIT 5';
+        $walk = $this->db->getALL($sql, $this->userId, $this->todayDate);
+        
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type, IF(receive_status, TRUE, FALSE) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
+        $walkStage = $this->db->getAll($sql, $this->userId, $this->todayDate);
+        return array('awardCoins1' => $walk, 'awardCoins1' => $walkStage);
+    }
     
     protected function calculationReward() {
-        $todayDate = date('Y-m-d');
         $sql = 'REPLACE INTO t_walk SET
                 user_id = :user_id,
                 total_walk = :total_walk,
                 walk_date = :walk_date';
-        $this->db->exec($sql, array('user_id' => $this->userId, 'total_walk' => $this->stepCount, 'walk_date' => $todayDate));
+        $this->db->exec($sql, array('user_id' => $this->userId, 'total_walk' => $this->stepCount, 'walk_date' => $this->todayDate));
         
         //插入步数奖励待领取
         $sql = 'SELECT SUM(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
-        $receiceStep = $this->db->getOne($sql, $this->userId, $todayDate);
+        $receiceStep = $this->db->getOne($sql, $this->userId, $this->todayDate);
         $residualStep = $this->stepCount - $receiceStep;
         while ($residualStep >= $this->rewardCounter) {
             $sql = "INSERT INTO t_gold2receive SET 
@@ -53,14 +59,14 @@ class walkCounter extends AbstractModel
             $this->db->exec($sql, array(
                 'user_id' => $this->userId,
                 'receive_walk' => $this->rewardCounter, 
-                'receive_date' => $todayDate, 
+                'receive_date' => $this->todayDate, 
                 'receive_gold' => rand($this->rewardMin, $this->rewardMax)));
             $residualStep -= $this->rewardCounter;
         }
         
         //插入阶段步数奖励待领取
         $sql = 'SELECT MAX(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
-        $stageStep = $this->db->getOne($sql, $this->userId, $todayDate) ?: 0;
+        $stageStep = $this->db->getOne($sql, $this->userId, $this->todayDate) ?: 0;
         foreach ($this->stageReward as $step => $gold) {
             if ($step > $this->stepCount) {
                 break;
@@ -77,7 +83,7 @@ class walkCounter extends AbstractModel
             $this->db->exec($sql, array(
                 'user_id' => $this->userId,
                 'receive_walk' => $step, 
-                'receive_date' => $todayDate, 
+                'receive_date' => $this->todayDate, 
                 'receive_gold' => $gold));
         }
     }

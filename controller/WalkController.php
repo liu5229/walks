@@ -10,6 +10,9 @@ Class WalkController extends AbstractController {
         }
         $walkReward = new WalkCounter($userId, $this->inputData['stepCount']);
         
+        $data = $walkReward->unreceivedList();
+        return new ApiReturn($data);
+        
 //        $sql = 'SELECT * FROM t_walk WHERE ';
 //        $this->db->getAll();
 //        var_dump();
