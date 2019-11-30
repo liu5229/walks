@@ -35,7 +35,7 @@ class walkCounter extends AbstractModel
         
         $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
         $walkStage = $this->db->getAll($sql, $this->userId, $this->todayDate);
-        return array('awardCoins1' => $walk, 'awardCoins2' => $walkStage);
+        return array('awardCoins1' => $walk, 'awardCoins2' => $walkStage, 'stageReward' => array_map(function($v, $key){$key = 'step_' . $key;}, $this->stageReward));
     }
     
     protected function calculationReward() {
