@@ -3,7 +3,7 @@
 Class WalkController extends AbstractController {
     
     public function awardAction () {
-        $token = $_SERVER[HTTP_ACCESSTOKEN];
+        $token = $_SERVER['HTTP_ACCESSTOKEN'];
         $userId = $this->model->user->verifyToken($token);
         if (!isset($this->inputData['stepCount'])) {
             return new ApiReturn('', 301, 'miss step count');
