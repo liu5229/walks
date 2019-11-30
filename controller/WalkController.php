@@ -24,7 +24,7 @@ Class WalkController extends AbstractController {
             return $userId;
         }
         $walkReward = new WalkCounter($userId);
-        $walkReward->verifyReceive(array(
+        $receiveInfo = $walkReward->verifyReceive(array(
            'receive_id' => $this->inputData['id'] ?? 0,
            'receive_gold' => $this->inputData['num'] ?? 0,
            'receive_type' => $this->inputData['type'] ?? '',
