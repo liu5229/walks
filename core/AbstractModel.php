@@ -7,18 +7,21 @@
  */
 
 abstract class AbstractModel {
-    protected $db;
+    protected $temp = array();
     
     
     public function __get ($name) {
-        if ('db' == $name) {
-            if (!$this->db) {
-                $this->db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
-                $this->db->exec("SET time_zone = 'Asia/Shanghai'");
-                $this->db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-            } 
-            return $this->db;
+        if (!isset($this->temp[$name])) {
+            switch ($name) {
+                case 'db':
+                    $this->temp['db'] = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
+                    $this->temp['db']->exec("SET time_zone = 'Asia/Shanghai'");
+                    $this->temp['db']->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+                    break;
+                default :
+                    throw new \Exception("Can't find model plugin " . $name);
+            }
         }
-        throw new \Exception("Can't find plugin " . $name);
+        return $this->temp[$name];
     }
 }
