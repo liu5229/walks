@@ -37,8 +37,8 @@ class UserModel extends AbstractModel {
                  app_name = "walk"';
             $this->db->exec($sql, $deviceId);
             $userId = $this->db->lastInsertId();
-            var_dump($userId);
             $accessToken = md5($userId . time());
+            var_dump($userId);
             $sql = 'UPDATE t_user SET
                     access_token = ？
                     WHERE user_id = ?';
