@@ -6,7 +6,7 @@ Class WalkController extends AbstractController {
         $token = $_SERVER['HTTP_ACCESSTOKEN'];
         $userId = $this->model->user->verifyToken($token);
         if (!isset($this->inputData['stepCount'])) {
-            return new ApiReturn('', 301, 'miss step count');
+            return new ApiReturn('', 401, 'miss step count');
         }
         $walkReward = new WalkCounter($userId, $this->inputData['stepCount']);
         

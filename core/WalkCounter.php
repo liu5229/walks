@@ -1,6 +1,6 @@
 <?php
 
-class newPdo extends \PDO
+class walkCounter extends 
 {
     //领取奖励条件步数
     protected $rewardCounter = 100;
