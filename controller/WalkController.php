@@ -38,7 +38,16 @@ Class WalkController extends AbstractController {
            'receive_date' => date('Y-m-d'),
         ));
         if ($receiveInfo) {
-            return $this->model->user->updateGold();
+            $updateStatus = $this->model->user->updateGold(array(
+                'gold' => $this->inputData['num'],
+                'gold_source' => $this->inputData['type'],
+                'change_type' => 'in',
+                'relation_id' => $this->inputData['id']));
+            if (200 == $updateStatus->code) {
+                $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
+                $this->db->exec($sql, $this->inputData['id']);
+            }
+            return $updateStatus;
         } else {
             return new ApiReturn('', 402, '无效领取');
         }
