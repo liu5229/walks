@@ -6,9 +6,9 @@
  * and open the template in the editor.
  */
 
-
 class UserModel extends AbstractModel {
-    
+    protected $maxGoldEveryDay = 1000;
+
     public function getUserInfo($deviceId) {
         $whereArr = $data = array();
         $whereArr[] = 1;
@@ -51,6 +51,33 @@ class UserModel extends AbstractModel {
         }
     }
     
+    public function updateGold($params = array()) {
+        $todayDate = date('Y-m-d');
+        if ('in' == $params['type']) {
+            $sql = 'SELECT SUM(change_gold) WHERE user_id = ? AND change_type = "in" AND change_data = ?';
+            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
+            if ($goldToday > $this->maxGoldEveryDay) {
+                return new ApiReturn('', 202, '今日领取已达上限');
+            }
+        }
+        $sql = "INSERT INTO t_gold SET
+                user_id = :user_id,
+                change_gold = :change_gold,
+                gold_source = :gold_source,
+                change_type = :change_type,
+                relation_id = :relation_id,
+                change_data = :change_data";
+        $this->db->exec($sql, array(
+            'user_id' => $params['user_id'],
+            'change_gold' => $params['gold'],
+            'gold_source' => $params['source'],
+            'change_type' => $params['type'],
+            'relation_id' => $params['relation_id'] ?? 0,
+            'change_data' => $todayDate
+        ));
+        return new ApiReturn('');
+    }
+    
     public function verifyToken($token) {
         if ($token) {
             $sql = 'SELECT user_id FROM t_user WHERE access_token = ?';
@@ -59,6 +86,6 @@ class UserModel extends AbstractModel {
                 return $userId;
             }
         }
-        throw new \Exception(201);//to do
+        return new ApiReturn('', 201, 'Token lost or error');
     }
 }

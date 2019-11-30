@@ -6,7 +6,11 @@
  * and open the template in the editor.
  */
 
-class WalkModel extends AbstractModel {
+class AwardModel extends AbstractModel {
+    
+    public function getAward() {
+        
+    }
     
     public function getUserInfo($deviceId) {
         $whereArr = $data = array();
