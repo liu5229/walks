@@ -39,9 +39,10 @@ Class WalkController extends AbstractController {
         ));
         if ($receiveInfo) {
             $updateStatus = $this->model->user->updateGold(array(
+                'user_id' => $userId,
                 'gold' => $this->inputData['num'],
-                'gold_source' => $this->inputData['type'],
-                'change_type' => 'in',
+                'source' => $this->inputData['type'],
+                'type' => 'in',
                 'relation_id' => $this->inputData['id']));
             if (200 == $updateStatus->code) {
                 $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
