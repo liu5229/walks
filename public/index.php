@@ -32,7 +32,11 @@ try {
         $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
     }
 } catch(\Exception $e) {
-    $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
+    if (in_array($e->getMessage(), array(201))) {
+        $return = array('code' => 201, 'data' => '', 'msg' => 'Token lost or error'); 
+    } else {
+        $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
+    }
 }
 //var_dump($return);
 echo json_encode($return);

@@ -34,4 +34,15 @@ Class UserController extends AbstractController {
         
     }
     
+    public function verifyToken($token) {
+        if ($token) {
+            $sql = 'SELECT user_id FROM t_user WHERE access_token = ?';
+            $userId = $this->db->getOne($sql, $token);
+            if ($userId) {
+                return $userId;
+            }
+        }
+        throw new \Exception(201);//to do
+    }
+    
 }

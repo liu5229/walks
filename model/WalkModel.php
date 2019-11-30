@@ -6,8 +6,7 @@
  * and open the template in the editor.
  */
 
-
-class UserModel extends AbstractModel {
+class WalkModel extends AbstractModel {
     
     public function getUserInfo($deviceId) {
         $whereArr = $data = array();
@@ -51,14 +50,4 @@ class UserModel extends AbstractModel {
         }
     }
     
-    public function verifyToken($token) {
-        if ($token) {
-            $sql = 'SELECT user_id FROM t_user WHERE access_token = ?';
-            $userId = $this->db->getOne($sql, $token);
-            if ($userId) {
-                return $userId;
-            }
-        }
-        throw new \Exception(201);//to do
-    }
 }
