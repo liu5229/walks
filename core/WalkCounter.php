@@ -43,7 +43,7 @@ class walkCounter extends AbstractModel
         $sql = 'SELECT SUM(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
         $receiceStep = $this->db->getOne($sql, $this->userId, $todayDate);
         $residualStep = $this->stepCount - $receiceStep;
-        while ($residualStep > $this->rewardCounter) {
+        while ($residualStep >= $this->rewardCounter) {
             $sql = "INSERT INTO t_gold2receive SET 
                 user_id = :user_id,
                 receive_date = :receive_date,
