@@ -19,6 +19,7 @@
         if (!isset($this->temp[$name])) {
             switch ($name) {
                 case 'db':
+                    echo 111;
                     $this->temp['db'] = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
                     $this->temp['db']->exec("SET time_zone = 'Asia/Shanghai'");
                     break;
