@@ -4,12 +4,7 @@ Class UserController extends AbstractController {
     
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
-            if (isset($this->inputData['accessToken'])) {
-                
-            } else {
-                
-            }
-            $userInfo = $this->model->user->getUserInfo(10000);
+            $userInfo = $this->model->user->getUserInfo($this->inputData['deviceId']);
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 301, 'miss device id');
@@ -28,8 +23,6 @@ Class UserController extends AbstractController {
     }
     
     public function buildPhoneAction () {
-        $userInfo = $this->model->user->getUserInfo(10000);
-        return new ApiReturn($userInfo);
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
         }
