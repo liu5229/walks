@@ -33,7 +33,7 @@ class UserModel extends AbstractModel {
             );
         } else {
             $sql = 'INSERT INTO t_user SET
-                 device_id = ?
+                 device_id = ?,
                  app_name = "walk"';
             $this->db->exec($sql, $deviceId);
             $userId = $this->db->lastInsertId();
