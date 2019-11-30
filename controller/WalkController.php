@@ -40,7 +40,7 @@ Class WalkController extends AbstractController {
                 $walkReward->receiveSuccess($this->inputData['id']);
                 switch ($this->inputData['type']) {
                     case 'walk':
-                        return new ApiReturn($walkReward->walkList());
+                        return new ApiReturn($walkReward->walkNewOne());
                         break;
                     case 'walk_stage':
                         return new ApiReturn($walkReward->walkStageList());
