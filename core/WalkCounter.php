@@ -61,7 +61,8 @@ class walkCounter extends AbstractModel
                 AND user_id = :user_id
                 AND receive_gold = :receive_gold
                 AND receive_type = :receive_type
-                AND receive_date = :receive_date';
+                AND receive_date = :receive_date
+                AND receive_status = 0';
         return $this->db->getOne($sql, array(
            'receive_id' => $data['receive_id'],
            'user_id' => $this->userId,
