@@ -23,19 +23,11 @@ Class WalkController extends AbstractController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $sql = 'SELECT COUNT(receive_id) 
-                FROM t_gold2receive
-                WHERE receive_id =:receive_id
-                AND user_id = :user_id
-                AND receive_gold = :receive_gold
-                AND receive_type = :receive_type
-                AND receive_date = :receive_date';
-        $receiveInfo = $this->db->getOne($sql, array(
+        $walkReward = new WalkCounter($userId);
+        $walkReward->verifyReceive(array(
            'receive_id' => $this->inputData['id'] ?? 0,
-           'user_id' => $userId,
            'receive_gold' => $this->inputData['num'] ?? 0,
            'receive_type' => $this->inputData['type'] ?? '',
-           'receive_date' => date('Y-m-d'),
         ));
         if ($receiveInfo) {
             $updateStatus = $this->model->user->updateGold(array(
@@ -45,8 +37,15 @@ Class WalkController extends AbstractController {
                 'type' => 'in',
                 'relation_id' => $this->inputData['id']));
             if (200 == $updateStatus->code) {
-                $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
-                $this->db->exec($sql, $this->inputData['id']);
+                $walkReward->receiveSuccess($this->inputData['id']);
+                switch ($this->inputData['type']) {
+                    case 'walk':
+                        return new ApiReturn($walkReward->walkList());
+                        break;
+                    case 'walk_stage':
+                        return new ApiReturn($walkReward->walkStageList());
+                        break;
+                }
             }
             return $updateStatus;
         } else {

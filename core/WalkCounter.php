@@ -14,6 +14,7 @@ class walkCounter extends AbstractModel
         3000 => 30,
         5000 => 50,
         10000 => 80);
+    protected $stageFormat;
     protected $userId;
     protected $stepCount;
     protected $todayDate;
@@ -26,19 +27,55 @@ class walkCounter extends AbstractModel
         $this->userId = $userId;
         $this->stepCount = $stepCount;
         $this->todayDate = date('Y-m-d');
-        $this->calculationReward();
+        if($this->stepCount) {
+            $this->calculationReward();
+        }
+        $stageReward = array();
+        array_walk($this->stageReward, function($v, $key) use (&$stageReward) {$stageReward['step' . $key] =$v;});
+        $this->stageFormat = $stageReward;
     }
     
     public function unreceivedList () {
-        $sql = 'SELECT receive_id id, receive_gold num, receive_type type FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 0 ORDER BY receive_id LIMIT 5';
-        $walk = $this->db->getALL($sql, $this->userId, $this->todayDate);
-        
-        $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
-        $walkStage = $this->db->getAll($sql, $this->userId, $this->todayDate);
-        $stageReward = array();
-        array_walk($this->stageReward, function($v, $key) use (&$stageReward) {$stageReward['step' . $key] =$v;});
-        return array('awardCoins1' => $walk, 'awardCoins2' => $walkStage, 'stageReward' => $stageReward);
+        return array('awardCoins1' => $this->__walkList(), 'awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
     }
+    
+    public function walkNewOne () {
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type 
+            FROM t_gold2receive 
+            WHERE user_id = ? 
+            AND receive_date = ? 
+            AND receive_type = "walk" 
+            AND receive_status = 0 
+            ORDER BY receive_id LIMIT 5, 1';
+        return $this->db->getOne($sql, $this->userId, $this->todayDate);
+    }
+    
+    public function walkStageList () {
+        return array('awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
+    }
+    
+    public function verifyReceive ($data) {
+        $sql = 'SELECT COUNT(receive_id) 
+                FROM t_gold2receive
+                WHERE receive_id =:receive_id
+                AND user_id = :user_id
+                AND receive_gold = :receive_gold
+                AND receive_type = :receive_type
+                AND receive_date = :receive_date';
+        return $this->db->getOne($sql, array(
+           'receive_id' => $data['receive_id'],
+           'user_id' => $this->userId,
+           'receive_gold' => $data['receive_gold'],
+           'receive_type' => $data['receive_type'],
+           'receive_date' => $this->todayDate,
+        ));
+    }
+    
+    public function receiveSuccess ($receiveId) {
+        $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
+        $this->db->exec($sql, $receiveId);
+    }
+        
     
     protected function calculationReward() {
         $sql = 'REPLACE INTO t_walk SET
@@ -90,4 +127,13 @@ class walkCounter extends AbstractModel
         }
     }
     
+    protected function __walkList () {
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 0 ORDER BY receive_id LIMIT 5';
+        return $this->db->getALL($sql, $this->userId, $this->todayDate);
+    }
+    
+    protected function __walkStageList () {
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
+        return $this->db->getAll($sql, $this->userId, $this->todayDate);
+    }
 }
