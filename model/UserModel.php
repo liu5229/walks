@@ -37,14 +37,15 @@ class UserModel extends AbstractModel {
                  app_name = "walk"';
             $this->db->exec($sql, $deviceId);
             $userId = $this->db->lastInsertId();
+            echo $userId;
             $accessToken = md5($userId . time());
             $sql = 'UPDATE t_user SET
                     access_token = ？
                     WHERE user_id = ?';
             $this->db->exec($sql, $accessToken, $userId);
             return  array(
-                'userId' => $userInfo['user_id'],
-                'accessToken' => $userInfo['access_token'],
+                'userId' => $userId,
+                'accessToken' => $accessToken,
                 'isRegistered' => true,
                 'hasCashed' => true
             );
