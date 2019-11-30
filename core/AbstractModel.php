@@ -7,7 +7,7 @@
  */
 
 abstract class AbstractModel {
-    protected $db = FALSE;
+    protected $db;
     
     
     public function __get ($name) {
