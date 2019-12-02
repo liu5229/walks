@@ -4,9 +4,9 @@ Class AdminBaseController extends AbstractController {
     
     public function loginAction() {
         if (isset($_POST['username']) && isset($_POST['password'])) {
-            if ('admin' == $_POST['username']) {
+            if (JY_WALK_ADMIN_USER == $_POST['username']) {
                 $verifyPass = $_POST['password'];
-                if (md5('HA@yMMWqki') == $_POST['password']) {
+                if (md5(JY_WALK_ADMIN_PASSWORD) == $_POST['password']) {
                     return array();
                 }
             }

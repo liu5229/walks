@@ -19,6 +19,9 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 !defined('DB_PASSWORD') && define('DB_PASSWORD', '123456');
 !defined('DB_DATABASE') && define('DB_DATABASE', 'jy_walk');
 
+!defined('JY_WALK_ADMIN_USER') && define('JY_WALK_ADMIN_USER', 'username');
+!defined('JY_WALK_ADMIN_PASSWORD') && define('JY_WALK_ADMIN_PASSWORD', '123456');
+
 /**
  * register autoload
  */

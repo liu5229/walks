@@ -27,7 +27,8 @@
                     $this->temp['model'] = new Model();
                     break;
                 default :
-                    throw new \Exception("Can't find plugin " . $name);
+                    $pluginName = ucfirst($name);
+                    $this->temp[$name] = new $pluginName();
             }
         }
         return $this->temp[$name];

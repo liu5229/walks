@@ -6,15 +6,7 @@ Class AdminActivityController extends AbstractController {
         $totalCount = $this->db->getOne($sql);
         $list = array();
         if ($totalCount) {
-            $limitStart = 0;
-            $limitCount = 10;
-            if (isset($_POST['pageSize'])) {
-                $limitCount = $_POST['pageSize'];
-                if (isset($_POST['pageNo'])) {
-                    $limitStart = ($_POST['pageNo'] - 1) * $_POST['pageSize'];
-                }
-            }
-            $sql = "SELECT * FROM t_activity ORDER BY activity_id LIMIT {$limitStart}, {$limitCount}";
+            $sql = "SELECT * FROM t_activity ORDER BY activity_id LIMIT " . $this->page;
             $list = $this->db->getAll($sql);
         }
         return array(
@@ -30,10 +22,12 @@ Class AdminActivityController extends AbstractController {
                     if (isset($_POST['id'])) {
                         $sql = "UPDATE t_activity SET
                                 activity_award = :activity_award,
+                                activity_name = :activity_name,
                                 activity_type = :activity_type,
                                 activity_desc = :activity_desc
                                 WHERE activity_id = :activity_id";
                         $return = $this->db->exec($sql, array('activity_award' => $_POST['activity_award'] ?? '', 
+                            'activity_name' => $_POST['activity_name'] ?? '', 
                             'activity_type' => $_POST['activity_type'] ?? '', 
                             'activity_desc' => $_POST['activity_desc'] ?? '', 
                             'activity_id' => $_POST['id']));
@@ -47,10 +41,12 @@ Class AdminActivityController extends AbstractController {
                 case 'add':
                     $sql = "INSERT INTO t_activity SET
                             activity_award = :activity_award,
+                            activity_name = :activity_name,
                             activity_type = :activity_type,
                             activity_desc = :activity_desc";
                     $return = $this->db->exec($sql, array('activity_award' => $_POST['activity_award'] ?? '', 
                         'activity_type' => $_POST['activity_type'] ?? '', 
+                        'activity_name' => $_POST['activity_name'] ?? '', 
                         'activity_desc' => $_POST['activity_desc'] ?? ''));
                     if ($return) {
                         return array();
