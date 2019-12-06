@@ -39,19 +39,22 @@ class walkCounter extends AbstractModel
         return array('awardCoins1' => $this->__walkList(), 'awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
     }
     
-    public function walkNewOne () {
-        $sql = 'SELECT receive_id id, receive_gold num, receive_type type 
-            FROM t_gold2receive 
-            WHERE user_id = ? 
-            AND receive_date = ? 
-            AND receive_type = "walk" 
-            AND receive_status = 0 
-            ORDER BY receive_id LIMIT 5, 1';
-        return $this->db->getRow($sql, $this->userId, $this->todayDate);
-    }
-    
-    public function walkStageList () {
-        return array('awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
+    public function getReturnInfo ($type) {
+        switch ($type) {
+            case 'walk':
+                $sql = 'SELECT receive_id id, receive_gold num, receive_type type 
+                    FROM t_gold2receive 
+                    WHERE user_id = ? 
+                    AND receive_date = ? 
+                    AND receive_type = "walk" 
+                    AND receive_status = 0 
+                    ORDER BY receive_id LIMIT 5, 1';
+                return $this->db->getRow($sql, $this->userId, $this->todayDate);
+                break;
+            case 'walk_stage':
+                return array('awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
+                break;
+        }
     }
     
     public function verifyReceive ($data) {

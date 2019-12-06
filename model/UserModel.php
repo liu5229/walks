@@ -50,6 +50,16 @@ class UserModel extends AbstractModel {
             );
         }
     }
+    /**
+     * 
+     * @param type $params
+     * $params user_id
+     * $params gold
+     * $params source
+     * $params type
+     * $params relation_id if has
+     * @return \ApiReturn
+     */
     
     public function updateGold($params = array()) {
         $todayDate = date('Y-m-d');
