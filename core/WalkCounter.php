@@ -48,7 +48,7 @@ class walkCounter extends AbstractModel
                     AND receive_date = ? 
                     AND receive_type = "walk" 
                     AND receive_status = 0 
-                    ORDER BY receive_id LIMIT 5, 1';
+                    ORDER BY receive_id LIMIT 5';
                 return $this->db->getRow($sql, $this->userId, $this->todayDate);
                 break;
             case 'walk_stage':

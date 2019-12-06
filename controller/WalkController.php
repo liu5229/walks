@@ -24,6 +24,9 @@ Class WalkController extends AbstractController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
+        if (!isset($this->inputData['type'])) {
+            return new ApiReturn('', 402, '无效领取');
+        }
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':

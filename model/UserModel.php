@@ -76,14 +76,14 @@ class UserModel extends AbstractModel {
                 gold_source = :gold_source,
                 change_type = :change_type,
                 relation_id = :relation_id,
-                change_data = :change_data";
+                change_date = :change_date";
         $this->db->exec($sql, array(
             'user_id' => $params['user_id'],
             'change_gold' => $params['gold'],
             'gold_source' => $params['source'],
             'change_type' => $params['type'],
             'relation_id' => $params['relation_id'] ?? 0,
-            'change_data' => $todayDate
+            'change_date' => $todayDate
         ));
         return new ApiReturn('');
     }
