@@ -90,6 +90,9 @@ Class WalkController extends AbstractController {
                 }
                 return $updateStatus;
                 break;
+            case 'limit':
+                
+                break;
             default :
                 return new ApiReturn('', 402, '无效领取');
         }

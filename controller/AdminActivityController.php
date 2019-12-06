@@ -21,13 +21,15 @@ Class AdminActivityController extends AbstractController {
                 case 'edit':
                     if (isset($_POST['id'])) {
                         $sql = "UPDATE t_activity SET
-                                activity_award = :activity_award,
+                                activity_award_min = :activity_award_min,
+                                activity_award_max = :activity_award_max,
                                 activity_name = :activity_name,
                                 activity_type = :activity_type,
                                 activity_max = :activity_max,
                                 activity_desc = :activity_desc
                                 WHERE activity_id = :activity_id";
-                        $return = $this->db->exec($sql, array('activity_award' => $_POST['activity_award'] ?? '', 
+                        $return = $this->db->exec($sql, array('activity_award_min' => $_POST['activity_award_min'] ?? 0, 
+                            'activity_award_max' => $_POST['activity_award_max'] ?? 0, 
                             'activity_name' => $_POST['activity_name'] ?? '', 
                             'activity_max' => $_POST['activity_max'] ?? '', 
                             'activity_type' => $_POST['activity_type'] ?? '', 
@@ -42,12 +44,14 @@ Class AdminActivityController extends AbstractController {
                     break;
                 case 'add':
                     $sql = "INSERT INTO t_activity SET
-                            activity_award = :activity_award,
+                            activity_award_min = :activity_award_min,
+                            activity_award_max = :activity_award_max,
                             activity_name = :activity_name,
                             activity_type = :activity_type,
                             activity_max = :activity_max,
                             activity_desc = :activity_desc";
-                    $return = $this->db->exec($sql, array('activity_award' => $_POST['activity_award'] ?? '', 
+                    $return = $this->db->exec($sql, array('activity_award_min' => $_POST['activity_award_min'] ?? 0, 
+                        'activity_award_max' => $_POST['activity_award_max'] ?? 0, 
                         'activity_type' => $_POST['activity_type'] ?? '', 
                         'activity_name' => $_POST['activity_name'] ?? '', 
                         'activity_max' => $_POST['activity_max'] ?? '', 
