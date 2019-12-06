@@ -27,6 +27,7 @@ Class WalkController extends AbstractController {
         if (!isset($this->inputData['type'])) {
             return new ApiReturn('', 402, '无效领取');
         }
+        $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
@@ -57,11 +58,11 @@ Class WalkController extends AbstractController {
                         FROM t_gold
                         WHERE gold_source = ?
                         AND change_date = ?';
-                $isSignToday = $this->db->getOne($sql, "sign", date('Y-m-d'));
+                $isSignToday = $this->db->getOne($sql, "sign", $today);
                 if ($isSignToday) {
                     return new ApiReturn('', 403, '今日已签到');
                 }
-                $isSignLastDay = $this->db->getOne($sql, "sign", date("Y-m-d", strtotime("-1 day")));
+                $isSignLastDay = $this->db->getOne($sql, "sign", date('Y-m-d', strtotime("-1 day")));
                 
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $userId);
@@ -91,7 +92,38 @@ Class WalkController extends AbstractController {
                 return $updateStatus;
                 break;
             case 'limit':
+                $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
+                $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
                 
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_status = 0 ORDER BY history_id DESC LIMIT 1';
+                $historyInfo = $this->db->getRow($sql, $userId, $today);
+                if ($historyInfo) {
+                    if ($activityInfo['activity_duration']) {
+                        if (!$historyInfo['end_date'] || strtotim($historyInfo['end_date']) > time()) {
+                            return new ApiReturn('', 402, '无效领取');
+                        }
+                    }
+                    $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                    
+                    $updateStatus = $this->model->user->updateGold(array(
+                            'user_id' => $userId,
+                            'gold' => $activityAwardGold,
+                            'source' => $this->inputData['type'],
+                            'type' => 'in'));
+                    //奖励金币成功
+                    if (200 == $updateStatus->code) {
+                        $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
+                        $this->db->exec($sql, $historyInfo['history_id']);
+                        return new ApiReturn('');
+                    }
+                    return $updateStatus;
+//                    if ($activityInfo['activity_max']) {
+//
+//                    }
+//                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE history_type = ? AND ';
+                } else {
+                    return new ApiReturn('', 402, '无效领取');
+                }
                 break;
             default :
                 return new ApiReturn('', 402, '无效领取');
