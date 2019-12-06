@@ -25,7 +25,7 @@ class AwardModel extends AbstractModel {
             return  array(
                 'userId' => $userInfo['user_id'],
                 'accessToken' => $userInfo['access_token'],
-                'nickname' => $userInfo['nickname'],
+                'nickname' => $userInfo['nickname'] ?: ('游客' . substr($userInfo['device_id'], -2) . date('Ymd')),//游客+设备号后2位+用户激活日期
                 'sex' => $userInfo['sex'],
                 'province' => $userInfo['province'],
                 'city' => $userInfo['city'],
