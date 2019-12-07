@@ -53,15 +53,16 @@ Class WalkController extends AbstractController {
                 }
                 break;
             case 'sign':
-                $sql = 'SELECT COUNT(*) 
-                        FROM t_gold
-                        WHERE gold_source = ?
-                        AND change_date = ?';
-                $isSignToday = $this->db->getOne($sql, "sign", $today);
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
+                $isSignToday = $this->db->getRow($sql, $userId, $today, $this->inputData['type']);
                 if ($isSignToday) {
                     return new ApiReturn('', 404, '今日已签到');
                 }
-                $isSignLastDay = $this->db->getOne($sql, "sign", date('Y-m-d', strtotime("-1 day")));
+                $isSignLastDay = $this->db->getOne($sql, $userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
+                
+                $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
+                $this->db->exec($sql, $userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
+                $historyId = $this->db->lastInsertId();
                 
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $userId);
@@ -85,6 +86,8 @@ Class WalkController extends AbstractController {
                         'type' => 'in'));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
+                    $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
+                    $this->db->exec($sql, $historyId);
 //                    $walkReward->receiveSuccess($this->inputData['id']);
                     return new ApiReturn(array('awardGold' => $signGold));
                 }
