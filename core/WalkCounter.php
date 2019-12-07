@@ -14,7 +14,6 @@ class walkCounter extends AbstractModel
         3000 => 30,
         5000 => 50,
         10000 => 80);
-    protected $stageFormat;
     protected $userId;
     protected $stepCount;
     protected $todayDate;
@@ -27,16 +26,14 @@ class walkCounter extends AbstractModel
         $this->userId = $userId;
         $this->stepCount = $stepCount;
         $this->todayDate = date('Y-m-d');
+        $this->setStageReward();
         if($this->stepCount) {
             $this->calculationReward();
         }
-        $stageReward = array();
-        array_walk($this->stageReward, function($v, $key) use (&$stageReward) {$stageReward['step' . $key] =$v;});
-        $this->stageFormat = $stageReward;
     }
     
     public function unreceivedList () {
-        return array('awardCoins1' => $this->__walkList(), 'awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
+        return array('awardCoins1' => $this->__walkList(), 'awardCoins2' => $this->__walkStageList());
     }
     
     public function getReturnInfo ($type) {
@@ -52,7 +49,7 @@ class walkCounter extends AbstractModel
                 return $this->db->getRow($sql, $this->userId, $this->todayDate);
                 break;
             case 'walk_stage':
-                return array('awardCoins2' => $this->__walkStageList(), 'stageReward' => $this->stageFormat);
+                return array('awardCoins2' => $this->__walkStageList());
                 break;
         }
     }
@@ -82,11 +79,14 @@ class walkCounter extends AbstractModel
         
     
     protected function calculationReward() {
-        $sql = 'REPLACE INTO t_walk SET
-                user_id = :user_id,
-                total_walk = :total_walk,
-                walk_date = :walk_date';
-        $this->db->exec($sql, array('user_id' => $this->userId, 'total_walk' => $this->stepCount, 'walk_date' => $this->todayDate));
+        $sql = 'SELECT total_walk, walk_id FROM t_wlak WHERE user_id = :user_id, walk_date = :walk_date';
+        $walkInfo = $this->db->getRow($sql, array('user_id' => $this->userId, 'walk_date' => $this->todayDate));
+        if ($this->stepCount < $walkInfo['total_walk']) {
+            return FALSE;
+        } else {
+            $sql = 'UPDATE t_walk SET total_walk = ? WHERE walk_id = ?';
+            $this->db->exec($sql, $this->stepCount, $walkInfo['walk_id']);
+        }
         
         //插入步数奖励待领取
         $sql = 'SELECT SUM(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
@@ -137,7 +137,20 @@ class walkCounter extends AbstractModel
     }
     
     protected function __walkStageList () {
-        $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
-        return $this->db->getAll($sql, $this->userId, $this->todayDate);
+        $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_walk, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
+        $awradList = $this->db->getAll($sql, $this->userId, $this->todayDate);
+        $i = 0;
+        $walkList = array();
+        foreach ($this->stageReward as $walk => $award) {
+            $awardInfo = $awradList[0] ?? array();
+            $walkList[] = array_merge($awardInfo, array('stageWalk' => $walk, 'stageAward' => $award));
+            $i++;
+        }
+        return $walkList;
+    }
+    
+    protected function setStageReward () {
+        $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
+        $this->stageReward = $this->db->getColumn($sql, 'walk_stage');
     }
 }

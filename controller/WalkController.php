@@ -3,8 +3,7 @@
 Class WalkController extends AbstractController {
     
     public function awardAction () {
-        $token = $_SERVER['HTTP_ACCESSTOKEN'];
-        $userId = $this->model->user->verifyToken($token);
+        $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
         }
@@ -19,19 +18,15 @@ Class WalkController extends AbstractController {
     }
     
     public function getAwardAction () {
-        $token = $_SERVER['HTTP_ACCESSTOKEN'];
-        $userId = $this->model->user->verifyToken($token);
+        $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
-        }
-        if (!isset($this->inputData['type'])) {
-            return new ApiReturn('', 402, '无效领取');
         }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($userId);
+                $walkReward = new WalkCounter($userId, $this->inputData['stepCount'] ?? 0);
                 $receiveInfo = $walkReward->verifyReceive(array(
                    'receive_id' => $this->inputData['id'] ?? 0,
                    'receive_gold' => $this->inputData['num'] ?? 0,
@@ -95,35 +90,51 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
                 $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
                 
-                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_status = 0 ORDER BY history_id DESC LIMIT 1';
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? ORDER BY history_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $userId, $today);
+                
                 if ($historyInfo) {
-                    if ($activityInfo['activity_duration']) {
-                        if (!$historyInfo['end_date'] || strtotim($historyInfo['end_date']) > time()) {
-                            return new ApiReturn('', 402, '无效领取');
+                    //非第一次领取
+                    if (1 == $historyInfo['history_status']) {
+                        return new ApiReturn('', 402, '无效领取');
+                    } else {
+                        //领取时间未到
+                        if ($activityInfo['activity_duration']) {
+                            if (!$historyInfo['end_date'] || strtotim($historyInfo['end_date']) > time()) {
+                                return new ApiReturn('', 402, '无效领取');
+                            }
                         }
                     }
-                    $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                    
-                    $updateStatus = $this->model->user->updateGold(array(
-                            'user_id' => $userId,
-                            'gold' => $activityAwardGold,
-                            'source' => $this->inputData['type'],
-                            'type' => 'in'));
-                    //奖励金币成功
-                    if (200 == $updateStatus->code) {
+                }
+                $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                $updateStatus = $this->model->user->updateGold(array(
+                        'user_id' => $userId,
+                        'gold' => $activityAwardGold,
+                        'source' => $this->inputData['type'],
+                        'type' => 'in'));
+                //奖励金币成功
+                if (200 == $updateStatus->code) {
+                    if ($historyInfo) {
                         $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
                         $this->db->exec($sql, $historyInfo['history_id']);
-                        return new ApiReturn('');
+                    } else {
+                        $sql = 'INSERT INTO t_activity_history SET history_status = 1, user_id = ?, history_date = ?';
+                        $this->db->exec($sql, $userId, $today);
                     }
-                    return $updateStatus;
+                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ?, history_date = ?';
+                    $activityCount = $this->db->getOne($sql, $userId, $today);
+                    if ($activityCount < $activityInfo['activity_max']) {
+                        $endDate = strtotime();
+                        $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, end_date = ?';
+                        $this->db->exec($sql, $userId, $today);
+                    }
+                    return new ApiReturn('');
+                }
+                return $updateStatus;
 //                    if ($activityInfo['activity_max']) {
 //
 //                    }
 //                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE history_type = ? AND ';
-                } else {
-                    return new ApiReturn('', 402, '无效领取');
-                }
                 break;
             default :
                 return new ApiReturn('', 402, '无效领取');

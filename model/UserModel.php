@@ -88,7 +88,8 @@ class UserModel extends AbstractModel {
         return new ApiReturn('');
     }
     
-    public function verifyToken($token) {
+    public function verifyToken() {
+        $token = $_SERVER['HTTP_ACCESSTOKEN'] ?? '';
         if ($token) {
             $sql = 'SELECT user_id FROM t_user WHERE access_token = ?';
             $userId = $this->db->getOne($sql, $token);
