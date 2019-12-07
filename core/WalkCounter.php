@@ -55,14 +55,14 @@ class walkCounter extends AbstractModel
     }
     
     public function verifyReceive ($data) {
-        $sql = 'SELECT COUNT(receive_id) 
+        $sql = 'SELECT receive_id, receive_status
                 FROM t_gold2receive
                 WHERE receive_id =:receive_id
                 AND user_id = :user_id
                 AND receive_gold = :receive_gold
                 AND receive_type = :receive_type
                 AND receive_date = :receive_date';
-        return $this->db->getOne($sql, array(
+        return $this->db->getRow($sql, array(
            'receive_id' => $data['receive_id'],
            'user_id' => $this->userId,
            'receive_gold' => $data['receive_gold'],
