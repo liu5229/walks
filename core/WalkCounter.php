@@ -151,6 +151,6 @@ class walkCounter extends AbstractModel
     
     protected function setStageReward () {
         $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
-        $this->stageReward = $this->db->getColumn($sql, 'walk_stage');
+        $this->stageReward = $this->db->getPairs($sql, 'walk_stage');
     }
 }
