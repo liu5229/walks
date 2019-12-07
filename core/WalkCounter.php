@@ -79,7 +79,7 @@ class walkCounter extends AbstractModel
         
     
     protected function calculationReward() {
-        $sql = 'SELECT total_walk, walk_id FROM t_wlak WHERE user_id = :user_id, walk_date = :walk_date';
+        $sql = 'SELECT total_walk, walk_id FROM t_wlak WHERE user_id = :user_id AND walk_date = :walk_date';
         $walkInfo = $this->db->getRow($sql, array('user_id' => $this->userId, 'walk_date' => $this->todayDate));
         if ($this->stepCount < $walkInfo['total_walk']) {
             return FALSE;
