@@ -132,7 +132,7 @@ Class WalkController extends AbstractController {
                     $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ?';
                     $activityCount = $this->db->getOne($sql, $userId, $today, $this->inputData['type']);
                     if ($activityCount < $activityInfo['activity_max']) {
-                        $endDate = date('Y-m-d', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
+                        $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                         $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
                         $this->db->exec($sql, $userId, $today, $this->inputData['type'], $endDate);
                     }
