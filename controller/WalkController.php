@@ -111,8 +111,8 @@ Class WalkController extends AbstractController {
                     }
                 }
                 if (!$historyInfo) {
-                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?';
-                    $this->db->exec($sql, $userId, $today, $this->inputData['type']);
+                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
+                    $this->db->exec($sql, $userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
                 }
                 $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                 $updateStatus = $this->model->user->updateGold(array(
@@ -129,8 +129,8 @@ Class WalkController extends AbstractController {
                     $activityCount = $this->db->getOne($sql, $userId, $today, $this->inputData['type']);
                     if ($activityCount < $activityInfo['activity_max']) {
                         $endDate = date('Y-m-d', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                        $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, end_date = ?';
-                        $this->db->exec($sql, $userId, $today, $endDate);
+                        $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
+                        $this->db->exec($sql, $userId, $today, $this->inputData['type'], $endDate);
                     }
                     return new ApiReturn(array('awardGold' => $activityAwardGold));
                 }
