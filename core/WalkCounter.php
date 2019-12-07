@@ -46,10 +46,10 @@ class walkCounter extends AbstractModel
                     AND receive_type = "walk" 
                     AND receive_status = 0 
                     ORDER BY receive_id LIMIT 5';
-                return $this->db->getRow($sql, $this->userId, $this->todayDate);
+                return $this->db->getAll($sql, $this->userId, $this->todayDate);
                 break;
             case 'walk_stage':
-                return array('awardCoins2' => $this->__walkStageList());
+                return $this->__walkStageList();
                 break;
         }
     }
@@ -61,8 +61,7 @@ class walkCounter extends AbstractModel
                 AND user_id = :user_id
                 AND receive_gold = :receive_gold
                 AND receive_type = :receive_type
-                AND receive_date = :receive_date
-                AND receive_status = 0';
+                AND receive_date = :receive_date';
         return $this->db->getOne($sql, array(
            'receive_id' => $data['receive_id'],
            'user_id' => $this->userId,

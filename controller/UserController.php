@@ -12,6 +12,10 @@ Class UserController extends AbstractController {
     }
     
     public function sendSmsCodeAction () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
         }
@@ -23,6 +27,10 @@ Class UserController extends AbstractController {
     }
     
     public function buildPhoneAction () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
         }

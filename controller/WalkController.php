@@ -33,17 +33,21 @@ Class WalkController extends AbstractController {
                    'receive_type' => $this->inputData['type'] ?? '',
                 ));
                 if ($receiveInfo) {
-                    $updateStatus = $this->model->user->updateGold(array(
-                        'user_id' => $userId,
-                        'gold' => $this->inputData['num'],
-                        'source' => $this->inputData['type'],
-                        'type' => 'in',
-                        'relation_id' => $this->inputData['id']));
-                    if (200 == $updateStatus->code) {
-                        $walkReward->receiveSuccess($this->inputData['id']);
-                        return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
+                    if (1 == $receiveInfo['receive_status']) {
+                        return new ApiReturn('', 403, '重复领取');
+                    } else {
+                        $updateStatus = $this->model->user->updateGold(array(
+                            'user_id' => $userId,
+                            'gold' => $this->inputData['num'],
+                            'source' => $this->inputData['type'],
+                            'type' => 'in',
+                            'relation_id' => $this->inputData['id']));
+                        if (200 == $updateStatus->code) {
+                            $walkReward->receiveSuccess($this->inputData['id']);
+                            return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
+                        }
+                        return $updateStatus;
                     }
-                    return $updateStatus;
                 } else {
                     return new ApiReturn('', 402, '无效领取');
                 }
@@ -55,7 +59,7 @@ Class WalkController extends AbstractController {
                         AND change_date = ?';
                 $isSignToday = $this->db->getOne($sql, "sign", $today);
                 if ($isSignToday) {
-                    return new ApiReturn('', 403, '今日已签到');
+                    return new ApiReturn('', 404, '今日已签到');
                 }
                 $isSignLastDay = $this->db->getOne($sql, "sign", date('Y-m-d', strtotime("-1 day")));
                 
@@ -82,7 +86,7 @@ Class WalkController extends AbstractController {
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
 //                    $walkReward->receiveSuccess($this->inputData['id']);
-                    return new ApiReturn('');
+                    return new ApiReturn(array('awardGold' => $signGold));
                 }
                 return $updateStatus;
                 break;
@@ -90,8 +94,8 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
                 $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
                 
-                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? ORDER BY history_id DESC LIMIT 1';
-                $historyInfo = $this->db->getRow($sql, $userId, $today);
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
+                $historyInfo = $this->db->getRow($sql, $userId, $today, $this->inputData['type']);
                 
                 if ($historyInfo) {
                     //非第一次领取
@@ -106,6 +110,10 @@ Class WalkController extends AbstractController {
                         }
                     }
                 }
+                if (!$historyInfo) {
+                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?';
+                    $this->db->exec($sql, $userId, $today, $this->inputData['type']);
+                }
                 $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                 $updateStatus = $this->model->user->updateGold(array(
                         'user_id' => $userId,
@@ -114,21 +122,17 @@ Class WalkController extends AbstractController {
                         'type' => 'in'));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
-                    if ($historyInfo) {
-                        $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
-                        $this->db->exec($sql, $historyInfo['history_id']);
-                    } else {
-                        $sql = 'INSERT INTO t_activity_history SET history_status = 1, user_id = ?, history_date = ?';
-                        $this->db->exec($sql, $userId, $today);
-                    }
-                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ?, history_date = ?';
-                    $activityCount = $this->db->getOne($sql, $userId, $today);
+                    $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
+                    $this->db->exec($sql, $historyInfo['history_id']);
+                    
+                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ?';
+                    $activityCount = $this->db->getOne($sql, $userId, $today, $this->inputData['type']);
                     if ($activityCount < $activityInfo['activity_max']) {
-                        $endDate = strtotime();
+                        $endDate = date('Y-m-d', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                         $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, end_date = ?';
-                        $this->db->exec($sql, $userId, $today);
+                        $this->db->exec($sql, $userId, $today, $endDate);
                     }
-                    return new ApiReturn('');
+                    return new ApiReturn(array('awardGold' => $activityAwardGold));
                 }
                 return $updateStatus;
 //                    if ($activityInfo['activity_max']) {
