@@ -100,12 +100,12 @@ Class WalkController extends AbstractController {
                 if ($historyInfo) {
                     //非第一次领取
                     if (1 == $historyInfo['history_status']) {
-                        return new ApiReturn('', 402, '无效领取');
+                        return new ApiReturn('', 403, '重复领取');
                     } else {
                         //领取时间未到
                         if ($activityInfo['activity_duration']) {
-                            if (!$historyInfo['end_date'] || strtotim($historyInfo['end_date']) > time()) {
-                                return new ApiReturn('', 402, '无效领取');
+                            if (!$historyInfo['end_date'] || strtotime($historyInfo['end_date']) > time()) {
+                                return new ApiReturn('', 405, '领取时间未到');
                             }
                         }
                     }
