@@ -83,7 +83,8 @@ Class WalkController extends AbstractController {
                         'user_id' => $userId,
                         'gold' => $signGold,
                         'source' => $this->inputData['type'],
-                        'type' => 'in'));
+                        'type' => 'in',
+                        'relation_id' => $historyId));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
                     $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
@@ -126,7 +127,8 @@ Class WalkController extends AbstractController {
                         'user_id' => $userId,
                         'gold' => $activityAwardGold,
                         'source' => $this->inputData['type'],
-                        'type' => 'in'));
+                        'type' => 'in',
+                        'relation_id' => $historyId));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
                     $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
