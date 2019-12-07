@@ -142,7 +142,7 @@ class walkCounter extends AbstractModel
         $i = 0;
         $walkList = array();
         foreach ($this->stageReward as $walk => $award) {
-            $awardInfo = $awradList[0] ?? array();
+            $awardInfo = $awradList[$i] ?? array();
             $walkList[] = array_merge($awardInfo, array('stageWalk' => $walk, 'stageAward' => $award));
             $i++;
         }
