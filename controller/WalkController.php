@@ -113,7 +113,11 @@ Class WalkController extends AbstractController {
                 if (!$historyInfo) {
                     $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
                     $this->db->exec($sql, $userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
+                    $historyId = $this->db->lastInsertId();
+                } else {
+                    $historyId = $historyInfo['history_id'];
                 }
+                
                 $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                 $updateStatus = $this->model->user->updateGold(array(
                         'user_id' => $userId,
@@ -123,7 +127,7 @@ Class WalkController extends AbstractController {
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
                     $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
-                    $this->db->exec($sql, $historyInfo['history_id']);
+                    $this->db->exec($sql, $historyId);
                     
                     $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ?';
                     $activityCount = $this->db->getOne($sql, $userId, $today, $this->inputData['type']);
