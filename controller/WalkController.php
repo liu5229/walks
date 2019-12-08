@@ -1,7 +1,10 @@
 <?php 
 
 Class WalkController extends AbstractController {
-    
+    //提现汇率
+    protected $withdrawalRate = 10000;
+
+
     public function awardAction () {
         $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -153,5 +156,54 @@ Class WalkController extends AbstractController {
                 return new ApiReturn('', 402, '无效领取');
         }
         
+    }
+    
+    public function requestWithdrawal () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (isset($this->inputData['amount']) && $this->inputData['amount']) {
+            $withdrawalAmount = $this->inputData['amount'];
+            $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
+            //获取当前用户可用金币
+            $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ?';
+            $totalGold = $this->db->getOne($sql, $userId);
+            $sql = 'SELECT SUM(withdraw_gold) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "pending"';
+            $bolckedGold = $this->db->getOne($sql, $userId);
+            $currentGold = $totalGold - $bolckedGold;
+            
+            if ($withdrawalGold > $currentGold) {
+                return new ApiReturn('', 502, '提现所需金币不足');
+            }
+            //是否绑定支付宝
+            $sql = 'SELECT alipay_account, alipay_name FROM t_user WHERE user_id = ?';
+            $alipayInfo = $this->db->getRow($sql, $userId);
+            if (isset($alipayInfo['alipay_account']) && $alipayInfo['alipay_account'] && isset($alipayInfo['alipay_name']) && $alipayInfo['alipay_name']) {
+                //1元提现只能一次 to do
+                if (1 == $withdrawalAmount) {
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $userId)) {
+                        return new ApiReturn('', 503, '1元提现只支持一次');
+                    }
+                }
+                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
+                        withdraw_amount = :withdraw_amount, 
+                        withdraw_gold = :withdraw_gold, 
+                        withdraw_status = "pending", 
+                        alipay_account = :alipay_account, 
+                        alipay_name = :alipay_name';
+                $this->db->exec($sql, array('user_id' => $userId,
+                    'withdraw_amount' => $withdrawalAmount,
+                    'withdraw_gold' => $withdrawalGold, 
+                    'alipay_account' => $alipayInfo['alipay_account'],
+                    'alipay_name' => $alipayInfo['alipay_name']));
+                return new ApiReturn('');
+            } else {
+                return new ApiReturn('', 504, '未绑定支付宝账号');
+            }
+        } else {
+            return new ApiReturn('', 501, '缺少提现金额');
+        }
     }
 }
