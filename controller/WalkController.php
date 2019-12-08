@@ -158,7 +158,7 @@ Class WalkController extends AbstractController {
         
     }
     
-    public function requestWithdrawal () {
+    public function requestWithdrawalAction () {
         $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
