@@ -3,6 +3,7 @@
 Class WalkController extends AbstractController {
     //提现汇率
     protected $withdrawalRate = 10000;
+    protected $userId = 0;
     
     public function __construct() {
         parent::__construct();
@@ -10,13 +11,14 @@ Class WalkController extends AbstractController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
+        $this->userId = $userId;
     }
     
     public function updateWalkAction () {
         if (!isset($this->inputData['stepCount'])) {
             return new ApiReturn('', 401, 'miss step count');
         }
-        $walkReward = new WalkCounter($userId, $this->inputData['stepCount']);
+        $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount']);
         return new ApiReturn(array('stepCount' => $walkReward->getStepCount()));
     }
 
@@ -27,7 +29,7 @@ Class WalkController extends AbstractController {
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($userId);
+                $walkReward = new WalkCounter($this->userId);
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
             case 'sign':
                 
@@ -38,30 +40,22 @@ Class WalkController extends AbstractController {
     }
 
     public function awardAction () {
-        $userId = $this->model->user->verifyToken();
-        if ($userId instanceof apiReturn) {
-            return $userId;
-        }
         if (!isset($this->inputData['stepCount'])) {
             return new ApiReturn('', 401, 'miss step count');
         }
 //        接口更新步数比已记录步数少 to do
-        $walkReward = new WalkCounter($userId, $this->inputData['stepCount']);
+        $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount']);
         
         $data = $walkReward->unreceivedList();
         return new ApiReturn($data);
     }
     
     public function getAwardAction () {
-        $userId = $this->model->user->verifyToken();
-        if ($userId instanceof apiReturn) {
-            return $userId;
-        }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($userId, $this->inputData['stepCount'] ?? 0);
+                $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount'] ?? 0);
                 $receiveInfo = $walkReward->verifyReceive(array(
                    'receive_id' => $this->inputData['id'] ?? 0,
                    'receive_gold' => $this->inputData['num'] ?? 0,
@@ -72,7 +66,7 @@ Class WalkController extends AbstractController {
                         return new ApiReturn('', 403, '重复领取');
                     } else {
                         $updateStatus = $this->model->user->updateGold(array(
-                            'user_id' => $userId,
+                            'user_id' => $this->userId,
                             'gold' => $this->inputData['num'],
                             'source' => $this->inputData['type'],
                             'type' => 'in',
@@ -89,22 +83,22 @@ Class WalkController extends AbstractController {
                 break;
             case 'sign':
                 $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
-                $isSignToday = $this->db->getRow($sql, $userId, $today, $this->inputData['type']);
+                $isSignToday = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
                 if ($isSignToday) {
                     return new ApiReturn('', 404, '今日已签到');
                 }
-                $isSignLastDay = $this->db->getOne($sql, $userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
+                $isSignLastDay = $this->db->getOne($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
                 
                 $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
-                $this->db->exec($sql, $userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
+                $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
                 $historyId = $this->db->lastInsertId();
                 
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
-                $checkInDays = $this->db->getOne($sql, $userId);
+                $checkInDays = $this->db->getOne($sql, $this->userId);
                 
                 $updateCheckInDays = $isSignLastDay ? ($checkInDays + 1) : 1;
                 $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
-                $this->db->exec($sql, $updateCheckInDays, $userId);
+                $this->db->exec($sql, $updateCheckInDays, $this->userId);
                 
                 //获取奖励金币范围
                 $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = :type AND counter_min <= :counter AND counter_max >= :counter';
@@ -115,7 +109,7 @@ Class WalkController extends AbstractController {
                 
                 //如果领取超过1000,签到情况怎么做？ to do
                 $updateStatus = $this->model->user->updateGold(array(
-                        'user_id' => $userId,
+                        'user_id' => $this->userId,
                         'gold' => $signGold,
                         'source' => $this->inputData['type'],
                         'type' => 'in',
@@ -134,7 +128,7 @@ Class WalkController extends AbstractController {
                 $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
                 
                 $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
-                $historyInfo = $this->db->getRow($sql, $userId, $today, $this->inputData['type']);
+                $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
                 
                 if ($historyInfo) {
                     //非第一次领取
@@ -151,7 +145,7 @@ Class WalkController extends AbstractController {
                 }
                 if (!$historyInfo) {
                     $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
-                    $this->db->exec($sql, $userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
+                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
                     $historyId = $this->db->lastInsertId();
                 } else {
                     $historyId = $historyInfo['history_id'];
@@ -159,7 +153,7 @@ Class WalkController extends AbstractController {
                 
                 $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                 $updateStatus = $this->model->user->updateGold(array(
-                        'user_id' => $userId,
+                        'user_id' => $this->userId,
                         'gold' => $activityAwardGold,
                         'source' => $this->inputData['type'],
                         'type' => 'in',
@@ -170,11 +164,11 @@ Class WalkController extends AbstractController {
                     $this->db->exec($sql, $historyId);
                     
                     $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ?';
-                    $activityCount = $this->db->getOne($sql, $userId, $today, $this->inputData['type']);
+                    $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                     if ($activityCount < $activityInfo['activity_max']) {
                         $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                         $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
-                        $this->db->exec($sql, $userId, $today, $this->inputData['type'], $endDate);
+                        $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate);
                     }
                     return new ApiReturn(array('awardGold' => $activityAwardGold));
                 }
@@ -191,18 +185,14 @@ Class WalkController extends AbstractController {
     }
     
     public function requestWithdrawalAction () {
-        $userId = $this->model->user->verifyToken();
-        if ($userId instanceof apiReturn) {
-            return $userId;
-        }
         if (isset($this->inputData['amount']) && $this->inputData['amount']) {
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
             //获取当前用户可用金币
             $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ?';
-            $totalGold = $this->db->getOne($sql, $userId);
+            $totalGold = $this->db->getOne($sql, $this->userId);
             $sql = 'SELECT SUM(withdraw_gold) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "pending"';
-            $bolckedGold = $this->db->getOne($sql, $userId);
+            $bolckedGold = $this->db->getOne($sql, $this->userId);
             $currentGold = $totalGold - $bolckedGold;
             
             if ($withdrawalGold > $currentGold) {
@@ -210,12 +200,12 @@ Class WalkController extends AbstractController {
             }
             //是否绑定支付宝
             $sql = 'SELECT alipay_account, alipay_name FROM t_user WHERE user_id = ?';
-            $alipayInfo = $this->db->getRow($sql, $userId);
+            $alipayInfo = $this->db->getRow($sql, $this->userId);
             if (isset($alipayInfo['alipay_account']) && $alipayInfo['alipay_account'] && isset($alipayInfo['alipay_name']) && $alipayInfo['alipay_name']) {
                 //1元提现只能一次 to do
                 if (1 == $withdrawalAmount) {
                     $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
-                    if ($this->db->getOne($sql, $userId)) {
+                    if ($this->db->getOne($sql, $this->userId)) {
                         return new ApiReturn('', 503, '1元提现只支持一次');
                     }
                 }
@@ -225,7 +215,7 @@ Class WalkController extends AbstractController {
                         withdraw_status = "pending", 
                         alipay_account = :alipay_account, 
                         alipay_name = :alipay_name';
-                $this->db->exec($sql, array('user_id' => $userId,
+                $this->db->exec($sql, array('user_id' => $this->userId,
                     'withdraw_amount' => $withdrawalAmount,
                     'withdraw_gold' => $withdrawalGold, 
                     'alipay_account' => $alipayInfo['alipay_account'],
