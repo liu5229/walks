@@ -12,7 +12,7 @@ Class WalkController extends AbstractController {
             return $userId;
         }
         $this->userId = $userId;
-        echo $this->userId;
+        var_dump( $this->userId);
     }
     
     public function updateWalkAction () {
