@@ -83,12 +83,17 @@ class walkCounter extends AbstractModel
     protected function calculationReward() {
         $sql = 'SELECT total_walk, walk_id FROM t_walk WHERE user_id = :user_id AND walk_date = :walk_date';
         $walkInfo = $this->db->getRow($sql, array('user_id' => $this->userId, 'walk_date' => $this->todayDate));
-        if ($this->stepCount < $walkInfo['total_walk']) {
-            $this->stepCount = $walkInfo['total_walk'];
-            return FALSE;
+        if ($walkInfo) {
+            if ($this->stepCount < $walkInfo['total_walk']) {
+                $this->stepCount = $walkInfo['total_walk'];
+                return FALSE;
+            } else {
+                $sql = 'UPDATE t_walk SET total_walk = ? WHERE walk_id = ?';
+                $this->db->exec($sql, $this->stepCount, $walkInfo['walk_id']);
+            }
         } else {
-            $sql = 'UPDATE t_walk SET total_walk = ? WHERE walk_id = ?';
-            $this->db->exec($sql, $this->stepCount, $walkInfo['walk_id']);
+            $sql = 'INSERT INTO t_walk SET total_walk = ?, user_id = ?, walk_date = ?';
+            $this->db->exec($sql, $this->stepCount, $this->userId, $this->todayDate);
         }
         
         //插入步数奖励待领取
