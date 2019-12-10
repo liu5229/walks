@@ -5,6 +5,7 @@ Class WalkController extends AbstractController {
     protected $withdrawalRate = 10000;
     
     public function __construct() {
+        parent::__construct();
         $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
