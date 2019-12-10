@@ -3,7 +3,38 @@
 Class WalkController extends AbstractController {
     //提现汇率
     protected $withdrawalRate = 10000;
+    
+    public function __construct() {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+    }
+    
+    public function updateWalkAction () {
+        if (!isset($this->inputData['stepCount'])) {
+            return new ApiReturn('', 401, 'miss step count');
+        }
+        $walkReward = new WalkCounter($userId, $this->inputData['stepCount']);
+        return new ApiReturn(array('stepCount' => $walkReward->getStepCount()));
+    }
 
+    public function taskAction() {
+        if (!isset($this->inputData['type'])) {
+            return new ApiReturn('', 406, '无效获取');
+        }
+        switch ($this->inputData['type']) {
+            case 'walk':
+            case 'walk_stage':
+                $walkReward = new WalkCounter($userId);
+                return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
+            case 'sign':
+                
+                break;
+            default :
+                return new ApiReturn('', 406, '无效获取');
+        }
+    }
 
     public function awardAction () {
         $userId = $this->model->user->verifyToken();

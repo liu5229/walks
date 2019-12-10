@@ -13,7 +13,7 @@ class ApiReturn {
     protected $data = array();
     protected $code = 200;
     
-    public function __construct ($data, $code = 200, $msg = '') {
+    public function __construct ($data = '', $code = 200, $msg = '') {
         $this->data = $data;
         $this->code = $code;
         $this->msg = $msg;

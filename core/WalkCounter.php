@@ -75,12 +75,16 @@ class walkCounter extends AbstractModel
         $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
         $this->db->exec($sql, $receiveId);
     }
-        
+    
+    public function getStepCount() {
+        return $this->stepCount;
+    }
     
     protected function calculationReward() {
         $sql = 'SELECT total_walk, walk_id FROM t_walk WHERE user_id = :user_id AND walk_date = :walk_date';
         $walkInfo = $this->db->getRow($sql, array('user_id' => $this->userId, 'walk_date' => $this->todayDate));
         if ($this->stepCount < $walkInfo['total_walk']) {
+            $this->stepCount = $walkInfo['total_walk'];
             return FALSE;
         } else {
             $sql = 'UPDATE t_walk SET total_walk = ? WHERE walk_id = ?';
