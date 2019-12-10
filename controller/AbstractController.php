@@ -17,6 +17,7 @@
     public function init()
     {
         $this->inputData = json_decode(file_get_contents("php://input"), TRUE);
+        return array();
     }
 
     public function __get($name) 
