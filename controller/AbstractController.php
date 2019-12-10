@@ -1,6 +1,6 @@
 <?php 
 
- Class AbstractController {
+ abstract class AbstractController {
     protected $temp = array();
     protected $mode = '';
     protected $inputData;
