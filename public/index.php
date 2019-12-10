@@ -12,6 +12,7 @@ try {
         $controllerName = preg_replace('/\s+/', '', ucwords(str_replace('-', ' ', $routerArr[0])));
         $fullControllerName = $controllerName . 'Controller';
         $controller = new $fullControllerName();
+        var_dump($controller);
         if (isset($routerArr[1]) && $routerArr[1]) {
             $actionName = preg_replace('/\s+/', '', ucwords(str_replace('-', ' ', $routerArr[1])));
             $fullActionName = $actionName . 'Action';
