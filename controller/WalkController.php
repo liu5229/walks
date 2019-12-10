@@ -3,7 +3,7 @@
 Class WalkController extends AbstractController {
     //提现汇率
     protected $withdrawalRate = 10000;
-    protected $userId = 0;
+    protected $userId;
     
     public function __construct() {
         parent::__construct();
@@ -12,6 +12,7 @@ Class WalkController extends AbstractController {
             return $userId;
         }
         $this->userId = $userId;
+        echo $this->userId;
     }
     
     public function updateWalkAction () {
