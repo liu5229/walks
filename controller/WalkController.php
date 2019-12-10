@@ -11,6 +11,7 @@ Class WalkController extends AbstractController {
         var_dump($userId);
         if ($userId instanceof apiReturn) {
             return $userId;
+            exit;
         }
         $this->userId = $userId;
     }
