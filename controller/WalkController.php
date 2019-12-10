@@ -6,13 +6,12 @@ Class WalkController extends AbstractController {
     protected $userId;
     
     public function __construct() {
+        parent::init();
         $userId = $this->model->user->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
         }
         $this->userId = $userId;
-        parent::__construct();
-        var_dump($userId);exit;
     }
     
     public function updateWalkAction () {
