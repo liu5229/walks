@@ -8,8 +8,8 @@ Class WalkController extends AbstractController {
     public function __construct() {
         parent::init();
         $userId = $this->model->user->verifyToken();
-        var_dump($userId);
         if ($userId instanceof apiReturn) {
+        var_dump($userId);
             return $userId;
             exit;
         }
