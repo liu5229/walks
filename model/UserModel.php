@@ -73,7 +73,7 @@ class UserModel extends AbstractModel {
             $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ? AND change_type = "in" AND change_date = ?';
             $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
             if ($goldToday > $this->maxGoldEveryDay) {
-                return new ApiReturn('', 202, '今日领取已达上限');
+                return new ApiReturn('', 202, '今日金币领取已达上限');
             }
         }
         $sql = "INSERT INTO t_gold SET
@@ -103,7 +103,7 @@ class UserModel extends AbstractModel {
                 return $userId;
             }
         }
-        return new ApiReturn('', 201, 'Token lost or error');
+        return new ApiReturn('', 201, '无效token');
     }
     
     public function getGold ($userId) {

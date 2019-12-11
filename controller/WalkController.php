@@ -14,14 +14,24 @@ Class WalkController extends AbstractController {
         $this->userId = $userId;
     }
     
+    /**
+     * 401 无效更新
+     * @return \ApiReturn
+     * 
+     */
     public function updateWalkAction () {
         if (!isset($this->inputData['stepCount'])) {
-            return new ApiReturn('', 401, 'miss step count');
+            return new ApiReturn('', 401, '无效更新');
         }
         $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount']);
         return new ApiReturn(array('stepCount' => $walkReward->getStepCount()));
     }
 
+    /**
+     * 501 无效获取
+     * @return \ApiReturn
+     * 
+     */
     public function taskAction() {
         if (!isset($this->inputData['type'])) {
             return new ApiReturn('', 501, '无效获取');
@@ -68,14 +78,23 @@ Class WalkController extends AbstractController {
         }
     }
     
+    /**
+     * 402 无效领取
+     * 403 重复领取
+     * 404 今日已签到
+     * 405 领取时间未到
+     * 406 先获取任务信息
+     * @return \ApiReturn
+     * 
+     */
     public function getAwardAction () {
         if (!isset($this->inputData['type'])) {
-            return new ApiReturn('', 406, '无效领取');
+            return new ApiReturn('', 402, '无效领取');
         }
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
         if (!$activityInfo) {
-            return new ApiReturn('', 406, '无效领取');
+            return new ApiReturn('', 402, '无效领取');
         }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
@@ -153,7 +172,7 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
                 if (!$historyInfo) {
-                    return new ApiReturn('', 407, '先获取任务信息');
+                    return new ApiReturn('', 406, '先获取任务信息');
                 }
                 if ($historyInfo['history_status']) {
                     return new ApiReturn('', 403, '重复领取');

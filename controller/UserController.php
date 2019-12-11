@@ -2,12 +2,16 @@
 
 Class UserController extends AbstractController {
     
+    /**
+     * 301 无效设备号
+     * @return \ApiReturn
+     */
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
             $userInfo = $this->model->user->getUserInfo($this->inputData['deviceId']);
             return new ApiReturn($userInfo);
         } else {
-            return new ApiReturn('', 301, 'miss device id');
+            return new ApiReturn('', 301, '无效设备号');
         }
     }
     
