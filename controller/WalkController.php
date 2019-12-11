@@ -24,12 +24,12 @@ Class WalkController extends AbstractController {
 
     public function taskAction() {
         if (!isset($this->inputData['type'])) {
-            return new ApiReturn('', 406, '无效获取');
+            return new ApiReturn('', 501, '无效获取');
         }
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
         if (!$activityInfo) {
-            return new ApiReturn('', 406, '无效获取');
+            return new ApiReturn('', 501, '无效获取');
         }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
@@ -49,11 +49,10 @@ Class WalkController extends AbstractController {
                     //非第一次领取
                     $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? AND history_status = 1';
                     $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                    $return = array('receiveCount' => $receiveCount, 'endTime' => strtotime($historyInfo['end_date']) * 1000);
+                    $return = array('receiveCount' => $receiveCount, 'endTime' => strtotime($historyInfo['end_date']) * 1000, 'isReceive' => $historyInfo['history_status']);
                 } else {
                     $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
                     $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                    
                     if ($historyLastdayInfo && strtotim($historyLastdayInfo['end_date']) > time()) {
                         $endTime = $historyLastdayInfo['end_date'];
                     } else {
@@ -61,26 +60,23 @@ Class WalkController extends AbstractController {
                     }
                     $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
                     $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
-                    $return = array('receiveCount' => 0, 'endTime' => strtotime($endTime) * 1000);
+                    $return = array('receiveCount' => 0, 'endTime' => strtotime($endTime) * 1000, 'isReceive' => 0);
                 }
                 $return['serverTime'] = time() * 1000;
                 $return['countMax'] = $activityInfo['activity_max'];
                 return new ApiReturn($return);
         }
     }
-
-    public function awardAction () {
-        if (!isset($this->inputData['stepCount'])) {
-            return new ApiReturn('', 401, 'miss step count');
-        }
-//        接口更新步数比已记录步数少 to do
-        $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount']);
-        
-        $data = $walkReward->unreceivedList();
-        return new ApiReturn($data);
-    }
     
     public function getAwardAction () {
+        if (!isset($this->inputData['type'])) {
+            return new ApiReturn('', 406, '无效领取');
+        }
+        $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
+        $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
+        if (!$activityInfo) {
+            return new ApiReturn('', 406, '无效领取');
+        }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
@@ -153,49 +149,34 @@ Class WalkController extends AbstractController {
                 }
                 return $updateStatus;
                 break;
-            case 'limit':
-                $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
-                $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
-                
+            default :
                 $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                
-                if ($historyInfo) {
-                    //非第一次领取
-                    if (1 == $historyInfo['history_status']) {
-                        return new ApiReturn('', 403, '重复领取');
-                    } else {
-                        //领取时间未到
-                        if ($activityInfo['activity_duration']) {
-                            if (!$historyInfo['end_date'] || strtotime($historyInfo['end_date']) > time()) {
-                                return new ApiReturn('', 405, '领取时间未到');
-                            }
-                        }
-                    }
-                }
                 if (!$historyInfo) {
-                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
-                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
-                    $historyId = $this->db->lastInsertId();
-                } else {
-                    $historyId = $historyInfo['history_id'];
+                    return new ApiReturn('', 407, '先获取任务信息');
                 }
-                
+                if ($historyInfo['history_status']) {
+                    return new ApiReturn('', 403, '重复领取');
+                }
+                if (strtotime($historyInfo['end_date']) > time()) {
+                    return new ApiReturn('', 405, '领取时间未到');
+                }
                 $activityAwardGold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                 $updateStatus = $this->model->user->updateGold(array(
                         'user_id' => $this->userId,
                         'gold' => $activityAwardGold,
                         'source' => $this->inputData['type'],
                         'type' => 'in',
-                        'relation_id' => $historyId));
+                        'relation_id' => $historyInfo['history_id']));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
                     $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
-                    $this->db->exec($sql, $historyId);
+                    $this->db->exec($sql, $historyInfo['history_id']);
                     
                     $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ?';
                     $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                    if ($activityCount < $activityInfo['activity_max']) {
+                    
+                    if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
                         $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                         $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
                         $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate);
@@ -203,15 +184,8 @@ Class WalkController extends AbstractController {
                     return new ApiReturn(array('awardGold' => $activityAwardGold));
                 }
                 return $updateStatus;
-//                    if ($activityInfo['activity_max']) {
-//
-//                    }
-//                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE history_type = ? AND ';
                 break;
-            default :
-                return new ApiReturn('', 402, '无效领取');
         }
-        
     }
     
     public function requestWithdrawalAction () {
