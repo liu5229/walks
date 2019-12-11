@@ -118,7 +118,7 @@ Class WalkController extends AbstractController {
                             'relation_id' => $this->inputData['id']));
                         if (200 == $updateStatus->code) {
                             $walkReward->receiveSuccess($this->inputData['id']);
-                            return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
+                            return new ApiReturn(array('awardGold' => $this->inputData['num']));
                         }
                         return $updateStatus;
                     }
