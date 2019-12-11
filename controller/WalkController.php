@@ -26,16 +26,46 @@ Class WalkController extends AbstractController {
         if (!isset($this->inputData['type'])) {
             return new ApiReturn('', 406, '无效获取');
         }
+        $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
+        $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
+        if (!$activityInfo) {
+            return new ApiReturn('', 406, '无效获取');
+        }
+        $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
                 $walkReward = new WalkCounter($this->userId);
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
+                break;
             case 'sign':
                 
                 break;
             default :
-                return new ApiReturn('', 406, '无效获取');
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
+                $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
+                $return = array();
+                if ($historyInfo) {
+                    //非第一次领取
+                    $sql = 'SELECT COUNT(*) FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? AND history_status = 1';
+                    $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
+                    $return = array('receiveCount' => $receiveCount, 'endTime' => strtotime($historyInfo['end_date']) * 1000);
+                } else {
+                    $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
+                    $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
+                    
+                    if ($historyLastdayInfo && strtotim($historyLastdayInfo['end_date']) > time()) {
+                        $endTime = $historyLastdayInfo['end_date'];
+                    } else {
+                        $endTime = date('Y-m-d H:i:s');
+                    }
+                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
+                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
+                    $return = array('receiveCount' => 0, 'endTime' => strtotime($endTime) * 1000);
+                }
+                $return['serverTime'] = time() * 1000;
+                $return['countMax'] = $activityInfo['activity_max'];
+                return new ApiReturn($return);
         }
     }
 
