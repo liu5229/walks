@@ -63,7 +63,7 @@ Class WalkController extends AbstractController {
                 } else {
                     $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
                     $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                    if ($historyLastdayInfo && strtotim($historyLastdayInfo['end_date']) > time()) {
+                    if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_date']) > time()) {
                         $endTime = $historyLastdayInfo['end_date'];
                     } else {
                         $endTime = date('Y-m-d H:i:s');
