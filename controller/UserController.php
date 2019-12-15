@@ -63,6 +63,6 @@ Class UserController extends AbstractController {
             return new ApiReturn('', 305, '没有广告位置');
         }
         $sql = 'SELECT advertise_type type, CONCAT(?, ?, advertise_image) img, advertise_url url FROM t_advertise WHERE advertise_location = ? AND advertise_status = 1 ORDER BY advertise_id DESC LIMIT ?';
-        return new ApiReturn($this->db->getAll($sql, HOST_NAME, IMG_DIR, $this->inputData['location']));
+        return new ApiReturn($this->db->getAll($sql, HOST_NAME, IMG_DIR, $this->inputData['location'], $adCount[$this->inputData['location']]));
     }
 }
