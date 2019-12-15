@@ -1,11 +1,13 @@
 <?php
 
 define('ROOT_DIR', dirname(__DIR__)  . '/');
-define('CONFIG_DIR', ROOT_DIR  . '/config/');
-define('CORE_DIR', ROOT_DIR  . '/core/');
-define('CONTROLLER_DIR', ROOT_DIR  . '/controller/');
-define('MODEL_DIR', ROOT_DIR  . '/model/');
-define('UPLOAD_DIR', ROOT_DIR  . '/upload/');
+define('PUBLIC_DIR', '/');
+define('CONFIG_DIR', ROOT_DIR  . 'config/');
+define('CORE_DIR', ROOT_DIR  . 'core/');
+define('CONTROLLER_DIR', ROOT_DIR  . 'controller/');
+define('MODEL_DIR', ROOT_DIR  . 'model/');
+define('UPLOAD_DIR', PUBLIC_DIR  . 'upload/');
+define('APP_DIR', UPLOAD_DIR  . 'app/');
 
 /**
  * load the private configure
@@ -13,6 +15,8 @@ define('UPLOAD_DIR', ROOT_DIR  . '/upload/');
 if (file_exists(CONFIG_DIR . 'config.private.php')) {
     include CONFIG_DIR . "config.private.php";
 }
+
+define('HOST_NAME') && define('HOST_NAME', '127.0.0.1/');
 
 !defined('DB_HOST') && define('DB_HOST', '192.168.0.25');
 !defined('DB_PORT') && define('DB_PORT', 3306);

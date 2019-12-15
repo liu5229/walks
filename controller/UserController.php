@@ -52,7 +52,7 @@ Class UserController extends AbstractController {
             'versionCode' => $versionInfo['version_id'],
             'versionName' => $versionInfo['version_name'],
             'forceUpdate' => $versionInfo['is_force_update'],
-            'apkUrl' => UPLOAD_DIR . $versionInfo['version_url'],
+            'apkUrl' => HOST_NAME . APP_DIR . $versionInfo['version_url'],
             'updateLog' => $versionInfo['version_log'],
         ));
     }
