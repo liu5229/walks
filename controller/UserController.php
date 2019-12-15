@@ -56,4 +56,13 @@ Class UserController extends AbstractController {
             'updateLog' => $versionInfo['version_log'],
         ));
     }
+    
+    public function getAdAction() {
+        $adCount = array('index' => 3, 'user' => 2);
+        if (!isset($this->inputData['location']) && !in_array($this->inputData['location'], array_keys($adCount))) {
+            return new ApiReturn('', 305, '没有广告位置');
+        }
+        $sql = 'SELECT advertise_type type, CONCAT(?, ?, advertise_image) img, advertise_url url FROM t_advertise WHERE advertise_location = ? AND advertise_status = 1 ORDER BY advertise_id DESC LIMIT ?';
+        return new ApiReturn($this->db->getAll($sql, HOST_NAME, IMG_DIR, $this->inputData['location']));
+    }
 }

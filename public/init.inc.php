@@ -8,6 +8,7 @@ define('CONTROLLER_DIR', ROOT_DIR  . 'controller/');
 define('MODEL_DIR', ROOT_DIR  . 'model/');
 define('UPLOAD_DIR', ROOT_DIR  . 'upload/');
 define('APP_DIR', PUBLIC_DIR  . 'app/');
+define('IMG_DIR', PUBLIC_DIR  . 'img/');
 
 /**
  * load the private configure
