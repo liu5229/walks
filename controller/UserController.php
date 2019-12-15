@@ -46,7 +46,7 @@ Class UserController extends AbstractController {
     }
     
     public function getVersionAction () {
-        $sql = 'SELECT id versionCode, version_name versionName, FROM t_version ORDER BY version_id DESC LIMIT 1';
+        $sql = 'SELECT * FROM t_version ORDER BY version_id DESC LIMIT 1';
         $versionInfo = $this->db->getRow($sql);
         return new ApiReturn(array(
             'versionCode' => $versionInfo['version_id'],
