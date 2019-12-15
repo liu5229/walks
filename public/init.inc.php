@@ -5,6 +5,7 @@ define('CONFIG_DIR', ROOT_DIR  . '/config/');
 define('CORE_DIR', ROOT_DIR  . '/core/');
 define('CONTROLLER_DIR', ROOT_DIR  . '/controller/');
 define('MODEL_DIR', ROOT_DIR  . '/model/');
+define('UPLOAD_DIR', ROOT_DIR  . '/upload/');
 
 /**
  * load the private configure

@@ -45,4 +45,15 @@ Class UserController extends AbstractController {
         return new ApiReturn($userInfo);
     }
     
+    public function getVersionAction () {
+        $sql = 'SELECT id versionCode, version_name versionName, FROM t_version ORDER BY version_id DESC LIMIT 1';
+        $versionInfo = $this->db->getRow($sql);
+        return new ApiReturn(array(
+            'versionCode' => $versionInfo['version_id'],
+            'versionName' => $versionInfo['version_name'],
+            'forceUpdate' => $versionInfo['is_force_update'],
+            'apkUrl' => UPLOAD_DIR . $versionInfo['version_url'],
+            'updateLog' => $versionInfo['version_log'],
+        ));
+    }
 }
