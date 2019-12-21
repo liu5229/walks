@@ -268,7 +268,8 @@ Class WalkController extends AbstractController {
                     $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
                     $v['value'] = 0 - $v['value'];
                     break;
-            }        
+            }
+            $v['gTime'] = strtotime($v['gTime']) * 1000;
         });
         return new ApiReturn($goldDetail);    
     }
