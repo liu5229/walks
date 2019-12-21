@@ -49,7 +49,9 @@ Class WalkController extends AbstractController {
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
                 break;
             case 'sign':
-                
+                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
+                $isSignToday = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
+                return new ApiReturn(array('isSignToday' => $isSignToday ? 1 : 0));
                 break;
             default :
                 $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
