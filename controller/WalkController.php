@@ -258,7 +258,7 @@ Class WalkController extends AbstractController {
         $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? ORDER BY gold_id DESC';
         $goldDetail = $this->db->getAll($sql, $this->userId);
         $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
-        $activeTypeList = $this->db->getColumn($sql);
+        $activeTypeList = $this->db->getPairs($sql);
         array_walk($goldDetail, function (&$v) use($activeTypeList) {
             switch ($v['type']) {
                 case 'in':
