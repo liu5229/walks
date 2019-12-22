@@ -1,7 +1,7 @@
 <?php
 
 define('ROOT_DIR', dirname(__DIR__)  . '/');
-define('PUBLIC_DIR', '/');
+define('PUBLIC_DIR', ROOT_DIR . 'public/');
 define('CONFIG_DIR', ROOT_DIR  . 'config/');
 define('CORE_DIR', ROOT_DIR  . 'core/');
 define('CONTROLLER_DIR', ROOT_DIR  . 'controller/');

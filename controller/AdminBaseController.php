@@ -61,7 +61,8 @@ Class AdminBaseController extends AbstractController {
 //    ],
         return  array('list' => array(
 //            array( 'id' => 10063, 'resName' => '用户管理', 'resKey'=> 'list', 'resIcon'=> 'pgmb'),
-            array( 'id' => 2, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics')
+            array( 'id' => 2, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics'),
+            array( 'id' => 3, 'resName' => '版本管理', 'resKey'=> 'version', 'resIcon'=> 'moduleManage')
         ));
     }
     
@@ -101,5 +102,12 @@ Class AdminBaseController extends AbstractController {
     
     public function logoutAction() {
         return array();
+    }
+    
+    public function testAction() {
+        header('Access-Control-Allow-Headers:x-requested-with');
+        $uploadFile = $_FILES['file'];
+        $result = move_uploaded_file($uploadFile['tmp_name'], APP_DIR . $uploadFile['name']);
+        return array($_FILES);
     }
 }

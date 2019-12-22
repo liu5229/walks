@@ -10,14 +10,18 @@ Class AdminVersionController extends AbstractController {
             $list = $this->db->getAll($sql);
         }
         return array(
-            'totalCount' => $totalCount,
+            'totalCount' => (int) $totalCount,
             'list' => $list
         );
     }
     
     public function detailAction () {
-        if (isset($_POST['action']) && isset($_POST['id'])) {
-            if ($_POST['id']) {
+        if (isset($_POST['action']) && isset($_POST['version_id'])) {
+            $uploadApk = '';
+            if (isset($_POST['version_url']['file']['response']['data'][0]['file']['name'])) {
+                $uploadApk = $_POST['version_url']['file']['response']['data'][0]['file']['name'];
+            }
+            if ($_POST['version_id']) {
                 $sql = "UPDATE t_version SET
                         version_name = :version_name,
                         is_force_update = :is_force_update,
@@ -27,9 +31,9 @@ Class AdminVersionController extends AbstractController {
                 $return = $this->db->exec($sql, array(
                     'version_name' => $_POST['version_name'] ?? '', 
                     'is_force_update' => $_POST['is_force_update'] ?? 0, 
-                    'version_url' => $_POST['version_url'] ?? '', 
+                    'version_url' => $uploadApk, 
                     'version_log' => $_POST['version_log'] ?? '', 
-                    'version_id' => $_POST['id']));
+                    'version_id' => $_POST['version_id']));
             } else {
                 $sql = "INSERT INTO t_version SET
                         version_name = :version_name,
@@ -39,7 +43,7 @@ Class AdminVersionController extends AbstractController {
                 $return = $this->db->exec($sql, array(
                     'version_name' => $_POST['version_name'] ?? '', 
                     'is_force_update' => $_POST['is_force_update'] ?? 0, 
-                    'version_url' => $_POST['version_url'] ?? '', 
+                    'version_url' => $uploadApk, 
                     'version_log' => $_POST['version_log'] ?? ''));
             }
             if ($return) {

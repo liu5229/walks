@@ -10,7 +10,7 @@ Class AdminActivityController extends AbstractController {
             $list = $this->db->getAll($sql);
         }
         return array(
-            'totalCount' => $totalCount,
+            'totalCount' => (int) $totalCount,
             'list' => $list
         );
     }
