@@ -108,6 +108,7 @@ Class AdminBaseController extends AbstractController {
         header('Access-Control-Allow-Headers:x-requested-with');
         $uploadFile = $_FILES['file'];
         $result = move_uploaded_file($uploadFile['tmp_name'], APP_DIR . $uploadFile['name']);
+        var_dump($result);
         return array($_FILES);
     }
 }
