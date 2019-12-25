@@ -269,7 +269,8 @@ Class WalkController extends AbstractController {
                     $v['value'] = 0 - $v['value'];
                     break;
             }
-            $v['gTime'] = strtotime($v['gTime']) * 1000;
+            $tempTime = strtotime($v['gTime']) * 1000;
+            $v['gTime'] = $tempTime;
         });
         return new ApiReturn($goldDetail);    
     }
