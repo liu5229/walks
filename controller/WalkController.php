@@ -120,7 +120,8 @@ Class WalkController extends AbstractController {
                             'relation_id' => $this->inputData['id']));
                         if (200 == $updateStatus->code) {
                             $walkReward->receiveSuccess($this->inputData['id']);
-                            return new ApiReturn(array('awardGold' => $this->inputData['num']));
+                            $goldInfo = $this->model->user->getGold($this->userId);
+                            return new ApiReturn(array('awardGold' => $this->inputData['num'], 'currentGold' => $goldInfo['currentGold']));
                         }
                         return $updateStatus;
                     }
@@ -166,7 +167,8 @@ Class WalkController extends AbstractController {
                     $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
                     $this->db->exec($sql, $historyId);
 //                    $walkReward->receiveSuccess($this->inputData['id']);
-                    return new ApiReturn(array('awardGold' => $signGold));
+                    $goldInfo = $this->model->user->getGold($this->userId);
+                    return new ApiReturn(array('awardGold' => $signGold, 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
                 break;
@@ -202,7 +204,8 @@ Class WalkController extends AbstractController {
                         $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
                         $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate);
                     }
-                    return new ApiReturn(array('awardGold' => $activityAwardGold));
+                    $goldInfo = $this->model->user->getGold($this->userId);
+                    return new ApiReturn(array('awardGold' => $activityAwardGold, 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
                 break;
