@@ -26,12 +26,14 @@ Class AdminActivityController extends AbstractController {
                                 activity_name = :activity_name,
                                 activity_type = :activity_type,
                                 activity_max = :activity_max,
+                                activity_duration = :activity_duration,
                                 activity_desc = :activity_desc
                                 WHERE activity_id = :activity_id";
                         $return = $this->db->exec($sql, array('activity_award_min' => $_POST['activity_award_min'] ?? 0, 
                             'activity_award_max' => $_POST['activity_award_max'] ?? 0, 
                             'activity_name' => $_POST['activity_name'] ?? '', 
                             'activity_max' => $_POST['activity_max'] ?? '', 
+                            'activity_duration' => $_POST['activity_duration'] ?? '', 
                             'activity_type' => $_POST['activity_type'] ?? '', 
                             'activity_desc' => $_POST['activity_desc'] ?? '', 
                             'activity_id' => $_POST['id']));
@@ -49,12 +51,14 @@ Class AdminActivityController extends AbstractController {
                             activity_name = :activity_name,
                             activity_type = :activity_type,
                             activity_max = :activity_max,
+                            activity_duration = :activity_duration,
                             activity_desc = :activity_desc";
                     $return = $this->db->exec($sql, array('activity_award_min' => $_POST['activity_award_min'] ?? 0, 
                         'activity_award_max' => $_POST['activity_award_max'] ?? 0, 
                         'activity_type' => $_POST['activity_type'] ?? '', 
                         'activity_name' => $_POST['activity_name'] ?? '', 
                         'activity_max' => $_POST['activity_max'] ?? '', 
+                        'activity_duration' => $_POST['activity_duration'] ?? '', 
                         'activity_desc' => $_POST['activity_desc'] ?? ''));
                     if ($return) {
                         return array();
