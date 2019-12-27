@@ -15,7 +15,7 @@ class ApiReturn {
     
     public function __construct ($data = '', $code = 200, $msg = '') {
         if ($data == '') {
-            $data = array(' ');
+            $data = (object)array();
         }
         $this->data = $data;
         $this->code = $code;
