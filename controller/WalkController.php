@@ -59,13 +59,13 @@ Class WalkController extends AbstractController {
                 if (!$todayCount) {
                     $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                     $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                    if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_date']) > time()) {
-                        $endTime = $historyLastdayInfo['end_date'];
+                    if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_time']) > time()) {
+                        $endTime = $historyLastdayInfo['end_time'];
                     } else {
                         $endTime = date('Y-m-d H:i:s');
                     }
                     $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_date = ?, receive_gold = ?';
+                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
                     $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'), $gold);
                 }
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
@@ -75,7 +75,7 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
                 $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                 $return = array('receiveCount' => $receiveCount, 
-                    'endTime' => strtotime($historyInfo['end_date']) * 1000,
+                    'endTime' => strtotime($historyInfo['end_time']) * 1000,
                     'isReceive' => $historyInfo['history_status'],
                     'id' => $historyInfo['receive_id'],
                     'num' => $historyInfo['receive_gold'],
@@ -143,7 +143,7 @@ Class WalkController extends AbstractController {
                 }
                 $isSignLastDay = $this->db->getOne($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
                 
-                $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_date = ?';
+                $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_time = ?';
                 $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
                 $historyId = $this->db->lastInsertId();
                 
@@ -179,7 +179,7 @@ Class WalkController extends AbstractController {
                 return $updateStatus;
                 break;
             default :
-                $sql = 'SELECT receive_id, receive_status, receive_gold
+                $sql = 'SELECT receive_id, receive_status, receive_gold, end_time
                         FROM t_gold2receive
                         WHERE receive_id =:receive_id
                         AND user_id = :user_id
@@ -199,7 +199,7 @@ Class WalkController extends AbstractController {
                 if ($historyInfo['receive_status']) {
                     return new ApiReturn('', 403, '重复领取');
                 }
-                if (strtotime($historyInfo['end_date']) > time()) {
+                if (strtotime($historyInfo['end_time']) > time()) {
                     return new ApiReturn('', 405, '领取时间未到');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
@@ -220,7 +220,7 @@ Class WalkController extends AbstractController {
                     if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
                         $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                         $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_date = ?, receive_gold = ?';
+                        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
                         $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                     }
                     $goldInfo = $this->model->user->getGold($this->userId);
