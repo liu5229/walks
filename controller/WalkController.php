@@ -49,9 +49,42 @@ Class WalkController extends AbstractController {
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
                 break;
             case 'sign':
-                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
-                $isSignToday = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                return new ApiReturn(array('isSignToday' => $isSignToday ? 1 : 0));
+                $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
+                $checkInDays = $this->db->getOne($sql, $this->userId);
+                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
+                $todayInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
+                if(!$todayInfo) {
+                    $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1 ORDER BY receive_id DESC LIMIT 1';
+                    $isSignLastDay = $this->db->getOne($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
+                    if (!$isSignLastDay) {
+                        $checkInDays = 0;
+                        $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
+                        $this->db->exec($sql, 0, $this->userId);
+                    }
+                    //获取奖励金币范围
+                    $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = :type AND counter_min <= :counter AND counter_max >= :counter';
+                    $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => ($checkInDays % 7) ?? 7));
+                    
+                    $gold = rand($awardRow['award_min'], $awardRow['award_max']);;
+                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
+                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $gold);
+                }
+                $fromDate = $today;
+                if ($checkInDays) {
+                    $checkInDays -= ($todayInfo['receive_status'] ?? 0);
+                    $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
+                }
+                $sql = 'SELECT *, IF(receive_date=' . $today . ', 1, 0) isToday FROM t_gold2receive WHERE user_id = ? AND receive_date >= ? AND receive_type = ?';
+                $checkInInfo = $this->db->getAll($sql, $this->userId, $fromDate, $this->inputData['type']);
+                
+                $i = 0;
+                $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = "sign" ORDER BY config_id ASC';
+                $checkInConfigList = $this->db->getAll($sql);
+                $checkInReturn = array();
+                foreach ($checkInConfig as $config) {
+                    $checkInReturn[] = array_merge(array('day' => $config['counter_min'], 'award' => $config['counter_min']), $checkInInfo[$i] ?? array());
+                }
+                return new ApiReturn($checkInReturn);
                 break;
             default :
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
@@ -136,32 +169,31 @@ Class WalkController extends AbstractController {
                 }
                 break;
             case 'sign':
-                $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND history_date = ? AND history_type = ? ORDER BY history_id DESC LIMIT 1';
-                $isSignToday = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                if ($isSignToday) {
-                    return new ApiReturn('', 404, '今日已签到');
+                $sql = 'SELECT receive_id, receive_status, receive_gold, end_time
+                        FROM t_gold2receive
+                        WHERE receive_id =:receive_id
+                        AND user_id = :user_id
+                        AND receive_gold = :receive_gold
+                        AND receive_type = :receive_type
+                        AND receive_date = :receive_date';
+                $historyInfo = $this->db->getRow($sql, array(
+                   'receive_id' => $this->inputData['id'] ?? 0,
+                   'user_id' => $this->userId,
+                   'receive_gold' => $this->inputData['num'] ?? 0,
+                   'receive_type' => $this->inputData['type'] ?? '',
+                   'receive_date' => $today,
+                ));
+                if (!$historyInfo) {
+                    return new ApiReturn('', 402, '无效领取');
                 }
-                $isSignLastDay = $this->db->getOne($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                
-                $sql = 'INSERT INTO t_activity_history SET user_id = ?, history_date = ?, history_type = ?, end_time = ?';
-                $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'));
-                $historyId = $this->db->lastInsertId();
-                
-                $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
-                $checkInDays = $this->db->getOne($sql, $this->userId);
-                
-                $updateCheckInDays = $isSignLastDay ? ($checkInDays + 1) : 1;
-                $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
-                $this->db->exec($sql, $updateCheckInDays, $this->userId);
-                
-                //获取奖励金币范围
-                $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = :type AND counter_min <= :counter AND counter_max >= :counter';
-                $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => ($updateCheckInDays % 7) ?? 7));
-                
-                //生成奖励金币
-                $signGold = rand($awardRow['award_min'], $awardRow['award_max']);
-                
-                //如果领取超过1000,签到情况怎么做？ to do
+                if ($historyInfo['receive_status']) {
+                    if (!isset($this->inputData['secondDou']) || !$this->inputData['secondDou']) {
+                        return new ApiReturn('', 404, '今日已签到');
+                    }
+                } else {
+                    $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
+                    $this->db->exec($sql, $updateCheckInDays, $this->userId);
+                }
                 $updateStatus = $this->model->user->updateGold(array(
                         'user_id' => $this->userId,
                         'gold' => $signGold,
@@ -170,8 +202,8 @@ Class WalkController extends AbstractController {
                         'relation_id' => $historyId));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
-                    $sql = 'UPDATE t_activity_history SET history_status = 1 WHERE history_id = ?';
-                    $this->db->exec($sql, $historyId);
+                    $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
+                    $this->db->exec($sql, $this->inputData['secondDou'] ?? 0, $historyInfo['receive_id']);
 //                    $walkReward->receiveSuccess($this->inputData['id']);
                     $goldInfo = $this->model->user->getGold($this->userId);
                     return new ApiReturn(array('awardGold' => $signGold, 'currentGold' => $goldInfo['currentGold']));

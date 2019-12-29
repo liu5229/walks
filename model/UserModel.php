@@ -69,13 +69,13 @@ class UserModel extends AbstractModel {
     
     public function updateGold($params = array()) {
         $todayDate = date('Y-m-d');
-        if ('in' == $params['type']) {
-            $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ? AND change_type = "in" AND change_date = ?';
-            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
-            if ($goldToday > $this->maxGoldEveryDay) {
-                return new ApiReturn('', 202, '今日金币领取已达上限');
-            }
-        }
+//        if ('in' == $params['type']) {
+//            $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ? AND change_type = "in" AND change_date = ?';
+//            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
+//            if ($goldToday > $this->maxGoldEveryDay) {
+//                return new ApiReturn('', 202, '今日金币领取已达上限');
+//            }
+//        }
         $sql = "INSERT INTO t_gold SET
                 user_id = :user_id,
                 change_gold = :change_gold,
