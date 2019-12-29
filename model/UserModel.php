@@ -38,9 +38,14 @@ class UserModel extends AbstractModel {
                  device_id = ?,
                  nickname = ?,
                  app_name = "walk"';
-            $nickName = '游客' . substr($userInfo['device_id'], -2) . date('Ymd');//游客+设备号后2位+用户激活日期
+            $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
             $this->db->exec($sql, $deviceId, $nickName);
             $userId = $this->db->lastInsertId();
+            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "newer"';
+            $this->updateGold(array('user_id' => $userId,
+                'gold' => $this->db->getOne($sql),
+                'source' => 'newer',
+                'type' => 'in'));
             $accessToken = md5($userId . time());
             $sql = 'UPDATE t_user SET
                     access_token = ?

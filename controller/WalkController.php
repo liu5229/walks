@@ -48,6 +48,13 @@ Class WalkController extends AbstractController {
                 $walkReward = new WalkCounter($this->userId);
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
                 break;
+            case 'newer':
+                return new ApiReturn('', 501, '无效获取');
+                break;
+            case 'phone':
+            case 'wechat':
+                return new ApiReturn('', 501, '无效获取');
+                break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $this->userId);
@@ -167,6 +174,13 @@ Class WalkController extends AbstractController {
                 } else {
                     return new ApiReturn('', 402, '无效领取');
                 }
+                break;
+            case 'newer':
+                return new ApiReturn('', 402, '无效领取');
+                break;
+            case 'phone':
+            case 'wechat':
+                return new ApiReturn('', 402, '无效领取');
                 break;
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time
