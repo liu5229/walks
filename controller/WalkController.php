@@ -327,8 +327,8 @@ Class WalkController extends AbstractController {
     }
     
     public function goldDetailAction () {
-        $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? ORDER BY gold_id DESC';
-        $goldDetail = $this->db->getAll($sql, $this->userId);
+        $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? AND create_time >= ? ORDER BY gold_id DESC';
+        $goldDetail = $this->db->getAll($sql, $this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
         $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
         $activeTypeList = $this->db->getPairs($sql);
         array_walk($goldDetail, function (&$v) use($activeTypeList) {
