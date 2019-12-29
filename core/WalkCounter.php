@@ -99,7 +99,7 @@ class walkCounter extends AbstractModel
         $count = $receiceStep['count'];
         while ($residualStep >= $this->rewardCounter) {
             $count++;
-            $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min >= ? ORDER BY counter_min';
+            $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
             $awardRange = $this->db->getRow($sql, $count);
             $sql = "INSERT INTO t_gold2receive SET 
                 user_id = :user_id,
