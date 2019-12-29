@@ -211,8 +211,8 @@ Class WalkController extends AbstractController {
                         'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
                 if (200 == $updateStatus->code) {
-                    $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?, is_double = ?';
-                    $this->db->exec($sql, $historyInfo['receive_id'], $doubleStatus);
+                    $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
+                    $this->db->exec($sql, $doubleStatus, $historyInfo['receive_id']);
                     
                     $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                     $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
