@@ -55,7 +55,7 @@ class UserModel extends AbstractModel {
             return  array(
                 'userId' => $userId,
                 'accessToken' => $accessToken,
-                'currentGold' => 0,
+                'currentGold' => $gold,
                 'nickname' => $nickName,
                 'award' =>$gold
 //                'isRegistered' => true,
