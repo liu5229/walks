@@ -57,7 +57,7 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                 if (!$todayCount) {
-                    $sql = 'SELECT * FROM t_activity_history WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
+                    $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                     $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
                     if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_date']) > time()) {
                         $endTime = $historyLastdayInfo['end_date'];
@@ -65,7 +65,7 @@ Class WalkController extends AbstractController {
                         $endTime = date('Y-m-d H:i:s');
                     }
                     $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                    $sql = 'INSERT INTO t_activity_history SET user_id = ?, receive_date = ?, receive_type = ?, end_date = ?, receive_gold = ?';
+                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_date = ?, receive_gold = ?';
                     $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'), $gold);
                 }
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
