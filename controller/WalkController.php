@@ -193,7 +193,7 @@ Class WalkController extends AbstractController {
                     }
                 } else {
                     $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
-                    $this->db->exec($sql, $updateCheckInDays, $this->userId);
+                    $this->db->exec($sql, $this->userId);
                 }
                 $updateStatus = $this->model->user->updateGold(array(
                         'user_id' => $this->userId,
