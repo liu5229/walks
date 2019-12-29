@@ -69,6 +69,7 @@ Class WalkController extends AbstractController {
                     $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $awardRow['award_min']);
                 }
                 $fromDate = $today;
+                $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
                 if ($checkInDays) {
                     $checkInDays -= ($todayInfo['receive_status'] ?? 0);
                     $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
@@ -79,7 +80,6 @@ Class WalkController extends AbstractController {
                 $i = 0;
                 $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = "sign" ORDER BY config_id ASC';
                 $checkInConfigList = $this->db->getAll($sql);
-                $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
                 foreach ($checkInConfigList as $config) {
                     $checkInReturn['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
                     $i++;
