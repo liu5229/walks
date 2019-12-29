@@ -4,10 +4,6 @@ class walkCounter extends AbstractModel
 {
     //领取奖励条件步数
     protected $rewardCounter = 100;
-    //领取奖励最小值
-    protected $rewardMin = 10;
-    //领取奖励最大值
-    protected $rewardMax = 30;
     //阶段奖励规则
     protected $stageReward = array(
         1000 => 10,
@@ -97,10 +93,14 @@ class walkCounter extends AbstractModel
         }
         
         //插入步数奖励待领取
-        $sql = 'SELECT SUM(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
-        $receiceStep = $this->db->getOne($sql, $this->userId, $this->todayDate);
-        $residualStep = $this->stepCount - $receiceStep;
+        $sql = 'SELECT SUM(receive_walk) sum, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
+        $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
+        $residualStep = $this->stepCount - $receiceStep['sum'];
+        $count = $receiceStep['count'];
         while ($residualStep >= $this->rewardCounter) {
+            $count++;
+            $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min >= ? ORDER BY counter_min';
+            $awardRange = $this->db->getRow($sql, $count);
             $sql = "INSERT INTO t_gold2receive SET 
                 user_id = :user_id,
                 receive_date = :receive_date,
@@ -111,7 +111,7 @@ class walkCounter extends AbstractModel
                 'user_id' => $this->userId,
                 'receive_walk' => $this->rewardCounter, 
                 'receive_date' => $this->todayDate, 
-                'receive_gold' => rand($this->rewardMin, $this->rewardMax)));
+                'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max'])));
             $residualStep -= $this->rewardCounter;
         }
         
