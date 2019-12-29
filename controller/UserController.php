@@ -52,14 +52,29 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['smsCode'])) {
             return new ApiReturn('', 304, 'miss smsCode');
         }
-        $sql = 'SELECT COUNT(*) FROM t_sms_code WHERE user_id = ? AND code_value = ?';
+        $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ? AND code_value = ?';
         $codeInfo = $this->db->getOne($sql, $userId, $this->inputData['smsCode']);
         if ($codeInfo) {
+            if (strtotime($codeInfo) < strtotime("-5 minutes")) {
+                return new ApiReturn('', 308, '验证码过期');
+            }
             $sql = 'UPDATE t_user SET phone_number = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], $userId);
+            $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
+            $awardInfo = $this->db->getOne($sql, $userId, 'phone');
+            $return = array();
+            if (!$awardInfo) {
+                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
+                $gold = $this->db->getOne($sql);
+                $this->updateGold(array('user_id' => $userId,
+                    'gold' => $gold,
+                    'source' => 'phone',
+                    'type' => 'in'));
+                $return['award'] = $gold;
+            }
             $sql = 'DELETE FROM t_sms_code WHERE user_id = ?';
             $this->db->exec($sql, $userId);
-            return new ApiReturn('');
+            return new ApiReturn($return);
         } else {
             return new ApiReturn('', 307, '验证码错误');
         }

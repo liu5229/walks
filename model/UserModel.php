@@ -42,8 +42,9 @@ class UserModel extends AbstractModel {
             $this->db->exec($sql, $deviceId, $nickName);
             $userId = $this->db->lastInsertId();
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "newer"';
+            $gold = $this->db->getOne($sql);
             $this->updateGold(array('user_id' => $userId,
-                'gold' => $this->db->getOne($sql),
+                'gold' => $gold,
                 'source' => 'newer',
                 'type' => 'in'));
             $accessToken = md5($userId . time());
@@ -56,6 +57,7 @@ class UserModel extends AbstractModel {
                 'accessToken' => $accessToken,
                 'currentGold' => 0,
                 'nickname' => $nickName,
+                'award' =>$gold
 //                'isRegistered' => true,
 //                'hasCashed' => true
             );
