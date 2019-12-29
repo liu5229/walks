@@ -25,7 +25,7 @@ Class UserController extends AbstractController {
         }
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ?';
         $smsInfo = $this->db->getOne($sql, $userId);
-        if ($smsInfo && strtotime($smsInfo) > strtomtime('-1 minutes') ) {
+        if ($smsInfo && strtotime($smsInfo) > strtotime('-1 minutes') ) {
             return new ApiReturn('', 306, '发送太频繁');
         }
         $code = (string) rand(100000, 999999);
