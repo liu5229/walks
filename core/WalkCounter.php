@@ -71,9 +71,9 @@ class walkCounter extends AbstractModel
         ));
     }
     
-    public function receiveSuccess ($receiveId) {
-        $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?';
-        $this->db->exec($sql, $receiveId);
+    public function receiveSuccess ($receiveId, $doubleStatus) {
+        $sql = 'UPDATE t_gold2receive SET receive_status = 1 WHERE receive_id = ?, is_double = ?';
+        $this->db->exec($sql, $receiveId, $doubleStatus);
     }
     
     public function getStepCount() {
