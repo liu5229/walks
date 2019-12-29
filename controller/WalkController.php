@@ -79,9 +79,9 @@ Class WalkController extends AbstractController {
                 $i = 0;
                 $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = "sign" ORDER BY config_id ASC';
                 $checkInConfigList = $this->db->getAll($sql);
-                $checkInReturn = array();
+                $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
                 foreach ($checkInConfigList as $config) {
-                    $checkInReturn[] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
+                    $checkInReturn['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
                     $i++;
                 }
                 return new ApiReturn($checkInReturn);
