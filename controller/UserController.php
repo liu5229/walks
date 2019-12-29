@@ -57,6 +57,9 @@ Class UserController extends AbstractController {
         if ($codeInfo) {
             $sql = 'UPDATE t_user SET phone_number = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], $userId);
+            $sql = 'DELETE FROM t_sms_code WHERE user_id = ?';
+            $this->db->exec($sql, $userId);
+            return new ApiReturn('');
         } else {
             return new ApiReturn('', 307, '验证码错误');
         }
