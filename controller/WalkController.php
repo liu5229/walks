@@ -74,7 +74,7 @@ Class WalkController extends AbstractController {
                     $checkInDays -= ($todayInfo['receive_status'] ?? 0);
                     $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
                 }
-                $sql = 'SELECT *, IF(receive_date=' . $today . ', 1, 0) isToday FROM t_gold2receive WHERE user_id = ? AND receive_date >= ? AND receive_type = ?';
+                $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble, IF(receive_date=' . $today . ', 1, 0) isToday FROM t_gold2receive WHERE user_id = ? AND receive_date >= ? AND receive_type = ? ORDER BY receive_id';
                 $checkInInfo = $this->db->getAll($sql, $this->userId, $fromDate, $this->inputData['type']);
                 
                 $i = 0;
@@ -83,6 +83,7 @@ Class WalkController extends AbstractController {
                 $checkInReturn = array();
                 foreach ($checkInConfigList as $config) {
                     $checkInReturn[] = array_merge(array('day' => $config['counter_min'], 'award' => $config['counter_min']), $checkInInfo[$i] ?? array());
+                    $i++;
                 }
                 return new ApiReturn($checkInReturn);
                 break;
