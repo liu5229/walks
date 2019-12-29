@@ -127,7 +127,7 @@ Class WalkController extends AbstractController {
                         if (200 == $updateStatus->code) {
                             $walkReward->receiveSuccess($this->inputData['id'], $doubleStatus);
                             $goldInfo = $this->model->user->getGold($this->userId);
-                            return new ApiReturn(array('awardGold' => $this->inputData['num'], 'currentGold' => $goldInfo['currentGold']));
+                            return new ApiReturn(array('awardGold' => $this->inputData['num'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                         }
                         return $updateStatus;
                     }
@@ -224,7 +224,7 @@ Class WalkController extends AbstractController {
                         $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                     }
                     $goldInfo = $this->model->user->getGold($this->userId);
-                    return new ApiReturn(array('awardGold' => $activityAwardGold, 'currentGold' => $goldInfo['currentGold']));
+                    return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
                 break;
