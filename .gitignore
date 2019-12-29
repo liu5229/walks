@@ -1,5 +1,6 @@
 
 *.private.php
-
+.DS_Store
 public/app/*
 public/img/*
+log/*

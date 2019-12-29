@@ -23,11 +23,22 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
         }
-//        var_dump($_SERVER);
-        return new ApiReturn('');
-        
-        //insert error log
-        return new ApiReturn('', 303, 'sending failure');
+        $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ?';
+        $smsInfo = $this->db->getOne($sql, $userId);
+        if ($smsInfo && strtomtime($smsInfo) > strtomtime('-1 minutes') ) {
+            return new ApiReturn('', 306, '发送太频繁');
+        }
+        $code = '1111';
+        $sms = new Sms();
+        $return = $sms->sendMessage($this->inputData['phone'], $code);
+        if ($return) {
+            $sql = 'REPLACE INTO t_sms_code SET user_id = ?, code_value = ?';
+            $this->db->exec($sql, $userId, $code);
+            return new ApiReturn('');
+        } else {
+            //insert error log
+            return new ApiReturn('', 303, 'sending failure');
+        }
     }
     
     public function buildPhoneAction () {
@@ -41,8 +52,14 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['smsCode'])) {
             return new ApiReturn('', 304, 'miss smsCode');
         }
-        $userInfo = $this->model->user->getUserInfo(10000);
-        return new ApiReturn($userInfo);
+        $sql = 'SELECT COUNT(*) FROM t_sms_code WHERE user_id = ? AND code_value = ?';
+        $codeInfo = $this->db->getOne($sql, $userId, $this->inputData['smsCode']);
+        if ($codeInfo) {
+            $sql = 'UPDATE t_user SET phone_number = ? WHERE user_id = ?';
+            $this->db->exec($sql, $this->inputData['phone'], $userId);
+        } else {
+            return new ApiReturn('', 307, '验证码错误');
+        }
     }
     
     public function getVersionAction () {

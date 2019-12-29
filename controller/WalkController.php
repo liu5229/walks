@@ -51,9 +51,13 @@ Class WalkController extends AbstractController {
             case 'newer':
                 return new ApiReturn('', 501, '无效获取');
                 break;
-            case 'phone':
             case 'wechat':
+                
                 return new ApiReturn('', 501, '无效获取');
+                break;
+            case 'phone':
+                $phoneNumber = $this->model->user->userInfo($this->userId, 'phone_number');
+                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0));
                 break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';

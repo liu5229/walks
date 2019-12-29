@@ -120,4 +120,10 @@ class UserModel extends AbstractModel {
         $currentGold = $totalGold - $bolckedGold;
         return array('totalGold' => $totalGold, 'bolckedGold' => $bolckedGold, 'currentGold' => $currentGold);
     }
+    
+    public function userInfo ($userId, $filed='') {
+        $sql = 'SELECT * FROM t_user WHERE user_id = ?';
+        $userInfo = $this->db->getRow($sql, $userId);
+        return $userInfo[$filed] ?? $userInfo;
+    }
 }
