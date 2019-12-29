@@ -57,6 +57,7 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                 if (!$todayCount) {
+                    //第一次领取
                     $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                     $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
                     if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_time']) > time()) {
@@ -71,12 +72,11 @@ Class WalkController extends AbstractController {
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
                 $return = array();
-                    //非第一次领取
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
                 $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                 $return = array('receiveCount' => $receiveCount, 
                     'endTime' => strtotime($historyInfo['end_time']) * 1000,
-                    'isReceive' => $historyInfo['history_status'],
+                    'isReceive' => $historyInfo['receive_status'],
                     'id' => $historyInfo['receive_id'],
                     'num' => $historyInfo['receive_gold'],
                     'serverTime' => time() * 1000,
