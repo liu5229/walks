@@ -63,7 +63,7 @@ Class WalkController extends AbstractController {
                     }
                     //获取奖励金币范围
                     $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = :type AND counter_min <= :counter AND counter_max >= :counter';
-                    $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => ($checkInDays % 7) ?? 7));
+                    $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => (($checkInDays + 1) % 7) ?? 7));
                     
                     $gold = rand($awardRow['award_min'], $awardRow['award_max']);;
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
@@ -82,7 +82,7 @@ Class WalkController extends AbstractController {
                 $checkInConfigList = $this->db->getAll($sql);
                 $checkInReturn = array();
                 foreach ($checkInConfigList as $config) {
-                    $checkInReturn[] = array_merge(array('day' => $config['counter_min'], 'award' => $config['counter_min']), $checkInInfo[$i] ?? array());
+                    $checkInReturn[] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
                     $i++;
                 }
                 return new ApiReturn($checkInReturn);
