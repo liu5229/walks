@@ -28,7 +28,7 @@ Class UserController extends AbstractController {
         if ($smsInfo && strtomtime($smsInfo) > strtomtime('-1 minutes') ) {
             return new ApiReturn('', 306, '发送太频繁');
         }
-        $code = '1111';
+        $code = (string) rand(100000, 999999);
         $sms = new Sms();
         $return = $sms->sendMessage($this->inputData['phone'], $code);
         if ($return) {
