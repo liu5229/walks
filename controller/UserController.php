@@ -66,7 +66,7 @@ Class UserController extends AbstractController {
             if (!$awardInfo) {
                 $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
                 $gold = $this->db->getOne($sql);
-                $this->updateGold(array('user_id' => $userId,
+                $this->model->user->updateGold(array('user_id' => $userId,
                     'gold' => $gold,
                     'source' => 'phone',
                     'type' => 'in'));
