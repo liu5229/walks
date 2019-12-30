@@ -34,7 +34,7 @@ Class UserController extends AbstractController {
         if ($return) {
             $sql = 'REPLACE INTO t_sms_code SET user_id = ?, code_value = ?';
             $this->db->exec($sql, $userId, $code);
-            return new ApiReturn(array('smsCode' => $code));
+            return new ApiReturn('');
         } else {
             //insert error log
             return new ApiReturn('', 303, 'sending failure');
