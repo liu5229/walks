@@ -23,6 +23,10 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['phone'])) {
             return new ApiReturn('', 302, 'miss phone number');
         }
+        $phoneInfo = $this->model->user->userInfo($userId, 'phone_number');
+        if ($phoneInfo) {
+            return new ApiReturn('', 309, '不能重复绑定');
+        }
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ?';
         $smsInfo = $this->db->getOne($sql, $userId);
         if ($smsInfo && strtotime($smsInfo) > strtotime('-1 minutes') ) {
@@ -52,14 +56,18 @@ Class UserController extends AbstractController {
         if (!isset($this->inputData['smsCode'])) {
             return new ApiReturn('', 304, 'miss smsCode');
         }
+        $phoneInfo = $this->model->user->userInfo($userId, 'phone_number');
+        if ($phoneInfo) {
+            return new ApiReturn('', 309, '不能重复绑定');
+        }
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ? AND code_value = ?';
         $codeInfo = $this->db->getOne($sql, $userId, $this->inputData['smsCode']);
         if ($codeInfo) {
             if (strtotime($codeInfo) < strtotime("-5 minutes")) {
                 return new ApiReturn('', 308, '验证码过期');
             }
-            $sql = 'UPDATE t_user SET phone_number = ? WHERE user_id = ?';
-            $this->db->exec($sql, $this->inputData['phone'], $userId);
+            $sql = 'UPDATE t_user SET phone_number = ?, nickname = ? WHERE user_id = ?';
+            $this->db->exec($sql, $this->inputData['phone'], substr_replace($this->inputData['phone'], '****', 3, 4), $userId);
             $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
             $awardInfo = $this->db->getOne($sql, $userId, 'phone');
             $return = array();

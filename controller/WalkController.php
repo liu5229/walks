@@ -57,7 +57,8 @@ Class WalkController extends AbstractController {
                 break;
             case 'phone':
                 $phoneNumber = $this->model->user->userInfo($this->userId, 'phone_number');
-                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0));
+                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
+                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0, 'award' => $this->db->getOne($sql)));
                 break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
