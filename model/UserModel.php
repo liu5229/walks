@@ -30,6 +30,7 @@ class UserModel extends AbstractModel {
                 'city' => $userInfo['city'],
                 'country' => $userInfo['country'],
                 'headimgurl' => $userInfo['headimgurl'],
+                'phone' => $userInfo['phone_number']
 //                'isRegistered' => true,
 //                'hasCashed' => true
             );
