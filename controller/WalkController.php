@@ -126,6 +126,10 @@ Class WalkController extends AbstractController {
                     'num' => $historyInfo['receive_gold'],
                     'serverTime' => time() * 1000,
                     'countMax' => $activityInfo['activity_max']);
+                if ('tab' == $this->inputData['type']) {
+                    //to do移动到数据库中
+                    $return['probability'] = $activityInfo['activity_remark'];
+                }
                 return new ApiReturn($return);
         }
     }
