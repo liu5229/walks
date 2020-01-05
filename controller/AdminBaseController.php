@@ -105,7 +105,7 @@ Class AdminBaseController extends AbstractController {
         return array();
     }
     
-    public function testAction() {
+    public function uploadAction() {
         header('Access-Control-Allow-Headers:x-requested-with');
         if ($_FILES) {
             $uploadFile = $_FILES['file'];
@@ -121,6 +121,10 @@ Class AdminBaseController extends AbstractController {
             }
             return array($_FILES);
         }
-        
+    }
+    
+    public function testAAction () {
+        $a = new Alipay();
+        $a->transfer(array());
     }
 }
