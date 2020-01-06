@@ -123,6 +123,24 @@ Class AdminBaseController extends AbstractController {
         }
     }
     
+    public function testAction() {
+        header('Access-Control-Allow-Headers:x-requested-with');
+        if ($_FILES) {
+            $uploadFile = $_FILES['file'];
+            switch ($uploadFile['type']) {
+                case 'image/png':
+                case 'image/jpg':
+                case 'image/gif':
+                    $result = move_uploaded_file($uploadFile['tmp_name'], IMG_DIR . $uploadFile['name']);
+                    break;
+                case 'application/vnd.android.package-archive':
+                    $result = move_uploaded_file($uploadFile['tmp_name'], APP_DIR . $uploadFile['name']);
+                    break;
+            }
+            return array($_FILES);
+        }
+    }
+    
     public function testAAction () {
         $a = new Alipay();
         $a->transfer(array());
