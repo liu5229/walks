@@ -10,9 +10,9 @@ class Alipay {
     public function __construct () {
         $aop = new AopClient ();
         $aop->gatewayUrl = 'https://openapi.alipay.com/gateway.do';
-        $aop->appId = 'your app_id';
-        $aop->rsaPrivateKey = '请填写开发者私钥去头去尾去回车，一行字符串';
-        $aop->alipayrsaPublicKey='请填写支付宝公钥，一行字符串';
+        $aop->appId = '2021001104601950';
+        $aop->rsaPrivateKey = 'MIIEpAIBAAKCAQEAuxb35EVtg101fpcW1VxIoHXEOKQZtMx6PowJ9kqDVGS1cqi6sQpnSKkqYJ/5Kt7XZUma5Ldj9SyOh7uKhmXV0zGKpb7hKHZO4KT0oxOSysdUhdeYg2hUrqu3I9z7uhF/RVIsp5HfjcwDbUVZsYHe1TD4YMzP6UAuCBgD1zi61Dg4elakrmVStVBXqTacbFb69+jc+XRcl2eBrO+m5U2qHVlqH8wmUx7lGkN5ARXP7AudmvcqR0ChXzzVyWuK3qdjc5XEIWDR1bJZvZO5dHNUEh2OJ8jvp0CrOBkfhMHt6MvfwVi4pD510l1Y6311dT9sqgSVSCYLjVvFoFpvgv/OWQIDAQABAoIBAQCYK7la8OF/PHv7R/bpeZMU+FSuYUMLXFl9sDeWHMsvBG7VIMogn76cSgPO7a8joHb/ylty9nsV+rS/T9n/MKs3iQ8letj2KSxE6caVMaFuz6w+5LoHAAAIxmBCikYw9HRZNNpfPXXghnSvFv46M9DEBH2xdkURigMm0Cmnj1veqaspv9cGw4hL8Fss5+Wcs09MIZrVYu6ObsAsT8hDS4pzcMoPIg+8JEiub5rKFMYCZ4Vz6bZVAf+JI4ohB14VT8pfwnAizAd4K5vGyTHAOYXKLclFRROf2U4mY0CoT0kHN598VDcCdAACgm7Ts5BlRKIZ1Yc0UxuQe7Fdo9Wy1zLFAoGBAOeVwSRa+JPtCUXkGhVLZX4Mo8558Hnju0Mcpl83YZ3/JbZVZSyFfrHuToCUhuFRYsB8d4kyy7IYcIHs4qhY193ksGmd66PWiZaU+9Ozgk50ztAnKmySgNWlGmyLBv0gKAhInsA3iSQAMXDjeMrXaIoqgO3Qib4jPS5WbxG7lnkTAoGBAM7QVOTEsfCrQekyXn99YN5mKuIFj3DWHrv7YOkcqj+xUnmDFXLE14HFiBJMAjxu9WrHJOct5iviVBNBO3Kusz2x6YcJbc06qZdN+MRkpQ4bWQgq/seZcvDNJGxGQljMv3P2hCznWdpRD/keP1MJvPklCnFAfrbj3170Blmo8JRjAoGAMNll5EVMKefWDOgQmG1O+0evRd5y20MuPPnOHkeQT8OCMPPSY5HFJ8MczAKIcP651eBrVoVgcjC1irJtHRWgcy3KCH1HN0gJvbmvZPh4hBQfi8i3Ki+8/VPWPw8UalBeIWEwG1ubkfx4cVeKIz9MzdgpWgCjDXhhb2TMCPGIzAECgYEAkmBPha9VxeJgfx3AVnm2AxLKzThkQte53xDXkYZRVU0683f8yUNayKW3XkPf3UgneVDD5L/OxkalfQ9RdSUDBeqTP5lD1trrR4TPSql1TRu8ExTjSQBpotd/LQc5VEJuSzQybtm79dIj/Q0UgsBEuQ4naurcBLQZ18ndaL4ysMMCgYBy585I+G4xNvKwc+cSC+eeQVnbeC8HOHjaHC7JnyL3cIdU40+PFZCaQHEe/sarli+xT5ZlBa2pI6i4c6bXoTT5YFtVX8Rhj06pdzP2Hwi82S19OAxkdQ0g5jr7PGZrDGLK0A+mNbuTJRL/NOQyyEjUrDdKFgS5kgtdvpj56TITkQ==';
+        $aop->alipayrsaPublicKey='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuxb35EVtg101fpcW1VxIoHXEOKQZtMx6PowJ9kqDVGS1cqi6sQpnSKkqYJ/5Kt7XZUma5Ldj9SyOh7uKhmXV0zGKpb7hKHZO4KT0oxOSysdUhdeYg2hUrqu3I9z7uhF/RVIsp5HfjcwDbUVZsYHe1TD4YMzP6UAuCBgD1zi61Dg4elakrmVStVBXqTacbFb69+jc+XRcl2eBrO+m5U2qHVlqH8wmUx7lGkN5ARXP7AudmvcqR0ChXzzVyWuK3qdjc5XEIWDR1bJZvZO5dHNUEh2OJ8jvp0CrOBkfhMHt6MvfwVi4pD510l1Y6311dT9sqgSVSCYLjVvFoFpvgv/OWQIDAQAB';
         $aop->apiVersion = '1.0';
         $aop->signType = 'RSA2';
         $aop->postCharset='UTF-8';
@@ -78,19 +78,19 @@ class Alipay {
 //            "\"passback_params\":\"{\\\"merchantBizType\\\":\\\"peerPay\\\"}\"" .
 //            "  }");
             $result = $this->aop->execute($request); 
-            var_dump($result);
-
+            
             $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
             $resultCode = $result->$responseNode->code;
             if(!empty($resultCode)&&$resultCode == 10000){
-                echo "成功";
+                return TRUE;
             } else {
                 file_put_contents(LOG_DIR . 'alipay.log', date('Y-m-d H:i:s') . "|" . $resultCode . PHP_EOL, FILE_APPEND);
+                return FALSE;
             }
         } catch (Exception $e) {
-            var_dump($e);
+            file_put_contents(LOG_DIR . 'alipay.log', date('Y-m-d H:i:s') . "|" . $exception->getErrorMessage() . PHP_EOL, FILE_APPEND);
+            return FALSE;
         }
-        
     }
     
     

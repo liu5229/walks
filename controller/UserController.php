@@ -68,18 +68,18 @@ Class UserController extends AbstractController {
             }
             $sql = 'UPDATE t_user SET phone_number = ?, nickname = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], substr_replace($this->inputData['phone'], '****', 3, 4), $userId);
-            $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-            $awardInfo = $this->db->getOne($sql, $userId, 'phone');
             $return = array();
-            if (!$awardInfo) {
-                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
-                $gold = $this->db->getOne($sql);
-                $this->model->user->updateGold(array('user_id' => $userId,
-                    'gold' => $gold,
-                    'source' => 'phone',
-                    'type' => 'in'));
-                $return['award'] = $gold;
-            }
+//            $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
+//            $awardInfo = $this->db->getOne($sql, $userId, 'phone');
+//            if (!$awardInfo) {
+//                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
+//                $gold = $this->db->getOne($sql);
+//                $this->model->user->updateGold(array('user_id' => $userId,
+//                    'gold' => $gold,
+//                    'source' => 'phone',
+//                    'type' => 'in'));
+//                $return['award'] = $gold;
+//            }
             $sql = 'DELETE FROM t_sms_code WHERE user_id = ?';
             $this->db->exec($sql, $userId);
             return new ApiReturn($return);
@@ -107,5 +107,40 @@ Class UserController extends AbstractController {
         }
         $sql = 'SELECT advertise_type type, advertise_name name, CONCAT(?, advertise_image) img, advertise_url url FROM t_advertise WHERE advertise_location = ? AND advertise_status = 1 ORDER BY advertise_id DESC LIMIT ' . $adCount[$this->inputData['location']];
         return new ApiReturn($this->db->getAll($sql, HOST_NAME, $this->inputData['location']));
+    }
+    
+    public function buildAlipayAction () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (!isset($this->inputData['account'])) {
+            return new ApiReturn('', 310, '缺少支付宝账号');
+        }
+        if (!isset($this->inputData['name'])) {
+            return new ApiReturn('', 310, '缺少支付宝姓名');
+        }
+        if (!isset($this->inputData['idCard'])) {
+            return new ApiReturn('', 310, '缺少身份证号码');
+        }
+        $sql = 'UPDATE t_user SET alipay_account = ?, alipay_name = ?, id_card = ? WHERE user_id = ?';
+        $this->db->exec($sql, $this->inputData['account'], $this->inputData['name'], $this->inputData['idCard'], $userId);
+        return new ApiReturn('');
+    }
+    
+    public function getWithdrawAction () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        $sql = 'SELECT alipay_account account, phone_number phone FROM t_user WHERE user_id = ?';
+        $userInfo = $this->db->getRow($sql, $userId);
+        if ($userInfo['account']) {
+            $userInfo['account'] = substr_replace($userInfo['account'], '****', 3, 4);
+        }
+        if ($userInfo['phone']) {
+            $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
+        }
+        return new ApiReturn($userInfo);
     }
 }

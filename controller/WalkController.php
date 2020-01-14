@@ -192,7 +192,7 @@ Class WalkController extends AbstractController {
                 return new ApiReturn('', 402, '无效领取');
                 break;
             case 'sign':
-                $sql = 'SELECT receive_id, receive_status, receive_gold, end_time
+                $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double
                         FROM t_gold2receive
                         WHERE receive_id =:receive_id
                         AND user_id = :user_id
@@ -212,6 +212,8 @@ Class WalkController extends AbstractController {
                 if ($historyInfo['receive_status']) {
                     if (!isset($this->inputData['secondDou']) || !$this->inputData['secondDou']) {
                         return new ApiReturn('', 404, '今日已签到');
+                    } elseif ($historyInfo['is_double']) {
+                        return new ApiReturn('', 402, '无效领取');
                     }
                 } else {
                     $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
@@ -349,5 +351,16 @@ Class WalkController extends AbstractController {
             $v['gTime'] = strtotime($v['gTime']) * 1000;
         });
         return new ApiReturn($goldDetail);    
+    }
+    
+    public function withdrawDetailAction () {
+        $statusArray = array('pending' => '审核中', 'success' => '审核成功', 'failure' => '审核失败');
+        $sql = "SELECT withdraw_amount amount, withdraw_status status, create_time wTime  FROM t_withdraw WHERE user_id = ? ORDER BY withdraw_id DESC";
+        $withdrawDetail = $this->db->getAll($sql, $this->userId);
+        array_walk($withdrawDetail, function (&$v) use ($statusArray) {
+            $v['status'] = $statusArray[$v['status']];
+            $v['wTime'] = strtotime($v['wTime']) * 1000;
+        });
+        return new ApiReturn($withdrawDetail);    
     }
 }

@@ -20,6 +20,7 @@ class ApiReturn {
         $this->data = $data;
         $this->code = $code;
         $this->msg = $msg;
+        //add api log
     }
     
     public static function init($data, $code = 200, $msg = '')
