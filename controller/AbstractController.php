@@ -5,15 +5,6 @@
     protected $mode = '';
     protected $inputData;
     
-    public function __construct()
-    {
-        $this->init();
-//        $this->mode = 'POST';
-//        if ($this->mode) {
-//            echo 'to do';//
-//        }
-    }
-    
     public function init()
     {
         $this->inputData = json_decode(file_get_contents("php://input"), TRUE);
