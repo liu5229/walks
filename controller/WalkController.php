@@ -52,14 +52,15 @@ Class WalkController extends AbstractController {
                 return new ApiReturn('', 501, '无效获取');
                 break;
             case 'wechat':
-                
-                return new ApiReturn('', 501, '无效获取');
+                $unionId = $this->model->user->userInfo($this->userId, 'unionid');
+                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
+                return new ApiReturn(array('isBuild' => $unionId ? 1 : 0, 'award' => $this->db->getOne($sql)));
                 break;
-            case 'phone':
-                $phoneNumber = $this->model->user->userInfo($this->userId, 'phone_number');
-                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
-                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0, 'award' => $this->db->getOne($sql)));
-                break;
+//            case 'phone':
+//                $phoneNumber = $this->model->user->userInfo($this->userId, 'phone_number');
+//                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
+//                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0, 'award' => $this->db->getOne($sql)));
+//                break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $this->userId);
@@ -187,7 +188,7 @@ Class WalkController extends AbstractController {
             case 'newer':
                 return new ApiReturn('', 402, '无效领取');
                 break;
-            case 'phone':
+//            case 'phone':
             case 'wechat':
                 return new ApiReturn('', 402, '无效领取');
                 break;

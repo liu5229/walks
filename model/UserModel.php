@@ -9,7 +9,7 @@
 class UserModel extends AbstractModel {
     protected $maxGoldEveryDay = 1000;
 
-    public function getUserInfo($deviceId) {
+    public function getUserInfo($deviceId, $deviceInfo = array()) {
         $whereArr = $data = array();
         $whereArr[] = 1;
         $whereArr[] = 'device_id = :device_id';
@@ -31,16 +31,11 @@ class UserModel extends AbstractModel {
                 'country' => $userInfo['country'],
                 'headimgurl' => $userInfo['headimgurl'],
                 'phone' => $userInfo['phone_number']
-//                'isRegistered' => true,
-//                'hasCashed' => true
             );
         } else {
-            $sql = 'INSERT INTO t_user SET
-                 device_id = ?,
-                 nickname = ?,
-                 app_name = "walk"';
+            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?';
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName);
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '');
             $userId = $this->db->lastInsertId();
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "newer"';
             $gold = $this->db->getOne($sql);
@@ -59,8 +54,6 @@ class UserModel extends AbstractModel {
                 'currentGold' => $gold,
                 'nickname' => $nickName,
                 'award' =>$gold
-//                'isRegistered' => true,
-//                'hasCashed' => true
             );
         }
     }

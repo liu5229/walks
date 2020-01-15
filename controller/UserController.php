@@ -8,7 +8,7 @@ Class UserController extends AbstractController {
      */
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
-            $userInfo = $this->model->user->getUserInfo($this->inputData['deviceId']);
+            $userInfo = $this->model->user->getUserInfo($this->inputData['deviceId'], $this->inputData['userDeviceInfo'] ?? array());
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 301, '无效设备号');
@@ -142,5 +142,34 @@ Class UserController extends AbstractController {
             $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
         }
         return new ApiReturn($userInfo);
+    }
+    
+    public function buildWechatAction () {
+        $userId = $this->model->user->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (!isset($this->inputData['unionid'])) {
+            return new ApiReturn('', 311, 'miss unionid');
+        }
+        $phoneInfo = $this->model->user->userInfo($userId, 'unionid');
+        if ($phoneInfo) {
+            return new ApiReturn('', 309, '不能重复绑定');
+        }
+        $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
+        $this->db->exec($sql, $this->inputData['openid'] ?? '', $this->inputData['nickname'] ?? '', $this->inputData['language'] ?? '', $this->inputData['sex'] ?? 0, $this->inputData['province'] ?? '', $this->inputData['city'] ?? '', $this->inputData['country'] ?? '', $this->inputData['headimgurl'] ?? '', $this->inputData['unionid'], $userId);
+        $return = array();
+        $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
+        $awardInfo = $this->db->getOne($sql, $userId, 'wechat');
+        if (!$awardInfo) {
+            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
+            $gold = $this->db->getOne($sql);
+            $this->model->user->updateGold(array('user_id' => $userId,
+                'gold' => $gold,
+                'source' => 'wechat',
+                'type' => 'in'));
+            $return['award'] = $gold;
+        }
+        return new ApiReturn($return);
     }
 }
