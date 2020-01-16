@@ -21,8 +21,10 @@ Class AdminVersionController extends AbstractController {
                 case 'edit' :
                     $uploadApk = '';
                     if (isset($_POST['version_url']['file']['response']['data'][0]['file']['name'])) {
+//                        rename(APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name'], APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name']);
                         $uploadApk = 'app/' . $_POST['version_url']['file']['response']['data'][0]['file']['name'];
                     }
+                    //add `id` in t_version
                     if ($_POST['version_id']) {
                         $sql = "UPDATE t_version SET
                                 version_name = :version_name,
