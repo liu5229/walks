@@ -174,7 +174,7 @@ Class WalkController extends AbstractController {
                             'source' => $this->inputData['type'],
                             'type' => 'in',
                             'relation_id' => $this->inputData['id']));
-                        if (200 == $updateStatus->code) {
+                        if (TRUE === $updateStatus) {
                             $walkReward->receiveSuccess($this->inputData['id'], $doubleStatus);
                             $goldInfo = $this->model->user->getGold($this->userId);
                             return new ApiReturn(array('awardGold' => $this->inputData['num'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
@@ -227,7 +227,7 @@ Class WalkController extends AbstractController {
                         'type' => 'in',
                         'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
-                if (200 == $updateStatus->code) {
+                if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                     $this->db->exec($sql, $this->inputData['secondDou'] ?? 0, $historyInfo['receive_id']);
 //                    $walkReward->receiveSuccess($this->inputData['id']);
@@ -268,7 +268,7 @@ Class WalkController extends AbstractController {
                         'type' => 'in',
                         'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
-                if (200 == $updateStatus->code) {
+                if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                     $this->db->exec($sql, $doubleStatus, $historyInfo['receive_id']);
                     

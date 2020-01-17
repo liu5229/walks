@@ -92,7 +92,7 @@ class UserModel extends AbstractModel {
             'relation_id' => $params['relation_id'] ?? 0,
             'change_date' => $todayDate
         ));
-        return new ApiReturn('');
+        return TRUE;
     }
     
     public function verifyToken() {
