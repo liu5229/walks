@@ -109,7 +109,7 @@ class UserModel extends AbstractModel {
     
     public function getGold ($userId) {
         //获取当前用户可用金币
-        $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ?';
+        $sql = 'SELECT SUM(IF(change_type="in", change_gold, -change_gold)) FROM t_gold WHERE user_id = ?';
         $totalGold = $this->db->getOne($sql, $userId);
         $sql = 'SELECT SUM(withdraw_gold) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "pending"';
         $bolckedGold = $this->db->getOne($sql, $userId);
