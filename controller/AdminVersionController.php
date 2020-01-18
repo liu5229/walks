@@ -16,44 +16,43 @@ Class AdminVersionController extends AbstractController {
     }
     
     public function detailAction () {
-        if (isset($_POST['action']) && isset($_POST['version_id'])) {
+        if (isset($_POST['action']) && isset($_POST['id'])) {
             switch ($_POST['action']) {
                 case 'edit' :
                     $uploadApk = '';
                     if (isset($_POST['version_url']['file']['response']['data'][0]['file']['name'])) {
-//                        rename(APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name'], APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name']);
-                        $uploadApk = 'app/' . $_POST['version_url']['file']['response']['data'][0]['file']['name'];
+                        $apkName = 'release-' . ($_POST['version_name'] ?? '') . '-' . date('Ymd') . '.apk';
+                        $a = @rename(APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name'], APP_DIR . $apkName);
+                        if (!$a) {
+                            throw new \Exception("Upload failure");
+                        }
+                        $uploadApk = 'app/' . $apkName;
                     }
+                    $dataArr = array();
                     //add `id` in t_version
-                    if ($_POST['version_id']) {
-                        $sql = "UPDATE t_version SET
-                                version_name = :version_name,
-                                is_force_update = :is_force_update,
-                                version_url = :version_url,
-                                version_log = :version_log
-                                WHERE version_id = :version_id";
-                        $return = $this->db->exec($sql, array(
-                            'version_name' => $_POST['version_name'] ?? '', 
-                            'is_force_update' => $_POST['is_force_update'] ?? 0, 
-                            'version_url' => $uploadApk, 
-                            'version_log' => $_POST['version_log'] ?? '', 
-                            'version_id' => $_POST['version_id']));
+                    if ($_POST['id']) {
+                        $sql = 'UPDATE t_version SET ';
                     } else {
-                        $sql = "INSERT INTO t_version SET
-                                version_name = :version_name,
-                                is_force_update = :is_force_update,
-                                version_url = :version_url,
-                                version_log = :version_log";
-                        $return = $this->db->exec($sql, array(
-                            'version_name' => $_POST['version_name'] ?? '', 
-                            'is_force_update' => $_POST['is_force_update'] ?? 0, 
-                            'version_url' => $uploadApk, 
-                            'version_log' => $_POST['version_log'] ?? ''));
+                        $sql = 'INSERT INTO t_version SET ';
                     }
+                    $sql .= 'version_id = :version_id, version_name = :version_name, is_force_update = :is_force_update, version_log = :version_log';
+                    $dataArr['version_name'] = $_POST['version_name'] ?? '';
+                    $dataArr['is_force_update'] = $_POST['is_force_update'] ?? 0;
+                    $dataArr['version_log'] = $_POST['version_log'] ?? '';
+                    $dataArr['version_id'] = $_POST['version_id'] ?? '';
+                    if ($uploadApk) {
+                        $sql .= ', version_url = :version_url';
+                        $dataArr['version_url'] = $uploadApk;
+                    }
+                    if ($_POST['version_id']) {
+                        $sql .= ' WHERE id = :id';
+                        $dataArr['id'] = $_POST['id'];
+                    }
+                    $return = $this->db->exec($sql, $dataArr);
                     break;
                 case 'delete':
-                    $sql = 'DELETE FROM t_version WHERE version_id = ?';
-                    $return = $this->db->exec($sql, $_POST['version_id']);
+                    $sql = 'DELETE FROM t_version WHERE id = ?';
+                    $return = $this->db->exec($sql, $_POST['id']);
                     break;
             }
             
@@ -64,9 +63,9 @@ Class AdminVersionController extends AbstractController {
             }
         }
         $versionInfo = array();
-        if (isset($_POST['version_id'])) {
-            $sql = "SELECT * FROM t_version WHERE version_id = ?";
-            $versionInfo = $this->db->getRow($sql, $_POST['version_id']);
+        if (isset($_POST['id'])) {
+            $sql = "SELECT * FROM t_version WHERE id = ?";
+            $versionInfo = $this->db->getRow($sql, $_POST['id']);
         }
         if ($versionInfo) {
             return $versionInfo;
