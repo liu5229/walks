@@ -32,6 +32,23 @@ Class AdminWithdrawController extends AbstractController {
 //                        'name' => $userInfo['alipay_name']));
                     $returnStatus = TRUE;
                     if (TRUE === $returnStatus) {
+                        $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
+                        $userInfo = $this->db->getRow($sql, $_POST['withdraw_id']);
+                        $sql = "INSERT INTO t_gold SET
+                                user_id = :user_id,
+                                change_gold = :change_gold,
+                                gold_source = :gold_source,
+                                change_type = :change_type,
+                                relation_id = :relation_id,
+                                change_date = :change_date";
+                        $this->db->exec($sql, array(
+                            'user_id' => $userInfo['user_id'],
+                            'change_gold' => $userInfo['withdraw_gold'],
+                            'gold_source' => 'withdraw',
+                            'change_type' => 'out',
+                            'relation_id' => $_POST['withdraw_id'],
+                            'change_date' => date('Y-m-d')
+                        ));
                         $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
                         $return = $this->db->exec($sql, $_POST['withdraw_id']);
                     } else {
