@@ -44,7 +44,7 @@ Class AdminVersionController extends AbstractController {
                         $sql .= ', version_url = :version_url';
                         $dataArr['version_url'] = $uploadApk;
                     }
-                    if ($_POST['version_id']) {
+                    if ($_POST['id']) {
                         $sql .= ' WHERE id = :id';
                         $dataArr['id'] = $_POST['id'];
                     }
