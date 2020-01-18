@@ -24,36 +24,29 @@ Class AdminAdController extends AbstractController {
             switch ($_POST['action']) {
                 case 'edit':
                     if ($_POST['id']) {
-                        $sql = "UPDATE t_advertise SET
-                                advertise_name = :advertise_name,
-                                advertise_type = :advertise_type,
-                                advertise_url = :advertise_url,
-                                advertise_image = :advertise_image,
-                                advertise_location = :advertise_location,
-                                advertise_status = :advertise_status
-                                WHERE advertise_id = :advertise_id";
-                        $return = $this->db->exec($sql, array('advertise_name' => $_POST['advertise_name'] ?? 0, 
-                            'advertise_type' => $_POST['advertise_type'] ?? 0, 
-                            'advertise_url' => $_POST['advertise_url'] ?? '', 
-                            'advertise_image' => $uploadImg, 
-                            'advertise_location' => $_POST['advertise_location'] ?? '', 
-                            'advertise_status' => $_POST['advertise_status'] ?? '', 
-                            'advertise_id' => $_POST['id']));
+                        $sql = 'UPDATE t_advertise SET ';
                     } else {
-                        $sql = "INSERT INTO t_advertise SET
-                            advertise_name = :advertise_name,
+                        $sql = 'INSERT INTO t_advertise SET ';
+                    }
+                    $sql .= 'advertise_name = :advertise_name,
                             advertise_type = :advertise_type,
                             advertise_url = :advertise_url,
-                            advertise_image = :advertise_image,
                             advertise_location = :advertise_location,
-                            advertise_status = :advertise_status";
-                        $return = $this->db->exec($sql, array('advertise_name' => $_POST['advertise_name'] ?? 0, 
+                            advertise_status = :advertise_status';
+                    $dataArr = array('advertise_name' => $_POST['advertise_name'] ?? 0, 
                             'advertise_type' => $_POST['advertise_type'] ?? 0, 
                             'advertise_url' => $_POST['advertise_url'] ?? '', 
-                            'advertise_image' => $uploadImg, 
                             'advertise_location' => $_POST['advertise_location'] ?? '', 
-                            'advertise_status' => $_POST['advertise_status'] ?? ''));
+                            'advertise_status' => $_POST['advertise_status'] ?? '');
+                    if ($uploadImg) {
+                        $sql .= ', advertise_image = :advertise_image';
+                        $dataArr['advertise_image'] = $uploadImg;
                     }
+                    if ($_POST['id']) {
+                        $sql .= ' WHERE advertise_id = :advertise_id';
+                        $dataArr['advertise_id'] = $_POST['id'];
+                    }
+                    $return = $this->db->exec($sql, $dataArr);
                     if ($return) {
                         return array();
                     } else {
