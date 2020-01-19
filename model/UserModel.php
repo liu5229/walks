@@ -20,6 +20,8 @@ class UserModel extends AbstractModel {
         $userInfo = $this->db->getRow($sql, $data);
         if ($userInfo) {
             $goldInfo = $this->getGold($userInfo['user_id']);
+            $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
+            $isOneCashed = $this->db->getOne($sql, $userInfo['user_id']);
             return  array(
                 'userId' => $userInfo['user_id'],
                 'accessToken' => $userInfo['access_token'],
@@ -30,7 +32,8 @@ class UserModel extends AbstractModel {
                 'city' => $userInfo['city'],
                 'country' => $userInfo['country'],
                 'headimgurl' => $userInfo['headimgurl'],
-                'phone' => $userInfo['phone_number']
+                'phone' => $userInfo['phone_number'],
+                'isOneCashed' => $isOneCashed ? 1 : 0 
             );
         } else {
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?';

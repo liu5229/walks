@@ -309,7 +309,7 @@ Class WalkController extends AbstractController {
             if (isset($alipayInfo['alipay_account']) && $alipayInfo['alipay_account'] && isset($alipayInfo['alipay_name']) && $alipayInfo['alipay_name']) {
                 //1元提现只能一次 to do
                 if (1 == $withdrawalAmount) {
-                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = 1 AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $this->userId)) {
                         return new ApiReturn('', 503, '1元提现只支持一次');
                     }
@@ -348,6 +348,9 @@ Class WalkController extends AbstractController {
                     $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
                     $v['value'] = 0 - $v['value'];
                     break;
+            }
+            if ('system' == $v['source']) {
+                $v['gSource'] = '官方操作';
             }
             $v['gTime'] = strtotime($v['gTime']) * 1000;
         });
