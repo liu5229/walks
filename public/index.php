@@ -37,6 +37,7 @@ try {
         $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
     }
 } catch(\Exception $e) {
+    error_log(print_r($e->getMessage()));
     $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
 }
 
