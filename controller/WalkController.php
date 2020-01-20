@@ -232,7 +232,7 @@ Class WalkController extends AbstractController {
                 if (TRUE === $updateStatus) {
                     error_log(print_r(1, true));
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
-                    $this->db->exec($sql, (($secondDoubleStatus || $doubleStatus) ?? 0), $historyInfo['receive_id']);
+                    $this->db->exec($sql, ($secondDoubleStatus || $doubleStatus) ? 1 : 0, $historyInfo['receive_id']);
                     error_log(print_r(2, true));
 //                    $walkReward->receiveSuccess($this->inputData['id']);
                     $goldInfo = $this->model->user->getGold($this->userId);
