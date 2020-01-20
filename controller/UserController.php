@@ -156,6 +156,11 @@ Class UserController extends AbstractController {
         if ($phoneInfo) {
             return new ApiReturn('', 309, '不能重复绑定');
         }
+        $sql = 'SELECT COUNT(*) FROM t_user WHERE unionid = ?';
+        $unionInfo = $this->db->getOne($sql, $this->inputData['unionid']);
+        if ($unionInfo) {
+            return new ApiReturn('', 309, '不能重复绑定');
+        }
         $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
         $this->db->exec($sql, $this->inputData['openid'] ?? '', $this->inputData['nickname'] ?? '', $this->inputData['language'] ?? '', $this->inputData['sex'] ?? 0, $this->inputData['province'] ?? '', $this->inputData['city'] ?? '', $this->inputData['country'] ?? '', $this->inputData['headimgurl'] ?? '', $this->inputData['unionid'], $userId);
         $return = array();

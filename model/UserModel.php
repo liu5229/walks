@@ -7,7 +7,7 @@
  */
 
 class UserModel extends AbstractModel {
-    protected $maxGoldEveryDay = 1000;
+    protected $maxGoldEveryDay = 10000;
 
     public function getUserInfo($deviceId, $deviceInfo = array()) {
         $whereArr = $data = array();
