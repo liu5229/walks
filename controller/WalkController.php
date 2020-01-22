@@ -2,7 +2,7 @@
 
 Class WalkController extends AbstractController {
     //提现汇率
-    protected $withdrawalRate = 10000;
+    protected $withdrawalRate = 3000;
     protected $userId;
     
     public function init() {
