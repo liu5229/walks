@@ -2,43 +2,48 @@
 
 Class AdminUserController extends AbstractController {
     public function listAction () {
-//        $this->mode = 'POST';
-//        $sql = 'SELECT * FROM t_order LIMIT 1';
-//        var_dump($this->db->getRow($sql));
+        $sql = "SELECT COUNT(*) FROM t_user ORDER BY user_id";
+        $totalCount = $this->db->getOne($sql);
+        $list = array();
+        if ($totalCount) {
+            $sql = "SELECT * FROM t_user ORDER BY user_id DESC LIMIT " . $this->page;
+            $list = $this->db->getAll($sql);
+            foreach ($list as &$userInfo) {
+                $userInfo = array_merge($userInfo, $this->model->user->getGold($userInfo['user_id']));
+            }
+        }
         return array(
-            'pageSize' => 10,
-            'pageNo' => 1,
-            'totalCount' => 20,
-            'list' => array(array(
-                'id' => 10240,
-                'username' => 'tgramxs',
-                'password' => '123456',
-                'chineseName' => '销售部',
-                'idcardNo' => '332527198010230505',
-                'deptCode' => '370200000000',
-                'phoneNo' => '18969784568',
-                'status' => 0,
-                'roles' => array(array(
-                    'id' => 10100,
-                    'roleName' => '演示账号',
-                    'resources' => array()
-                )),
-                'gxdwdm' => '370200000000',
-            )),
-            'totalPage' => 2
+            'totalCount' => (int) $totalCount,
+            'list' => $list
         );
     }
     
     public function detailAction() {
-        return array('id'=> 10240,
-            'username'=> 'tgramxs',
-            'password'=> '123456',
-            'chineseName'=> '销售部',
-            'idcardNo'=> '332527198010230505',
-            'deptCode'=> '370200000000',
-            'phoneNo'=> '18969784568',
-            'status'=> 0,
-            'roleIds'=> [10100],
-            'gxdwdm'=> '370200000000');
+        $userInfo = array();
+        if (isset($_POST['id'])) {
+            $sql = "SELECT * FROM t_user WHERE user_id = ?";
+            $userInfo = $this->db->getRow($sql, $_POST['id']);
+            $userInfo = array_merge($userInfo, $this->model->user->getGold($_POST['id']));
+        }
+        if ($userInfo) {
+            return $userInfo;
+        }
+        throw new \Exception("Error User Id");
+    }
+
+    public function changeGoldAction() {
+        if (isset($_POST['id']) && isset($_POST['change_type']) && isset($_POST['change_gold'])) {
+            $sql = "INSERT INTO t_gold_change_log SET type = :type, gold = :gold, remark = :remark, user_id = :user_id";
+            $this->db->exec($sql, array('type' => $_POST['change_type'], 'gold' => $_POST['change_gold'], 'remark' => $_POST['change_remark'],'user_id' => $_POST['id']));
+            $relationId = $this->db->lastInsertId();
+            $return = $this->model->user->updateGold(array(
+                'user_id' => $_POST['id'],
+                'gold' => $_POST['change_gold'],
+                'source' => 'system',
+                'type' => $_POST['change_type'],
+                'relation_id' => $relationId));
+            return $relationId;
+        }
+        throw new \Exception("Error");
     }
 }
