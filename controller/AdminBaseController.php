@@ -64,7 +64,7 @@ Class AdminBaseController extends AbstractController {
             array( 'id' => 3, 'resName' => '版本管理', 'resKey'=> 'version', 'resIcon'=> 'moduleManage'),
             array( 'id' => 4, 'resName' => '运营位管理', 'resKey'=> 'ad', 'resIcon'=> 'moduleManage'),
             array( 'id' => 5, 'resName' => '提现管理', 'resKey'=> 'withdraw', 'resIcon'=> 'moduleManage'),
-           array( 'id' => 6, 'resName' => '用户管理', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 6, 'resName' => '用户管理', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
         ));
     }
     

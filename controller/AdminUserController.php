@@ -46,4 +46,39 @@ Class AdminUserController extends AbstractController {
         }
         throw new \Exception("Error");
     }
+    
+    public function goldAction () {
+        if (isset($_POST['id'])) {
+            $sql = "SELECT COUNT(*) FROM t_gold WHERE user_id = ? ORDER BY user_id";
+            $totalCount = $this->db->getOne($sql, $_POST['id']);
+            $configInfo = array();
+            if ($totalCount) {
+                $sql = "SELECT * FROM t_gold WHERE user_id = ? ORDER BY gold_id DESC LIMIT " . $this->page;
+                $configInfo = $this->db->getAll($sql, $_POST['id']);
+                $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
+                $activeTypeList = $this->db->getPairs($sql);
+                array_walk($configInfo, function (&$v) use($activeTypeList) {
+                    switch ($v['change_type']) {
+                        case 'in':
+                            $v['gSource'] = $activeTypeList[$v['gold_source']] ?? $v['gold_source'];
+                            $v['value'] = $v['change_gold'];
+                            break;
+                        case 'out':
+                            $v['gSource'] = 'withdraw' == $v['gold_source'] ? '提现' : $v['gold_source'];
+                            $v['value'] = 0 - $v['change_gold'];
+                            break;
+                    }
+                    if ('system' == $v['gold_source']) {
+                        $v['gSource'] = '官方操作';
+                    }
+                });
+            }
+            
+            return array(
+                'totalCount' => (int) $totalCount,
+                'list' => $configInfo
+            );
+        }
+        throw new \Exception("Error Config Id");
+    }
 }

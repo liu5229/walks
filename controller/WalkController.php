@@ -75,7 +75,7 @@ Class WalkController extends AbstractController {
                         $this->db->exec($sql, 0, $this->userId);
                     }
                     //获取奖励金币范围
-                    $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min <= :counter AND counter_max >= :counter';
+                    $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
                     $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => (($checkInDays + 1) % 7) ?? 7));
                     
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
