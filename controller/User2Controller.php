@@ -111,7 +111,7 @@ Class User2Controller extends UserController {
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 305, '没有广告位置');
         }
-        $sql = 'SELECT advertise_type, advertise_name, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
+        $sql = 'SELECT advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
                 FROM t_advertise
                 WHERE advertise_location = ?
                 AND advertise_status = 1
@@ -141,6 +141,7 @@ Class User2Controller extends UserController {
             }
             $tempArr = array('type' => $advertiseInfo['advertise_type'],
                 'name' => $advertiseInfo['advertise_name'],
+                'subName' => $advertiseInfo['advertise_subtitle'],
                 'img' => $advertiseInfo['img'],
                 'url' => $advertiseInfo['advertise_url']);
             if ('task' == $advertiseInfo['advertise_type']) {
