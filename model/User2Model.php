@@ -18,6 +18,7 @@ class User2Model extends UserModel {
         $where = implode(' AND ', $whereArr);
         $sql = 'SELECT * FROM t_user WHERE ' . $where;
         $userInfo = $this->db->getRow($sql, $data);
+        
         if ($userInfo) {
             $goldInfo = $this->getGold($userInfo['user_id']);
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
@@ -64,16 +65,6 @@ class User2Model extends UserModel {
             );
         }
     }
-    /**
-     * 
-     * @param type $params
-     * $params user_id
-     * $params gold
-     * $params source
-     * $params type
-     * $params relation_id if has
-     * @return \ApiReturn
-     */
     
     public function todayFirstLogin ($userId) {
         $sql = 'REPLACE INTO t_user_first_login SET date = ?, user_id = ?';

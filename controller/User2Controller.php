@@ -9,8 +9,8 @@ Class User2Controller extends UserController {
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
             $userInfo = $this->model->user2->getUserInfo($this->inputData['deviceId'], $this->inputData['userDeviceInfo'] ?? array());
-            $this->model->user2->todayFirstLogin($userInfo['user_id']);
-            $this->model->user2->lastLogin($userInfo['user_id']);
+            $this->model->user2->todayFirstLogin($userInfo['userId']);
+            $this->model->user2->lastLogin($userInfo['userId']);
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 301, '无效设备号');
@@ -103,12 +103,12 @@ Class User2Controller extends UserController {
     }
     
     public function getAdAction() {
-        $userId = $this->model->user->verifyToken();
+        $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
         }
         $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'eyery' => 0);
-        if (!isset($this->inputData['location']) && !in_array($this->inputData['location'], array_keys($adCount))) {
+        if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 305, '没有广告位置');
         }
         $sql = 'SELECT advertise_type, advertise_name, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length

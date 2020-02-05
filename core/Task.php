@@ -6,9 +6,14 @@
  * and open the template in the editor.
  */
 
-Class Task {
+Class Task extends AbstractController {
     
     public function getTask ($type, $userId) {
+        $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
+        $activityInfo = $this->db->getRow($sql, $type);
+        if (!$activityInfo) {
+            return new ApiReturn('', 402, '无效领取');
+        }
         $today = date('Y-m-d');
         switch ($type) {
             case 'walk':
@@ -79,10 +84,10 @@ Class Task {
                 }
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $userId, $today, $type);
-                $return = array();
+                $taskInfo = array();
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
                 $receiveCount = $this->db->getOne($sql, $userId, $today, $type);
-                $return = array('receiveCount' => $receiveCount, 
+                $taskInfo = array('receiveCount' => $receiveCount, 
                     'endTime' => strtotime($historyInfo['end_time']) * 1000,
                     'isReceive' => $historyInfo['receive_status'],
                     'id' => $historyInfo['receive_id'],
@@ -91,12 +96,10 @@ Class Task {
                     'countMax' => $activityInfo['activity_max']);
                 if ('tab' == $type) {
                     //to do移动到数据库中
-                    $return['probability'] = $activityInfo['activity_remark'];
+                    $taskInfo['probability'] = $activityInfo['activity_remark'];
                 }
-                return new ApiReturn($return);
         }
-        
-        return new ApiReturn($taskInfo);
+        return $taskInfo;
     }
     
     public function doTask ($type, $userId) {

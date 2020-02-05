@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-Class Invited extends AbstractModel {
+Class Invited extends AbstractController {
     protected $length = 8;
     
     public function createCode() {
@@ -16,7 +16,7 @@ Class Invited extends AbstractModel {
             $code .= $createList{rand(0, 33)};
         }
         $sql = 'SELECT COUNT(user_id) FROM t_user WHERE invited_code = ?';
-        $isExist = $this->db->getOne($sql);
+        $isExist = $this->db->getOne($sql, $code);
         if ($isExist) {
             return $this->createCode();
         }
