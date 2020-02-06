@@ -246,11 +246,11 @@ Class User2Controller extends UserController {
             return new ApiReturn('', 314, '填写失败');//
         }
         $sql = 'INSERT INTO t_user_invited SET user_id = ?, invited_id = ?';
-        $this->db->exec($sql, $userId, $invitedId);
+        $this->db->exec($sql, $userInfo['user_id'], $invitedId);
         
         $return = array();
         $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-        $awardInfo = $this->db->getOne($sql, $userId, 'invited');
+        $awardInfo = $this->db->getOne($sql, $userInfo['user_id'], 'invited');
         if (!$awardInfo) {
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "invited"';
             $gold = $this->db->getOne($sql);
@@ -261,7 +261,7 @@ Class User2Controller extends UserController {
             $return['award'] = $gold;
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "do_invite"';
             $gold = $this->db->getOne($sql);
-            $this->model->user2->updateGold(array('user_id' => $userId,
+            $this->model->user2->updateGold(array('user_id' => $userInfo['user_id'],
                 'gold' => $gold,
                 'source' => 'do_invite',
                 'type' => 'in'));
