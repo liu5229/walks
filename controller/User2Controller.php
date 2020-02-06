@@ -202,12 +202,7 @@ Class User2Controller extends UserController {
         if (!isset($this->inputData['unionid'])) {
             return new ApiReturn('', 311, 'miss unionid');
         }
-        $phoneInfo = $this->model->user2->userInfo($userId, 'unionid');
-        if ($phoneInfo) {
-            return new ApiReturn('', 309, '不能重复绑定');
-        }
-        $sql = 'SELECT COUNT(*) FROM t_user WHERE unionid = ?';
-        $unionInfo = $this->db->getOne($sql, $this->inputData['unionid']);
+        $unionInfo = $this->model->user2->userInfo($userId, 'unionid');
         if ($unionInfo) {
             return new ApiReturn('', 309, '不能重复绑定');
         }
@@ -224,6 +219,52 @@ Class User2Controller extends UserController {
                 'source' => 'wechat',
                 'type' => 'in'));
             $return['award'] = $gold;
+        }
+        return new ApiReturn($return);
+    }
+    
+    public function buildInvitedAction () {
+        $invitedId = $this->model->user2->verifyToken();
+        if ($invitedId instanceof apiReturn) {
+            return $invitedId;
+        }
+        if (!isset($this->inputData['invitedCode'])) {
+            return new ApiReturn('', 312, 'miss invited code');
+        }
+        $sql = 'SELECT COUNT(*) FROM t_user_invited WHERE invited_id = ?';
+        $invitedInfo = $this->db->getOne($sql, $invitedId);
+        if ($invitedInfo) {
+            return new ApiReturn('', 309, '不能重复绑定');
+        }
+        $sql = 'SELECT user_id, create_time FROM t_user WHERE inviter_code = ?';
+        $userInfo = $this->db->getRow($sql, $this->inputData['invitedCode']);
+        if (!$userInfo) {
+            return new ApiReturn('', 313, '无效的邀请码');
+        }
+        $invitedCreate = $this->model->user2->userInfo($invitedId, 'create_time');
+        if (strtotime($invitedCreate) < strtotime($userInfo['create_time'])) {
+            return new ApiReturn('', 314, '填写失败');//
+        }
+        $sql = 'INSERT INTO t_user_invited SET user_id = ?, invited_id = ?';
+        $this->db->exec($sql, $userId, $invitedId);
+        
+        $return = array();
+        $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
+        $awardInfo = $this->db->getOne($sql, $userId, 'invited');
+        if (!$awardInfo) {
+            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "invited"';
+            $gold = $this->db->getOne($sql);
+            $this->model->user2->updateGold(array('user_id' => $invitedId,
+                'gold' => $gold,
+                'source' => 'invited',
+                'type' => 'in'));
+            $return['award'] = $gold;
+            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "do_invite"';
+            $gold = $this->db->getOne($sql);
+            $this->model->user2->updateGold(array('user_id' => $userId,
+                'gold' => $gold,
+                'source' => 'do_invite',
+                'type' => 'in'));
         }
         return new ApiReturn($return);
     }
