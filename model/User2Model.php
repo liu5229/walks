@@ -9,6 +9,12 @@
 class User2Model extends UserModel {
     protected $maxGoldEveryDay = 3000;
 
+    /**
+     * 获取用户信息/添加新用户
+     * @param type $deviceId
+     * @param type $deviceInfo
+     * @return type
+     */
     public function getUserInfo($deviceId, $deviceInfo = array()) {
         $whereArr = $data = array();
         $whereArr[] = 1;
@@ -66,11 +72,61 @@ class User2Model extends UserModel {
         }
     }
     
+    /**
+     * 更新用户金币
+     * @param type $params
+     * @return boolean|\ApiReturn
+     */
+    public function updateGold($params = array()) {
+        $todayDate = date('Y-m-d');
+        $userState = $this->userInfo($params['user_id'], 'user_status');
+        if (!$userState) {
+            return new ApiReturn('', 203, '用户被冻结领取失败');
+        }
+        if ('in' == $params['type']) {
+            $notInEveryTotal = array("newer", "phone", "wechat", "system");
+            $sql = 'SELECT SUM(change_gold) 
+                    FROM t_gold
+                    WHERE user_id = ?
+                    AND change_type = "in"
+                    AND change_date = ? 
+                    AND gold_source NOT IN ("' . implode('", "', $notInEveryTotal) .'")';
+            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
+            if ($goldToday > $this->maxGoldEveryDay) {
+                return new ApiReturn('', 202, '今日金币领取已达上限');
+            }
+        }
+        $sql = "INSERT INTO t_gold SET
+                user_id = :user_id,
+                change_gold = :change_gold,
+                gold_source = :gold_source,
+                change_type = :change_type,
+                relation_id = :relation_id,
+                change_date = :change_date";
+        $this->db->exec($sql, array(
+            'user_id' => $params['user_id'],
+            'change_gold' => $params['gold'],
+            'gold_source' => $params['source'],
+            'change_type' => $params['type'],
+            'relation_id' => $params['relation_id'] ?? 0,
+            'change_date' => $todayDate
+        ));
+        return TRUE;
+    }
+    
+    /**
+     * 更新用户每日首次登陆时间
+     * @param type $userId
+     */
     public function todayFirstLogin ($userId) {
         $sql = 'REPLACE INTO t_user_first_login SET date = ?, user_id = ?';
         $this->db->exec($sql, date('Y-m-d'), $userId);
     }
-            
+         
+    /**
+     * 更新用户最后登陆时间
+     * @param type $userId
+     */
     public function lastLogin ($userId) {
         $sql = 'UPDATE t_user SET last_login_time = ? WHERE user_id = ?';
         $this->db->exec($sql, date('Y-m-d H:i:s'), $userId);

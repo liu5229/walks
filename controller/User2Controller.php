@@ -3,6 +3,7 @@
 Class User2Controller extends UserController {
     
     /**
+     * 获取用户信息
      * 301 无效设备号
      * @return \ApiReturn
      */
@@ -17,6 +18,10 @@ Class User2Controller extends UserController {
         }
     }
     
+    /**
+     * 获取手机验证码
+     * @return \ApiReturn|\apiReturn
+     */
     public function sendSmsCodeAction () {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -47,6 +52,10 @@ Class User2Controller extends UserController {
         }
     }
     
+    /**
+     * 绑定手机号
+     * @return \ApiReturn|\apiReturn
+     */
     public function buildPhoneAction () {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -90,6 +99,10 @@ Class User2Controller extends UserController {
         }
     }
     
+    /**
+     * 获取版本信息
+     * @return \ApiReturn|\apiReturn
+     */
     public function getVersionAction () {
         $sql = 'SELECT * FROM t_version ORDER BY version_id DESC LIMIT 1';
         $versionInfo = $this->db->getRow($sql);
@@ -102,6 +115,10 @@ Class User2Controller extends UserController {
         ));
     }
     
+    /**
+     * 获取运营位列表
+     * @return \ApiReturn|\apiReturn
+     */
     public function getAdAction() {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -159,6 +176,10 @@ Class User2Controller extends UserController {
         return new ApiReturn($returnList);
     }
     
+    /**
+     * 绑定支付宝
+     * @return \ApiReturn|\apiReturn
+     */
     public function buildAlipayAction () {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -178,6 +199,10 @@ Class User2Controller extends UserController {
         return new ApiReturn('');
     }
     
+    /**
+     * 获取提现信息
+     * @return \ApiReturn|\apiReturn
+     */
     public function getWithdrawAction () {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -194,6 +219,10 @@ Class User2Controller extends UserController {
         return new ApiReturn($userInfo);
     }
     
+    /**
+     * 绑定微信
+     * @return \ApiReturn|\apiReturn
+     */
     public function buildWechatAction () {
         $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
@@ -223,6 +252,10 @@ Class User2Controller extends UserController {
         return new ApiReturn($return);
     }
     
+    /**
+     * 填写邀请码
+     * @return \ApiReturn|\apiReturn
+     */
     public function buildInvitedAction () {
         $invitedId = $this->model->user2->verifyToken();
         if ($invitedId instanceof apiReturn) {

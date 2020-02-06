@@ -5,6 +5,10 @@ Class Walk2Controller extends AbstractController {
     protected $withdrawalRate = 10000;
     protected $userId;
     
+    /**
+     * 验证用户有效性
+     * 
+     */
     public function init() {
         parent::init();
         $userId = $this->model->user->verifyToken();
@@ -15,6 +19,7 @@ Class Walk2Controller extends AbstractController {
     }
     
     /**
+     * 更新用户步数
      * 401 无效更新
      * @return \ApiReturn
      * 
@@ -28,6 +33,7 @@ Class Walk2Controller extends AbstractController {
     }
 
     /**
+     * 获取任务信息
      * 501 无效获取
      * @return \ApiReturn
      * 
@@ -136,6 +142,7 @@ Class Walk2Controller extends AbstractController {
     }
     
     /**
+     * 领取任务奖励
      * 402 无效领取
      * 403 重复领取
      * 404 今日已签到
@@ -291,6 +298,10 @@ Class Walk2Controller extends AbstractController {
         }
     }
     
+    /**
+     * 申请提现接口
+     * @return \ApiReturn
+     */
     public function requestWithdrawalAction () {
         if (isset($this->inputData['amount']) && $this->inputData['amount']) {
             $withdrawalAmount = $this->inputData['amount'];
@@ -336,6 +347,10 @@ Class Walk2Controller extends AbstractController {
         }
     }
     
+    /**
+     * 金币明细列表
+     * @return \ApiReturn
+     */
     public function goldDetailAction () {
         $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? AND create_time >= ? ORDER BY gold_id DESC';
         $goldDetail = $this->db->getAll($sql, $this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
@@ -359,6 +374,10 @@ Class Walk2Controller extends AbstractController {
         return new ApiReturn($goldDetail);    
     }
     
+    /**
+     * 提现明细列表
+     * @return \ApiReturn
+     */
     public function withdrawDetailAction () {
         $statusArray = array('pending' => '审核中', 'success' => '审核成功', 'failure' => '审核失败');
         $sql = "SELECT withdraw_amount amount, withdraw_status status, create_time wTime  FROM t_withdraw WHERE user_id = ? ORDER BY withdraw_id DESC";
