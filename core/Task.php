@@ -25,8 +25,12 @@ Class Task extends AbstractController {
                 return new ApiReturn('', 501, '无效获取');
             case 'wechat':
                 $unionId = $this->model->user->userInfo($userId, 'unionid');
-                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
-                $taskInfo = array('isBuild' => $unionId ? 1 : 0, 'award' => $this->db->getOne($sql));
+                $taskInfo = array('isBuild' => $unionId ? 1 : 0, 'award' => $activityInfo['activity_award_min']);
+                break;
+            case 'invited':
+                $sql = 'SELECT COUNT(*) FROM t_user_invited WHERE invited_id = ?';
+                $isInvited = $this->db->getOne($sql, $userId);
+                $taskInfo = array('isBuild' => $isInvited ? 1 : 0, 'award' => $activityInfo['activity_award_min']);
                 break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
