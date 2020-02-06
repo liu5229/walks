@@ -236,7 +236,7 @@ Class User2Controller extends UserController {
         if ($invitedInfo) {
             return new ApiReturn('', 309, '不能重复绑定');
         }
-        $sql = 'SELECT user_id, create_time FROM t_user WHERE inviter_code = ?';
+        $sql = 'SELECT user_id, create_time FROM t_user WHERE invited_code = ?';
         $userInfo = $this->db->getRow($sql, $this->inputData['invitedCode']);
         if (!$userInfo) {
             return new ApiReturn('', 313, '无效的邀请码');
