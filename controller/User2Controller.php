@@ -107,7 +107,7 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'eyery' => 0);
+        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0);
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 305, '没有广告位置');
         }
@@ -115,7 +115,7 @@ Class User2Controller extends UserController {
                 FROM t_advertise
                 WHERE advertise_location = ?
                 AND advertise_status = 1
-                ORDER BY advertise_id DESC';
+                ORDER BY advertise_sort DESC';
         $advertiseList = $this->db->getAll($sql, HOST_NAME, $this->inputData['location']);
         $returnList = $tempArr = array();
         $adLimitCount = $adCount[$this->inputData['location']];
