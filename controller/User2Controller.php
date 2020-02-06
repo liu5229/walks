@@ -122,6 +122,7 @@ Class User2Controller extends UserController {
         $todayTime = time();
         $taskClass = new Task();
         $userCreateTime = $this->model->user2->userInfo($userId, 'create_time');
+        $isAllBuild = 'new' == $this->inputData['location'] ? TRUE : FALSE;
         foreach ($advertiseList as $advertiseInfo) {
             if ($adLimitCount && $adLimitCount <= count($returnList)) {
                 break;
@@ -146,8 +147,14 @@ Class User2Controller extends UserController {
                 'url' => $advertiseInfo['advertise_url']);
             if ('task' == $advertiseInfo['advertise_type']) {
                 $tempArr['info'] = $taskClass->getTask($advertiseInfo['advertise_url'], $userId);
+                if ($isAllBuild) {
+                    $isAllBuild = $tempArr['info']['isBuild'] ? TRUE : FALSE;
+                }
             }
             $returnList[] = $tempArr;
+        }
+        if ($isAllBuild) {
+            $returnList = [];
         }
         return new ApiReturn($returnList);
     }
