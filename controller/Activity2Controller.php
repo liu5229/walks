@@ -94,7 +94,7 @@ Class Activity2Controller extends AbstractController {
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?,
                             receive_gold = ?,
                             receive_walk = ?,
-                            receive_type = "drink"
+                            receive_type = "drink",
                             receive_date = ?';
                     $this->db->exec($sql, $this->userId, $drinkInfo['award_min'], $drinkInfo['counter_min'], $todayDate);
                     $tempArr = array(
