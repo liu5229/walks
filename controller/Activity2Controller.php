@@ -14,7 +14,7 @@ Class Activity2Controller extends AbstractController {
      */
     public function init() {
         parent::init();
-        $userId = $this->model->user->verifyToken();
+        $userId = $this->model->user2->verifyToken();
         if ($userId instanceof apiReturn) {
             return $userId;
         }
@@ -37,7 +37,13 @@ Class Activity2Controller extends AbstractController {
             if ($invitedInfo['counter_min'] <=  $invitedCount) {
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_type = "invited_count" AND receive_walk = ?';
                 $invitedDetail = $this->db->getRow($sql, $this->userId, $invitedInfo['counter_min']);
-                if (!$invitedDetail) {
+                if ($invitedDetail) {
+                    $receiveInfo = array(
+                        'id' => $invitedDetail['receive_id'],
+                        'num' => $invitedDetail['receive_gold'],
+                        'type' => 'invited_count',
+                        'isReceived' => $invitedDetail['receive_status']);
+                } else {
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?,
                             receive_gold = ?,
                             receive_walk = ?,
@@ -48,12 +54,6 @@ Class Activity2Controller extends AbstractController {
                         'num' => $invitedInfo['award_min'],
                         'type' => 'invited_count',
                         'isReceived' => 0);
-                } else {
-                    $receiveInfo = array(
-                        'id' => $invitedDetail['receive_id'],
-                        'num' => $invitedDetail['receive_gold'],
-                        'type' => 'invited_count',
-                        'isReceived' => $invitedDetail['receive_status']);
                 }
             }
             $receiveInfo = array_merge($receiveInfo, array('count' => $invitedInfo['counter_min'], 'award' => $invitedInfo['award_min']));
@@ -61,6 +61,53 @@ Class Activity2Controller extends AbstractController {
         }
         $return['code'] = $this->model->user2->userInfo($this->userId, 'invited_code');
         $return['invitedList'] = $invitedArr;
+        return new ApiReturn($return);
+    }
+    
+    /**
+     * 获取喝水任务
+     * @return \ApiReturn
+     */
+    public function getDrinkAction () {
+        $return = array();
+        $sql = 'SELECT * FROM t_award_config WHERE config_type = ? ORDER BY counter_min DESC';
+        $drinkList = $this->db->getAll($sql, 'drink');
+        $nowTime = time();
+        $todayDate = date('Y-m-d');
+        $isCurrent = 0;
+        
+        foreach ($drinkList as $drinkInfo) {
+            $tempArr = array();
+            if ($nowTime > date('Y-' . $drinkInfo['counter_min'] . '-d 00:00:00')) {
+                if (!$isCurrent) {
+                    $isCurrent = 1;
+                }
+                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_type = "drink" AND receive_walk = ? AND receive_date = ?';
+                $drinkDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], $todayDate);
+                if ($drinkDetail) {
+                    $tempArr = array(
+                        'id' => $drinkDetail['receive_id'],
+                        'num' => $drinkDetail['receive_gold'],
+                        'type' => 'drink',
+                        'isReceived' => $drinkDetail['receive_status']);
+                } else {
+                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?,
+                            receive_gold = ?,
+                            receive_walk = ?,
+                            receive_type = "drink"
+                            receive_date = ?';
+                    $this->db->exec($sql, $this->userId, $drinkInfo['award_min'], $drinkInfo['counter_min'], $todayDate);
+                    $tempArr = array(
+                        'id' => $this->db->lastInsertId(),
+                        'num' => $drinkInfo['award_min'],
+                        'type' => 'drink',
+                        'isReceived' => 0);
+                }
+                $tempArr['isCurrent'] = $isCurrent;
+            }
+            $tempArr = array_merge($tempArr, array('date' => $invitedInfo['counter_min'], 'award' => $invitedInfo['award_min']));
+            $return[] = $tempArr;
+        }
         return new ApiReturn($return);
     }
 }

@@ -119,7 +119,7 @@ class User2Model extends UserModel {
      * @param type $userId
      */
     public function todayFirstLogin ($userId) {
-        $sql = 'REPLACE INTO t_user_first_login SET date = ?, user_id = ?';
+        $sql = 'INSERT IGNORE INTO t_user_first_login SET date = ?, user_id = ?';
         $this->db->exec($sql, date('Y-m-d'), $userId);
     }
          
