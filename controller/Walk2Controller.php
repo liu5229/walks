@@ -1,6 +1,6 @@
 <?php 
 
-Class Walk2Controller extends AbstractController {
+Class Walk2Controller extends WalkController {
     //提现汇率
     protected $withdrawalRate = 10000;
     protected $userId;
@@ -191,14 +191,9 @@ Class Walk2Controller extends AbstractController {
                 } else {
                     return new ApiReturn('', 402, '无效领取');
                 }
-                break;
             case 'newer':
-                return new ApiReturn('', 402, '无效领取');
-                break;
-//            case 'phone':
             case 'wechat':
                 return new ApiReturn('', 402, '无效领取');
-                break;
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double
                         FROM t_gold2receive
@@ -244,7 +239,6 @@ Class Walk2Controller extends AbstractController {
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'], 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
-                break;
             default :
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time
                         FROM t_gold2receive
@@ -266,7 +260,7 @@ Class Walk2Controller extends AbstractController {
                 if ($historyInfo['receive_status']) {
                     return new ApiReturn('', 403, '重复领取');
                 }
-                if (strtotime($historyInfo['end_time']) > time()) {
+                if ($historyInfo['end_time'] && strtotime($historyInfo['end_time']) > time()) {
                     return new ApiReturn('', 405, '领取时间未到');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
@@ -294,7 +288,6 @@ Class Walk2Controller extends AbstractController {
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
-                break;
         }
     }
     
