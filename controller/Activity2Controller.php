@@ -51,7 +51,7 @@ Class Activity2Controller extends AbstractController {
                 } else {
                     $receiveInfo = array(
                         'id' => $invitedDetail['receive_id'],
-                        'num' => $invitedDetail['award_min'],
+                        'num' => $invitedDetail['receive_gold'],
                         'type' => 'invited_count',
                         'isReceived' => $invitedDetail['receive_status']);
                 }
