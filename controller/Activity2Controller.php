@@ -105,7 +105,7 @@ Class Activity2Controller extends AbstractController {
                 }
                 $tempArr['isCurrent'] = $isCurrent;
             }
-            $tempArr = array_merge($tempArr, array('date' => $invitedInfo['counter_min'], 'award' => $invitedInfo['award_min']));
+            $tempArr = array_merge($tempArr, array('date' => $drinkInfo['counter_min'], 'award' => $drinkInfo['award_min']));
             $return[] = $tempArr;
         }
         return new ApiReturn($return);
