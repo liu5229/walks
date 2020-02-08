@@ -56,3 +56,4 @@ while (true) {
 }
 $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
 $db->exec($sql, $variableName, $reportDaily);
+echo 'done';
