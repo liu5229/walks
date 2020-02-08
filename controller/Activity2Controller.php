@@ -40,6 +40,13 @@ Class Activity2Controller extends AbstractController {
         }
         $return['code'] = $this->model->user2->userInfo($this->userId, 'invited_code');
         $return['invitedList'] = $invitedArr;
+        
+        //invited
+        $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
+        $return['invitedTotal'] = $this->db->getOne($sql, $this->userId) ?: 0;
+        
+        $sql = 'SELECT COUNT(id) FROM t_user_invited WHERE user_id = ?';
+        $return['invitedCount'] = $this->db->getOne($sql, $this->userId);
         return new ApiReturn($return);
     }
     

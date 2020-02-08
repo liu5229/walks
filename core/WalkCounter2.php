@@ -56,11 +56,15 @@ class WalkCounter2 extends WalkCounter
                         ORDER BY receive_id LIMIT ' . ($this->walkAwardLimitCount - $receivedInfo['count']);
                     $return['list'] = $this->db->getAll($sql, $this->userId, $this->todayDate);
                 }
+                $sql = 'SELECT COUNT(*)
+                        FROM t_gold2receive 
+                        WHERE user_id = ? 
+                        AND receive_date = ? 
+                        AND receive_type = "walk"';
+                $return['restCount'] = $this->db->getAll($sql, $this->userId, $this->todayDate);
                 return $return;
-                break;
             case 'walk_stage':
                 return $this->__walkStageList();
-                break;
         }
     }
     
