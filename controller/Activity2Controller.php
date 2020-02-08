@@ -29,10 +29,11 @@ Class Activity2Controller extends AbstractController {
         $return = array();
         $sql = 'SELECT c.counter_min, c.counter_min, g.gold_id 
                 FROM t_award_config c
-                LFET JOIN t_gold g ON g.relation_id = c.config_id AND g.source = "invited_count"
+                LEFT JOIN t_gold g ON g.relation_id = c.config_id AND g.source = "invited_count"
                 WHERE c.config_type = ? 
+                AND g.user_id = ?
                 ORDER BY c.counter_min ASC';
-        $invitedList = $this->db->getAll($sql, 'invited_count');
+        $invitedList = $this->db->getAll($sql, 'invited_count', $this->userId);
         
         $invitedArr = array();
         foreach ($invitedList as $invitedInfo) {
