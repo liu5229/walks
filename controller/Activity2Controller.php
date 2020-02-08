@@ -29,7 +29,7 @@ Class Activity2Controller extends AbstractController {
         $return = array();
         $sql = 'SELECT c.counter_min, c.counter_min, g.gold_id 
                 FROM t_award_config c
-                LEFT JOIN t_gold g ON g.relation_id = c.config_id AND g.source = "invited_count"
+                LEFT JOIN t_gold g ON g.relation_id = c.config_id AND g.gold_source = "invited_count"
                 WHERE c.config_type = ? 
                 AND g.user_id = ?
                 ORDER BY c.counter_min ASC';
