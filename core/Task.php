@@ -18,7 +18,7 @@ Class Task extends AbstractController {
         switch ($type) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($userId);
+                $walkReward = new WalkCounter2($userId);
                 $taskInfo = $walkReward->getReturnInfo($type);
                 break;
             case 'newer':

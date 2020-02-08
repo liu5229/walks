@@ -28,7 +28,7 @@ Class Walk2Controller extends WalkController {
         if (!isset($this->inputData['stepCount'])) {
             return new ApiReturn('', 401, '无效更新');
         }
-        $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount']);
+        $walkReward = new WalkCounter2($this->userId, $this->inputData['stepCount']);
         return new ApiReturn(array('stepCount' => $walkReward->getStepCount()));
     }
 
@@ -51,7 +51,7 @@ Class Walk2Controller extends WalkController {
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($this->userId);
+                $walkReward = new WalkCounter2($this->userId);
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
                 break;
             case 'newer':
@@ -164,7 +164,7 @@ Class Walk2Controller extends WalkController {
         switch ($this->inputData['type']) {
             case 'walk':
             case 'walk_stage':
-                $walkReward = new WalkCounter($this->userId, $this->inputData['stepCount'] ?? 0);
+                $walkReward = new WalkCounter2($this->userId, $this->inputData['stepCount'] ?? 0);
                 $receiveInfo = $walkReward->verifyReceive(array(
                    'receive_id' => $this->inputData['id'] ?? 0,
                    'receive_gold' => $this->inputData['num'] ?? 0,
@@ -273,16 +273,17 @@ Class Walk2Controller extends WalkController {
                 if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                     $this->db->exec($sql, $doubleStatus, $historyInfo['receive_id']);
-                    if ($activityInfo['activity_max']) {
-                        $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
-                        $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                        if ($activityCount < $activityInfo['activity_max']) {
-                            $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                            $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                            $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                            $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
-                        }
+                    
+                    $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
+                    $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
+                    
+                    if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
+                        $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
+                        $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
+                        $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                     }
+                    
                     $goldInfo = $this->model->user2->getGold($this->userId);
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                 }
