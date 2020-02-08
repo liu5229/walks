@@ -17,7 +17,6 @@ class AutoLoad {
         );
         foreach ($fileAutoFindArr as $fileDir) {
             $file = $fileDir . $className . '.php';
-            error_log($file);
             if (file_exists($file)) {
                 require_once $file;
                 return true;

@@ -1,6 +1,6 @@
 <?php
 
-class walkCounter2 extends walkCounter
+class WalkCounter2 extends WalkCounter
 {
     //领取奖励条件步数
     protected $rewardCounter = 50;
