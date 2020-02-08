@@ -27,37 +27,16 @@ Class Activity2Controller extends AbstractController {
      */
     public function getInvitedAction() {
         $return = array();
-        $sql = 'SELECT * FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
+        $sql = 'SELECT c.counter_min, c.counter_min, g.gold_id 
+                FROM t_award_config c
+                LFET JOIN t_gold g ON g.relation_id = c.config_id AND g.source = "invited_count"
+                WHERE c.config_type = ? 
+                ORDER BY c.counter_min ASC';
         $invitedList = $this->db->getAll($sql, 'invited_count');
-        $sql = 'SELECT COUNT(*) FROM t_user_invited WHERE user_id = ?';
-        $invitedCount = $this->db->getOne($sql, $this->userId);
+        
         $invitedArr = array();
         foreach ($invitedList as $invitedInfo) {
-            $receiveInfo = array();
-            if ($invitedInfo['counter_min'] <=  $invitedCount) {
-                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_type = "invited_count" AND receive_walk = ?';
-                $invitedDetail = $this->db->getRow($sql, $this->userId, $invitedInfo['counter_min']);
-                if ($invitedDetail) {
-                    $receiveInfo = array(
-                        'id' => $invitedDetail['receive_id'],
-                        'num' => $invitedDetail['receive_gold'],
-                        'type' => 'invited_count',
-                        'isReceived' => $invitedDetail['receive_status']);
-                } else {
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?,
-                            receive_gold = ?,
-                            receive_walk = ?,
-                            receive_type = "invited_count"';
-                    $this->db->exec($sql, $this->userId, $invitedInfo['award_min'], $invitedInfo['counter_min']);
-                    $receiveInfo = array(
-                        'id' => $this->db->lastInsertId(),
-                        'num' => $invitedInfo['award_min'],
-                        'type' => 'invited_count',
-                        'isReceived' => 0);
-                }
-            }
-            $receiveInfo = array_merge($receiveInfo, array('count' => $invitedInfo['counter_min'], 'award' => $invitedInfo['award_min']));
-            $invitedArr[] = $receiveInfo;
+            $invitedArr[] = array('count' => $invitedInfo['counter_min'], 'award' => $invitedInfo['award_min'], 'isGet' => $invitedInfo['gold_id'] ? 1 : 0);
         }
         $return['code'] = $this->model->user2->userInfo($this->userId, 'invited_code');
         $return['invitedList'] = $invitedArr;

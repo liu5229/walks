@@ -6,6 +6,7 @@
  * and open the template in the editor.
  */
 
+//生成以前没有邀请码用户的邀请码
 
 require_once '../../init.inc.php';
 

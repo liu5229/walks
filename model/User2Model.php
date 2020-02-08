@@ -84,12 +84,12 @@ class User2Model extends UserModel {
             return new ApiReturn('', 203, '用户被冻结领取失败');
         }
         if ('in' == $params['type']) {
-            $notInEveryTotal = array("newer", "phone", "wechat", "system");
-            $sql = 'SELECT SUM(change_gold) 
+            $notInEveryTotal = array("newer", "phone", "wechat", "system", "invited_count");
+            $sql = 'SELECT SUM(change_gold)
                     FROM t_gold
                     WHERE user_id = ?
                     AND change_type = "in"
-                    AND change_date = ? 
+                    AND change_date = ?
                     AND gold_source NOT IN ("' . implode('", "', $notInEveryTotal) .'")';
             $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
             if ($goldToday > $this->maxGoldEveryDay) {
