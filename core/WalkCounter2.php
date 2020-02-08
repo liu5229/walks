@@ -44,7 +44,7 @@ class WalkCounter2 extends WalkCounter
                 $receivedInfo = $this->db->getRow($sql, $this->userId, $this->todayDate, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
                 if ($this->walkAwardLimitCount <= $receivedInfo['count']) {
                     $return['list'] = array();
-                    $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', strtotime($receivedInfo['count'])) * 1000;
+                    $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', strtotime($receivedInfo['min'])) * 1000;
                     $return['serverTime'] = time() * 1000;
                 } else {
                     $sql = 'SELECT receive_id id, receive_gold num, receive_type type 
