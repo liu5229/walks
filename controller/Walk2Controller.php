@@ -193,6 +193,9 @@ Class Walk2Controller extends WalkController {
                 }
             case 'newer':
             case 'wechat':
+            case 'do_invite':
+            case 'invited':
+            case 'invited_count':
                 return new ApiReturn('', 402, '无效领取');
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double
@@ -277,11 +280,13 @@ Class Walk2Controller extends WalkController {
                     $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                     $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                     
-                    if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
-                        $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                        $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                        $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
+                    if (!in_array($this->inputData['type'], array('drink'))) {
+                        if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
+                            $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
+                            $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                            $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
+                            $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
+                        }
                     }
                     
                     $goldInfo = $this->model->user2->getGold($this->userId);
