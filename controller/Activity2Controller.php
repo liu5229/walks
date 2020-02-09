@@ -64,7 +64,8 @@ Class Activity2Controller extends AbstractController {
         
         foreach ($drinkList as $drinkInfo) {
             $tempArr = array();
-            if ($nowTime > strtotime(date('Y-m-d ' . $drinkInfo['counter_min'] . ':00:00'))) {
+            $drinkTime = strtotime(date('Y-m-d ' . $drinkInfo['counter_min'] . ':00:00'));
+            if ($nowTime > $drinkTime) {
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_type = "drink" AND receive_walk = ? AND receive_date = ?';
                 $drinkDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], $todayDate);
                 if ($drinkDetail) {
@@ -92,10 +93,10 @@ Class Activity2Controller extends AbstractController {
                     $isCurrent = 1;
                 }
             }
-            $tempArr = array_merge($tempArr, array('date' => $drinkInfo['counter_min'], 'award' => $drinkInfo['award_min']));
+            $tempArr = array_merge($tempArr, array('date' => $drinkTime * 1000, 'award' => $drinkInfo['award_min']));
             $return[] = $tempArr;
         }
-        return new ApiReturn($return);
+        return new ApiReturn(array_reverse($return));
     }
 }
 
