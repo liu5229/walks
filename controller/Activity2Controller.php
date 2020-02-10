@@ -169,7 +169,7 @@ Class Activity2Controller extends AbstractController {
            'user_id' => $this->userId,
            'receive_gold' => $this->inputData['num'] ?? 0,
            'receive_type' => $this->inputData['type'] ?? '',
-           'receive_date' => $today,
+           'receive_date' => $todayDate,
         ));
         
         if ($awardInfo) {
@@ -228,7 +228,7 @@ Class Activity2Controller extends AbstractController {
         }
         
         $sql = 'SELECT config_id, award_min FROM t_award_config WHERE config_type = ? AND counter_min = ?';
-        $lotteryCountAwardInfo = $db->getRow($sql, 'lottery_count', $return['currentCount']);
+        $lotteryCountAwardInfo = $this->db->getRow($sql, 'lottery_count', $return['currentCount']);
         if ($lotteryCountAwardInfo) {
             $sql = 'INSERT INTO t_gold2receive SET
                     receive_date = ?,
