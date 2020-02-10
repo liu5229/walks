@@ -245,7 +245,7 @@ Class Activity2Controller extends AbstractController {
                 LEFT JOIN t_gold2receive g ON g.receive_walk = c.config_id AND g.receive_type = c.config_type AND g.user_id = ? AND receive_date = ?
                 WHERE c.config_type = ?
                 ORDER BY c.counter_min ASC';
-        $lotteryCountList = $this->db->getAll($sql, $this->userId, 'lottery_count');
+        $lotteryCountList = $this->db->getAll($sql, $this->userId, $todayDate, 'lottery_count');
         $return['totalAward'] = $lotteryCountList;
         
         return new ApiReturn($return);
