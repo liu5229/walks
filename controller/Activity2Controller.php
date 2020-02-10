@@ -99,7 +99,7 @@ Class Activity2Controller extends AbstractController {
         return new ApiReturn(array_reverse($return));
     }
     
-    public function getlotteryAction () {
+    public function getLotteryAction () {
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $lotteryActInfo = $this->db->getRow($sql, 'lottery');
         $return = array();
