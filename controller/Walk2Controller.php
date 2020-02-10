@@ -55,6 +55,9 @@ Class Walk2Controller extends WalkController {
                 return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
                 break;
             case 'newer':
+            case 'lottery':
+            case 'lottery_count':
+            case 'phone':
                 return new ApiReturn('', 501, '无效获取');
                 break;
             case 'wechat':
@@ -62,11 +65,6 @@ Class Walk2Controller extends WalkController {
                 $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
                 return new ApiReturn(array('isBuild' => $unionId ? 1 : 0, 'award' => $this->db->getOne($sql)));
                 break;
-//            case 'phone':
-//                $phoneNumber = $this->model->user2->userInfo($this->userId, 'phone_number');
-//                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
-//                return new ApiReturn(array('isBuild' => $phoneNumber ? 1 : 0, 'award' => $this->db->getOne($sql)));
-//                break;
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $this->userId);
@@ -196,6 +194,7 @@ Class Walk2Controller extends WalkController {
             case 'do_invite':
             case 'invited':
             case 'invited_count':
+            case 'lottery':
                 return new ApiReturn('', 402, '无效领取');
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double
@@ -277,10 +276,9 @@ Class Walk2Controller extends WalkController {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                     $this->db->exec($sql, $doubleStatus, $historyInfo['receive_id']);
                     
-                    $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
-                    $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                    
-                    if (!in_array($this->inputData['type'], array('drink'))) {
+                    if (!in_array($this->inputData['type'], array('drink', 'lottery_count'))) {
+                        $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
+                        $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                         if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
                             $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
                             $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
