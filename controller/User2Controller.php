@@ -10,6 +10,12 @@ Class User2Controller extends UserController {
     public function infoAction() {
         if (isset($this->inputData['deviceId'])) {
             $userInfo = $this->model->user2->getUserInfo($this->inputData['deviceId'], $this->inputData['userDeviceInfo'] ?? array());
+            if (isset($this->inputData['userDeviceInfo']['source']) && isset($this->inputData['userDeviceInfo']['versionCode'])) {
+                $sql = 'SELECT ad_status FROM t_version_ad WHERE version_id = ? AND app_name = ?';
+                $userInfo['adStatus'] = $this->getOne($sql, $this->inputData['userDeviceInfo']['source'], $this->inputData['userDeviceInfo']['versionCode']) ?: 0;
+            } else {
+                $userInfo['adStatus'] = 0;
+            }
             $this->model->user2->todayFirstLogin($userInfo['userId']);
             $this->model->user2->lastLogin($userInfo['userId']);
             return new ApiReturn($userInfo);
@@ -80,17 +86,6 @@ Class User2Controller extends UserController {
             $sql = 'UPDATE t_user SET phone_number = ?, nickname = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], substr_replace($this->inputData['phone'], '****', 3, 4), $userId);
             $return = array();
-//            $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-//            $awardInfo = $this->db->getOne($sql, $userId, 'phone');
-//            if (!$awardInfo) {
-//                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
-//                $gold = $this->db->getOne($sql);
-//                $this->model->user2->updateGold(array('user_id' => $userId,
-//                    'gold' => $gold,
-//                    'source' => 'phone',
-//                    'type' => 'in'));
-//                $return['award'] = $gold;
-//            }
             $sql = 'DELETE FROM t_sms_code WHERE user_id = ?';
             $this->db->exec($sql, $userId);
             return new ApiReturn($return);
@@ -112,6 +107,7 @@ Class User2Controller extends UserController {
             'forceUpdate' => $versionInfo['is_force_update'],
             'apkUrl' => HOST_NAME . $versionInfo['version_url'],
             'updateLog' => $versionInfo['version_log'],
+            'needUpdateVersionCode' => $versionInfo['update_version_id'],
         ));
     }
     
