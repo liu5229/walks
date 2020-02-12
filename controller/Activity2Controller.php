@@ -116,7 +116,7 @@ Class Activity2Controller extends AbstractController {
         if ($lotteryReceiveInfo) {
             $currentAward = current($lotteryReceiveInfo);
             $return['currentAward'] = $currentAward;
-            $return['currentCount'] = count($lotteryReceiveInfo) - ($currentAward['receive_type'] ? 0 : 1);
+            $return['currentCount'] = count($lotteryReceiveInfo) - ($currentAward['type'] ? 0 : 1);
         } else {
             $award = rand($lotteryActInfo['activity_award_min'], $lotteryActInfo['activity_award_max']);
             $sql = 'INSERT INTO t_gold2receive SET
