@@ -60,7 +60,8 @@ class WalkCounter2 extends WalkCounter
                         FROM t_gold2receive 
                         WHERE user_id = ? 
                         AND receive_date = ? 
-                        AND receive_type = "walk"';
+                        AND receive_type = "walk"
+                        AND receive_status = 0';
                 $return['restCount'] = $this->db->getOne($sql, $this->userId, $this->todayDate);
                 return $return;
             case 'walk_stage':
