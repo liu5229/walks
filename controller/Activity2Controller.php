@@ -111,12 +111,12 @@ Class Activity2Controller extends AbstractController {
                 WHERE receive_date = ? 
                 AND user_id = ? 
                 AND receive_type = ? 
-                AND receive_status = 1
                 ORDER BY receive_status ASC, receive_id DESC';
         $lotteryReceiveInfo = $this->db->getAll($sql, $todayDate, $this->userId, 'lottery');
         if ($lotteryReceiveInfo) {
-            $return['currentAward'] = current($lotteryReceiveInfo);
-            $return['currentCount'] = count($lotteryReceiveInfo);
+            $currentAward = current($lotteryReceiveInfo);
+            $return['currentAward'] = $currentAward;
+            $return['currentCount'] = count($lotteryReceiveInfo) - ($currentAward['receive_type'] ? 0 : 1);
         } else {
             $award = rand($lotteryActInfo['activity_award_min'], $lotteryActInfo['activity_award_max']);
             $sql = 'INSERT INTO t_gold2receive SET
