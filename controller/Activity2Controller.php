@@ -229,7 +229,8 @@ Class Activity2Controller extends AbstractController {
             $this->db->exec($sql, $todayDate, $this->userId, $lotteryCountAwardInfo['award_min'], $lotteryCountAwardInfo['config_id']);
         }
         
-        return new ApiReturn($return);
+        $goldInfo = $this->model->user2->getGold($this->userId);
+        return new ApiReturn(array('awardGold' => $awardInfo ? $awardInfo['receive_gold'] : 0, 'currentGold' => $goldInfo['currentGold']));
     }
 }
 
