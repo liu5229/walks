@@ -106,7 +106,7 @@ Class Activity2Controller extends AbstractController {
         
         $todayDate = date('Y-m-d');
         //当前次数 剩余次数  抽奖金币信息
-        $sql = 'SELECT receive_id id, receive_gold num, receive_type type
+        $sql = 'SELECT receive_id, receive_gold, receive_type, receive_status
                 FROM t_gold2receive
                 WHERE receive_date = ? 
                 AND user_id = ? 
@@ -115,8 +115,8 @@ Class Activity2Controller extends AbstractController {
         $lotteryReceiveInfo = $this->db->getAll($sql, $todayDate, $this->userId, 'lottery');
         if ($lotteryReceiveInfo) {
             $currentAward = current($lotteryReceiveInfo);
-            $return['currentAward'] = $currentAward;
-            $return['currentCount'] = count($lotteryReceiveInfo) - ($currentAward['type'] ? 0 : 1);
+            $return['currentAward'] = array('id' => $currentAward['receive_id'], 'num' => $currentAward['receive_gold'], 'type' => $currentAward['receive_type']);
+            $return['currentCount'] = count($lotteryReceiveInfo) - ($currentAward['receive_status'] ? 0 : 1);
         } else {
             $award = rand($lotteryActInfo['activity_award_min'], $lotteryActInfo['activity_award_max']);
             $sql = 'INSERT INTO t_gold2receive SET
