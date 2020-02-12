@@ -125,7 +125,7 @@ Class Activity2Controller extends AbstractController {
                     receive_type = "lottery",
                     receive_gold = ?';
             $this->db->exec($sql, $todayDate, $this->userId, $award);
-            $return['currentAward'] = array('id' => $this->db->lastInsertId(), 'num' => $award, 'type' => 'lottery');
+            $return['currentAward'] = array('id' => $this->db->lastInsertId(), 'num' => (string) $award, 'type' => 'lottery');
             $return['currentCount'] = 0;
         }
         $return['restCount'] = $lotteryActInfo['activity_max'] - $return['currentCount'];
