@@ -107,10 +107,11 @@ Class Activity2Controller extends AbstractController {
         $todayDate = date('Y-m-d');
         //当前次数 剩余次数  抽奖金币信息
         $sql = 'SELECT receive_id id, receive_gold num, receive_type type
-                FROM t_gold2receive 
+                FROM t_gold2receive
                 WHERE receive_date = ? 
                 AND user_id = ? 
                 AND receive_type = ? 
+                AND receive_status = 1
                 ORDER BY receive_status ASC, receive_id DESC';
         $lotteryReceiveInfo = $this->db->getAll($sql, $todayDate, $this->userId, 'lottery');
         if ($lotteryReceiveInfo) {
@@ -151,6 +152,7 @@ Class Activity2Controller extends AbstractController {
                 WHERE receive_date = ? 
                 AND user_id = ? 
                 AND receive_type = ? 
+                AND receive_status = 1
                 ORDER BY receive_status ASC, receive_id DESC';
         $lotteryReceiveInfo = $this->db->getOne($sql, $todayDate, $this->userId, 'lottery');
         if ($lotteryActInfo['activity_max'] == $lotteryReceiveInfo) {
@@ -200,9 +202,9 @@ Class Activity2Controller extends AbstractController {
             $this->db->exec($sql, $todayDate, $this->userId);
         }
         
-        $return['currentCount'] = $lotteryReceiveInfo + 1;
-        $return['restCount'] = $lotteryActInfo['activity_max'] - $return['currentCount'];
-        if ($return['restCount']) {
+        $currentCount = $lotteryReceiveInfo + 1;
+        $restCount = $lotteryActInfo['activity_max'] - $currentCount;
+        if ($restCount) {
             if ($awardInfo) {
                 //生成下一个
                 $award = rand($lotteryActInfo['activity_award_min'], $lotteryActInfo['activity_award_max']);
@@ -212,23 +214,11 @@ Class Activity2Controller extends AbstractController {
                         receive_type = "lottery",
                         receive_gold = ?';
                 $this->db->exec($sql, $todayDate, $this->userId, $award);
-                $return['currentAward'] = array('id' => $this->db->lastInsertId(), 'num' => $award, 'type' => 'lottery');
-            } else {
-                //返回最近未领取的
-                $sql = 'SELECT receive_id id, receive_gold num, receive_type type
-                        FROM t_gold2receive 
-                        WHERE receive_date = ? 
-                        AND user_id = ? 
-                        AND receive_type = ? 
-                        ORDER BY receive_status ASC, receive_id DESC';
-                $return['currentAward'] = $this->db->getRow($sql, $todayDate, $this->userId, 'lottery');;
             }
-        } else {
-            $return['currentAward'] = array();
         }
         
         $sql = 'SELECT config_id, award_min FROM t_award_config WHERE config_type = ? AND counter_min = ?';
-        $lotteryCountAwardInfo = $this->db->getRow($sql, 'lottery_count', $return['currentCount']);
+        $lotteryCountAwardInfo = $this->db->getRow($sql, 'lottery_count', $currentCount);
         if ($lotteryCountAwardInfo) {
             $sql = 'INSERT INTO t_gold2receive SET
                     receive_date = ?,
@@ -238,15 +228,6 @@ Class Activity2Controller extends AbstractController {
                     receive_walk = ?';
             $this->db->exec($sql, $todayDate, $this->userId, $lotteryCountAwardInfo['award_min'], $lotteryCountAwardInfo['config_id']);
         }
-        
-        //累计抽奖列表
-        $sql = 'SELECT c.counter_min count, c.award_min award, g.receive_id id, g.receive_gold num, g.receive_type type, g.receive_status isReceive
-                FROM t_award_config c
-                LEFT JOIN t_gold2receive g ON g.receive_walk = c.config_id AND g.receive_type = c.config_type AND g.user_id = ? AND receive_date = ?
-                WHERE c.config_type = ?
-                ORDER BY c.counter_min ASC';
-        $lotteryCountList = $this->db->getAll($sql, $this->userId, $todayDate, 'lottery_count');
-        $return['totalAward'] = $lotteryCountList;
         
         return new ApiReturn($return);
     }
