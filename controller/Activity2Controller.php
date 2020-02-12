@@ -155,7 +155,7 @@ Class Activity2Controller extends AbstractController {
                 AND receive_status = 1
                 ORDER BY receive_status ASC, receive_id DESC';
         $lotteryReceiveInfo = $this->db->getOne($sql, $todayDate, $this->userId, 'lottery');
-        if ($lotteryActInfo['activity_max'] == $lotteryReceiveInfo) {
+        if ($lotteryActInfo['activity_max'] <= $lotteryReceiveInfo) {
             return new ApiReturn('', 501, '今日抽奖次数已用完');
         }
         
