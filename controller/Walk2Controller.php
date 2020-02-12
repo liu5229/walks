@@ -158,6 +158,9 @@ Class Walk2Controller extends WalkController {
         if (!$activityInfo) {
             return new ApiReturn('', 402, '无效领取');
         }
+        if (!$activityInfo['activity_status']) {
+            return new ApiReturn('', 204, '活动结束领取奖励失败');
+        }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
             case 'walk':
@@ -189,12 +192,12 @@ Class Walk2Controller extends WalkController {
                 } else {
                     return new ApiReturn('', 402, '无效领取');
                 }
-            case 'newer':
-            case 'wechat':
-            case 'do_invite':
-            case 'invited':
-            case 'invited_count':
-            case 'lottery':
+            case 'newer'://user2model/get-userInfo
+            case 'wechat'://user2/build-wechat
+            case 'do_invite'://user2/build-invited
+            case 'invited'://user2/build-invited
+            case 'invited_count'://脚本crons/invited_count.php
+            case 'lottery'://activity2/lottery-award
                 return new ApiReturn('', 402, '无效领取');
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double

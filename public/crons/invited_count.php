@@ -10,6 +10,12 @@ $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
 $model = new Model();
 
+$sql = 'SELECT activity_status FROM t_activity WHERE activity_type = "invited_count"';
+$status = $db->getOne($sql);
+if (!$status) {
+    echo 'activity end';exit;
+}
+
 $variableName = 'invited_id';
 $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
 $invitedId = $db->getOne($sql, $variableName);

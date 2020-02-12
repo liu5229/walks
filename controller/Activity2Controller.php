@@ -99,6 +99,10 @@ Class Activity2Controller extends AbstractController {
         return new ApiReturn(array_reverse($return));
     }
     
+    /**
+     * 获取大转盘活动
+     * @return \ApiReturn
+     */
     public function getLotteryAction () {
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $lotteryActInfo = $this->db->getRow($sql, 'lottery');
@@ -142,9 +146,17 @@ Class Activity2Controller extends AbstractController {
         return new ApiReturn($return);
     }
     
+    /**
+     * 领取大转盘活动
+     * @return \ApiReturn
+     */
     public function lotteryAwardAction () {
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $lotteryActInfo = $this->db->getRow($sql, 'lottery');
+        if (!$lotteryActInfo['activity_status']) {
+            return new ApiReturn('', 204, '活动结束领取奖励失败');
+        }
+        
         $todayDate = date('Y-m-d');
         
         $sql = 'SELECT COUNT(receive_id)

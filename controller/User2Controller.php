@@ -237,13 +237,17 @@ Class User2Controller extends UserController {
         $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
         $awardInfo = $this->db->getOne($sql, $userId, 'wechat');
         if (!$awardInfo) {
-            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
-            $gold = $this->db->getOne($sql);
-            $this->model->user2->updateGold(array('user_id' => $userId,
-                'gold' => $gold,
-                'source' => 'wechat',
-                'type' => 'in'));
-            $return['award'] = $gold;
+            $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "wechat"';
+            $goldInfo = $this->db->getRow($sql);
+            if (!$goldInfo['activity_status']) {
+                $return['award'] = 0;
+            } else {
+                $this->model->user2->updateGold(array('user_id' => $userId,
+                    'gold' => $goldInfo['activity_award_min'],
+                    'source' => 'wechat',
+                    'type' => 'in'));
+                $return['award'] = $goldInfo['activity_award_min'];
+            }
         }
         return new ApiReturn($return);
     }
@@ -281,19 +285,26 @@ Class User2Controller extends UserController {
         $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
         $awardInfo = $this->db->getOne($sql, $userInfo['user_id'], 'invited');
         if (!$awardInfo) {
-            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "invited"';
-            $gold = $this->db->getOne($sql);
-            $this->model->user2->updateGold(array('user_id' => $invitedId,
-                'gold' => $gold,
-                'source' => 'invited',
-                'type' => 'in'));
-            $return['award'] = $gold;
-            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "do_invite"';
-            $gold = $this->db->getOne($sql);
-            $this->model->user2->updateGold(array('user_id' => $userInfo['user_id'],
-                'gold' => $gold,
-                'source' => 'do_invite',
-                'type' => 'in'));
+            $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "invited"';
+            $goldInfo = $this->db->getRow($sql);
+            if (!$goldInfo['activity_status']) {
+                $return['award'] = 0;
+            } else {
+                $this->model->user2->updateGold(array('user_id' => $invitedId,
+                    'gold' => $goldInfo['activity_award_min'],
+                    'source' => 'invited',
+                    'type' => 'in'));
+                $return['award'] = $goldInfo['activity_award_min'];
+            }
+            
+            $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "do_invite"';
+            $gold = $this->db->getRow($sql);
+            if ($gold['activity_status']) {
+                $this->model->user2->updateGold(array('user_id' => $userInfo['user_id'],
+                    'gold' => $gold['activity_award_min'],
+                    'source' => 'do_invite',
+                    'type' => 'in'));
+            }
         }
         return new ApiReturn($return);
     }

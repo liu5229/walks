@@ -50,12 +50,19 @@ class User2Model extends UserModel {
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
             $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode);
             $userId = $this->db->lastInsertId();
-            $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "newer"';
-            $gold = $this->db->getOne($sql);
-            $this->updateGold(array('user_id' => $userId,
-                'gold' => $gold,
-                'source' => 'newer',
-                'type' => 'in'));
+            
+            $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
+            $goldInfo = $this->db->getRow($sql);
+            if (!$goldInfo['activity_status']) {
+                $gold = 0;
+            } else {
+                $this->updateGold(array('user_id' => $userId,
+                    'gold' => $goldInfo['activity_award_min'],
+                    'source' => 'newer',
+                    'type' => 'in'));
+                $gold = $goldInfo['activity_award_min'];
+            }
+            
             $accessToken = md5($userId . time());
             $sql = 'UPDATE t_user SET
                     access_token = ?
