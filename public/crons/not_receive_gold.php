@@ -3,7 +3,7 @@
 //删除两周前未领取的用户接收到金币  这些数据也没有任何作用
 //每周一1：00执行一次
 
-require_once '../init.inc.php';
+require_once __DIR__ . '/../init.inc.php';
 
 $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
 $db->exec("SET time_zone = 'Asia/Shanghai'");

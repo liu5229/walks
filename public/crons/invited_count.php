@@ -2,7 +2,7 @@
 
 //累计邀请多次好友的用户发放奖励
 //  一小时执行一次
-require_once '../init.inc.php';
+require_once __DIR__ . '/../init.inc.php';
 
 $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
 $db->exec("SET time_zone = 'Asia/Shanghai'");
