@@ -90,7 +90,7 @@ Class Task extends AbstractController {
                     }
                     
                     $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
-                    $configInfo = $this->db->getRow($sql, $this->inputData['type'], 1);
+                    $configInfo = $this->db->getRow($sql, $type, 1);
                     if ($configInfo) {
                         $gold = rand($configInfo['award_min'], $configInfo['award_max']);
                     } else {
