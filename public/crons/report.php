@@ -18,6 +18,9 @@ if (!$reportDaily) {
 }
 
 while (true) {
+    if (strtotime($todayDate) == strtotime($reportDaily . ' 00:00:00')) {
+        break;
+    }
     $start = $reportDaily . ' 00:00:00';
     $end = $reportDaily . ' 23:59:59';
     $sql = 'SELECT COUNT(*) count, SUM(withdraw_amount) sum FROM t_withdraw WHERE change_time >= ? AND change_time < ?';
@@ -46,9 +49,6 @@ while (true) {
         'report_date' => $reportDaily
         ));
     $reportDaily = date('Y-m-d', strtotime('+1 day', strtotime($reportDaily)));
-    if (strtotime($todayDate) == strtotime($reportDaily . ' 00:00:00')) {
-        break;
-    }
 }
 $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
 $db->exec($sql, $variableName, $reportDaily);
