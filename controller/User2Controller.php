@@ -12,7 +12,7 @@ Class User2Controller extends UserController {
             $userInfo = $this->model->user2->getUserInfo($this->inputData['deviceId'], $this->inputData['userDeviceInfo'] ?? array());
             if (isset($this->inputData['userDeviceInfo']['source']) && isset($this->inputData['userDeviceInfo']['versionCode'])) {
                 $sql = 'SELECT ad_status FROM t_version_ad WHERE version_id = ? AND app_name = ?';
-                $userInfo['adStatus'] = $this->getOne($sql, $this->inputData['userDeviceInfo']['source'], $this->inputData['userDeviceInfo']['versionCode']) ?: 0;
+                $userInfo['adStatus'] = $this->db->getOne($sql, $this->inputData['userDeviceInfo']['versionCode'], $this->inputData['userDeviceInfo']['source']) ?: 0;
             } else {
                 $userInfo['adStatus'] = 0;
             }
