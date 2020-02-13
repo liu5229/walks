@@ -22,6 +22,12 @@ Class Task extends AbstractController {
                 $taskInfo = $walkReward->getReturnInfo($type);
                 break;
             case 'newer':
+            case 'lottery':
+            case 'lottery_count':
+            case 'phone':
+            case 'do_invite':
+            case 'invited_count':
+            case 'drink':
                 return new ApiReturn('', 501, '无效获取');
             case 'wechat':
                 $unionId = $this->model->user->userInfo($userId, 'unionid');
@@ -82,7 +88,15 @@ Class Task extends AbstractController {
                     } else {
                         $endTime = date('Y-m-d H:i:s');
                     }
-                    $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                    
+                    $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
+                    $configInfo = $this->db->getRow($sql, $this->inputData['type'], 1);
+                    if ($configInfo) {
+                        $gold = rand($configInfo['award_min'], $configInfo['award_max']);
+                    } else {
+                        $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                    }
+                    
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
                     $this->db->exec($sql, $userId, $today, $type, date('Y-m-d H:i:s'), $gold);
                 }
@@ -99,7 +113,6 @@ Class Task extends AbstractController {
                     'serverTime' => time() * 1000,
                     'countMax' => $activityInfo['activity_max']);
                 if ('tab' == $type) {
-                    //to do移动到数据库中
                     $taskInfo['probability'] = $activityInfo['activity_remark'];
                 }
         }

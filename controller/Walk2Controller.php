@@ -42,101 +42,12 @@ Class Walk2Controller extends WalkController {
         if (!isset($this->inputData['type'])) {
             return new ApiReturn('', 501, '无效获取');
         }
-        $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
-        $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
-        if (!$activityInfo) {
-            return new ApiReturn('', 501, '无效获取');
+        $taskClass = new Task();
+        $return = $taskClass->getTask($this->inputData['type'], $this->userId);
+        if ($return instanceof ApiReturn) {
+            return $return;
         }
-        $today = date('Y-m-d');
-        switch ($this->inputData['type']) {
-            case 'walk':
-            case 'walk_stage':
-                $walkReward = new WalkCounter2($this->userId);
-                return new ApiReturn($walkReward->getReturnInfo($this->inputData['type']));
-                break;
-            case 'newer':
-            case 'lottery':
-            case 'lottery_count':
-            case 'phone':
-                return new ApiReturn('', 501, '无效获取');
-                break;
-            case 'wechat':
-                $unionId = $this->model->user2->userInfo($this->userId, 'unionid');
-                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
-                return new ApiReturn(array('isBuild' => $unionId ? 1 : 0, 'award' => $this->db->getOne($sql)));
-                break;
-            case 'sign':
-                $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
-                $checkInDays = $this->db->getOne($sql, $this->userId);
-                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
-                $todayInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                if(!$todayInfo) {
-                    $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1 ORDER BY receive_id DESC LIMIT 1';
-                    $isSignLastDay = $this->db->getOne($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                    if (!$isSignLastDay) {
-                        $checkInDays = 0;
-                        $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
-                        $this->db->exec($sql, 0, $this->userId);
-                    }
-                    //获取奖励金币范围
-                    $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
-                    $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => (($checkInDays + 1) % 7) ?? 7));
-                    
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
-                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $awardRow['award_min']);
-                }
-                $fromDate = $today;
-                $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
-                if ($checkInDays) {
-                    $checkInDays -= ($todayInfo['receive_status'] ?? 0);
-                    $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
-                }
-                $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble, IF(receive_date="' . $today . '", 1, 0) isToday FROM t_gold2receive WHERE user_id = ? AND receive_date >= ? AND receive_type = ? ORDER BY receive_id';
-                $checkInInfo = $this->db->getAll($sql, $this->userId, $fromDate, $this->inputData['type']);
-                
-                $i = 0;
-                $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = "sign" ORDER BY config_id ASC';
-                $checkInConfigList = $this->db->getAll($sql);
-                foreach ($checkInConfigList as $config) {
-                    $checkInReturn['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
-                    $i++;
-                }
-                return new ApiReturn($checkInReturn);
-                break;
-            default :
-                $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
-                $todayCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                if (!$todayCount) {
-                    //第一次领取
-                    $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
-                    $historyLastdayInfo = $this->db->getRow($sql, $this->userId, date('Y-m-d', strtotime("-1 day")), $this->inputData['type']);
-                    if ($historyLastdayInfo && strtotime($historyLastdayInfo['end_time']) > time()) {
-                        $endTime = $historyLastdayInfo['end_time'];
-                    } else {
-                        $endTime = date('Y-m-d H:i:s');
-                    }
-                    $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'), $gold);
-                }
-                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
-                $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                $return = array();
-                $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
-                $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
-                $return = array('receiveCount' => $receiveCount, 
-                    'endTime' => strtotime($historyInfo['end_time']) * 1000,
-                    'isReceive' => $historyInfo['receive_status'],
-                    'id' => $historyInfo['receive_id'],
-                    'num' => $historyInfo['receive_gold'],
-                    'serverTime' => time() * 1000,
-                    'countMax' => $activityInfo['activity_max']);
-                if ('tab' == $this->inputData['type']) {
-                    //to do移动到数据库中
-                    $return['probability'] = $activityInfo['activity_remark'];
-                }
-                return new ApiReturn($return);
-        }
+        return new ApiReturn($return);
     }
     
     /**
@@ -284,7 +195,13 @@ Class Walk2Controller extends WalkController {
                         $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                         if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
                             $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                            $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                            $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
+                            $configInfo = $this->db->getRow($sql, $this->inputData['type'], $activityCount + 1);
+                            if ($configInfo) {
+                                $gold = rand($configInfo['award_min'], $configInfo['award_max']);
+                            } else {
+                                $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                            }
                             $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
                             $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                         }
