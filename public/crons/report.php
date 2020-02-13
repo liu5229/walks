@@ -11,7 +11,7 @@ $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 $variableName = 'report_daily';
 $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
 $reportDaily = $db->getOne($sql, $variableName);
-$lastDate = date('Y-m-d 00:00:00', strtotime('-1 days'));
+$todayDate = date('Y-m-d 00:00:00');
 
 if (!$reportDaily) {
     $reportDaily = '2019-12-10';
@@ -45,10 +45,10 @@ while (true) {
         'login_user' => $loginUser,
         'report_date' => $reportDaily
         ));
-    if (strtotime($lastDate) == strtotime($reportDaily . ' 00:00:00')) {
+    $reportDaily = date('Y-m-d', strtotime('+1 day', strtotime($reportDaily)));
+    if (strtotime($todayDate) == strtotime($reportDaily . ' 00:00:00')) {
         break;
     }
-    $reportDaily = date('Y-m-d', strtotime('+1 day', strtotime($reportDaily)));
 }
 $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
 $db->exec($sql, $variableName, $reportDaily);
