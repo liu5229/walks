@@ -23,7 +23,7 @@ while (true) {
     }
     $start = $reportDaily . ' 00:00:00';
     $end = $reportDaily . ' 23:59:59';
-    $sql = 'SELECT COUNT(*) count, SUM(withdraw_amount) sum FROM t_withdraw WHERE change_time >= ? AND change_time < ?';
+    $sql = 'SELECT COUNT(*) count, SUM(withdraw_amount) sum FROM t_withdraw WHERE change_time >= ? AND change_time < ? AND withdraw_status = "success"';
     $withInfo = $db->getRow($sql, $start, $end);
     
     $sql = 'SELECT COUNT(*) FROM t_user WHERE create_time >= ? AND create_time < ?';
