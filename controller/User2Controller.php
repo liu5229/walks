@@ -75,8 +75,14 @@ Class User2Controller extends UserController {
         }
         $phoneInfo = $this->model->user2->userInfo($userId, 'phone_number');
         if ($phoneInfo) {
-            return new ApiReturn('', 309, '不能重复绑定');
+            return new ApiReturn('', 309, '不能重复绑定手机号');
         }
+        $sql = 'SELECT COUNT(*) FROM t_user WHERE phone_number = ?';
+        $phoneOne = $this->db->getOne($sql, $this->inputData['phone']);
+        if ($phoneOne) {
+            return new ApiReturn('', 317, '手机号已被绑定');
+        }
+        
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ? AND code_value = ?';
         $codeInfo = $this->db->getOne($sql, $userId, $this->inputData['smsCode']);
         if ($codeInfo) {
@@ -229,8 +235,14 @@ Class User2Controller extends UserController {
         }
         $unionInfo = $this->model->user2->userInfo($userId, 'unionid');
         if ($unionInfo) {
-            return new ApiReturn('', 309, '不能重复绑定');
+            return new ApiReturn('', 316, '不能重复绑定微信');
         }
+        $sql = 'SELECT COUNT(*) FROM t_user WHERE unionid = ?';
+        $unionOne = $this->db->getOne($sql, $this->inputData['unionid']);
+        if ($unionOne) {
+            return new ApiReturn('', 315, '微信号已被绑定');
+        }
+        
         $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
         $this->db->exec($sql, $this->inputData['openid'] ?? '', $this->inputData['nickname'] ?? '', $this->inputData['language'] ?? '', $this->inputData['sex'] ?? 0, $this->inputData['province'] ?? '', $this->inputData['city'] ?? '', $this->inputData['country'] ?? '', $this->inputData['headimgurl'] ?? '', $this->inputData['unionid'], $userId);
         $return = array();
@@ -277,6 +289,10 @@ Class User2Controller extends UserController {
         $invitedCreate = $this->model->user2->userInfo($invitedId, 'create_time');
         if (strtotime($invitedCreate) < strtotime($userInfo['create_time'])) {
             return new ApiReturn('', 314, '填写失败');//
+        }
+        $unionInfo = $this->model->user2->userInfo($invitedId, 'unionid');
+        if (!$unionInfo) {
+            return new ApiReturn('', 318, '需要先绑定微信');
         }
         $sql = 'INSERT INTO t_user_invited SET user_id = ?, invited_id = ?';
         $this->db->exec($sql, $userInfo['user_id'], $invitedId);
