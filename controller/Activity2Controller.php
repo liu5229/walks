@@ -154,7 +154,7 @@ Class Activity2Controller extends AbstractController {
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $lotteryActInfo = $this->db->getRow($sql, 'lottery');
         if (!$lotteryActInfo['activity_status']) {
-            return new ApiReturn('', 204, '活动结束领取奖励失败');
+            return new ApiReturn('', 204, '领取失败，请稍后再试');
         }
         
         $todayDate = date('Y-m-d');
@@ -168,7 +168,7 @@ Class Activity2Controller extends AbstractController {
                 ORDER BY receive_status ASC, receive_id DESC';
         $lotteryReceiveInfo = $this->db->getOne($sql, $todayDate, $this->userId, 'lottery');
         if ($lotteryActInfo['activity_max'] <= $lotteryReceiveInfo) {
-            return new ApiReturn('', 501, '今日抽奖次数已用完');
+            return new ApiReturn('', 501, '今日抽奖次数已用完，请明天再来');
         }
         
         $sql = 'SELECT receive_id, receive_status, receive_gold, receive_type
@@ -189,7 +189,7 @@ Class Activity2Controller extends AbstractController {
         if ($awardInfo) {
             //领取金币
             if ($awardInfo['receive_status']) {
-                return new ApiReturn('', 502, '重复领取');
+                return new ApiReturn('', 401, '您已领取过该奖励');
             }
             $updateStatus = $this->model->user2->updateGold(array(
                 'user_id' => $this->userId,

@@ -20,7 +20,7 @@ Class User2Controller extends UserController {
             $this->model->user2->lastLogin($userInfo['userId']);
             return new ApiReturn($userInfo);
         } else {
-            return new ApiReturn('', 301, '无效设备号');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
     }
     
@@ -34,16 +34,22 @@ Class User2Controller extends UserController {
             return $userId;
         }
         if (!isset($this->inputData['phone'])) {
-            return new ApiReturn('', 302, 'miss phone number');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $phoneInfo = $this->model->user2->userInfo($userId, 'phone_number');
         if ($phoneInfo) {
-            return new ApiReturn('', 309, '不能重复绑定');
+            return new ApiReturn('', 301, '您已绑定手机号');
         }
+        $sql = 'SELECT COUNT(*) FROM t_user WHERE phone_number = ?';
+        $phoneOne = $this->db->getOne($sql, $this->inputData['phone']);
+        if ($phoneOne) {
+            return new ApiReturn('', 304, '您绑定的手机号已存在');
+        }
+        
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ?';
         $smsInfo = $this->db->getOne($sql, $userId);
         if ($smsInfo && strtotime($smsInfo) > strtotime('-1 minutes') ) {
-            return new ApiReturn('', 306, '发送太频繁');
+            return new ApiReturn('', 302, '获取频繁，请稍后再试');
         }
         $code = (string) rand(100000, 999999);
         $sms = new Sms();
@@ -54,7 +60,7 @@ Class User2Controller extends UserController {
             return new ApiReturn('');
         } else {
             //insert error log
-            return new ApiReturn('', 303, 'sending failure');
+            return new ApiReturn('', 303, '抱歉，短信发送失败');
         }
     }
     
@@ -67,27 +73,24 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        if (!isset($this->inputData['phone'])) {
-            return new ApiReturn('', 302, 'miss phone number');
-        }
-        if (!isset($this->inputData['smsCode'])) {
-            return new ApiReturn('', 304, 'miss smsCode');
+        if (!isset($this->inputData['phone']) || !isset($this->inputData['smsCode'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $phoneInfo = $this->model->user2->userInfo($userId, 'phone_number');
         if ($phoneInfo) {
-            return new ApiReturn('', 309, '不能重复绑定手机号');
+            return new ApiReturn('', 301, '您已绑定手机号');
         }
         $sql = 'SELECT COUNT(*) FROM t_user WHERE phone_number = ?';
         $phoneOne = $this->db->getOne($sql, $this->inputData['phone']);
         if ($phoneOne) {
-            return new ApiReturn('', 317, '手机号已被绑定');
+            return new ApiReturn('', 304, '您绑定的手机号已存在');
         }
         
         $sql = 'SELECT create_time FROM t_sms_code WHERE user_id = ? AND code_value = ?';
         $codeInfo = $this->db->getOne($sql, $userId, $this->inputData['smsCode']);
         if ($codeInfo) {
             if (strtotime($codeInfo) < strtotime("-5 minutes")) {
-                return new ApiReturn('', 308, '验证码过期');
+                return new ApiReturn('', 305, '验证码过期，请重新获取');
             }
             $sql = 'UPDATE t_user SET phone_number = ?, nickname = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], substr_replace($this->inputData['phone'], '****', 3, 4), $userId);
@@ -96,7 +99,7 @@ Class User2Controller extends UserController {
             $this->db->exec($sql, $userId);
             return new ApiReturn($return);
         } else {
-            return new ApiReturn('', 307, '验证码错误');
+            return new ApiReturn('', 306, '验证码错误，请重新输入');
         }
     }
     
@@ -128,7 +131,7 @@ Class User2Controller extends UserController {
         }
         $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0);
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
-            return new ApiReturn('', 305, '没有广告位置');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'SELECT advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
                 FROM t_advertise
@@ -187,14 +190,8 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        if (!isset($this->inputData['account'])) {
-            return new ApiReturn('', 310, '缺少支付宝账号');
-        }
-        if (!isset($this->inputData['name'])) {
-            return new ApiReturn('', 310, '缺少支付宝姓名');
-        }
-        if (!isset($this->inputData['idCard'])) {
-            return new ApiReturn('', 310, '缺少身份证号码');
+        if (!isset($this->inputData['account']) || !isset($this->inputData['name']) || !isset($this->inputData['idCard'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'UPDATE t_user SET alipay_account = ?, alipay_name = ?, id_card = ? WHERE user_id = ?';
         $this->db->exec($sql, $this->inputData['account'], $this->inputData['name'], $this->inputData['idCard'], $userId);
@@ -231,16 +228,16 @@ Class User2Controller extends UserController {
             return $userId;
         }
         if (!isset($this->inputData['unionid'])) {
-            return new ApiReturn('', 311, 'miss unionid');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $unionInfo = $this->model->user2->userInfo($userId, 'unionid');
         if ($unionInfo) {
-            return new ApiReturn('', 316, '不能重复绑定微信');
+            return new ApiReturn('', 307, '您已绑定微信');
         }
         $sql = 'SELECT COUNT(*) FROM t_user WHERE unionid = ?';
         $unionOne = $this->db->getOne($sql, $this->inputData['unionid']);
         if ($unionOne) {
-            return new ApiReturn('', 315, '微信号已被绑定');
+            return new ApiReturn('', 308, '您绑定的微信号已存在');
         }
         
         $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
@@ -274,25 +271,25 @@ Class User2Controller extends UserController {
             return $invitedId;
         }
         if (!isset($this->inputData['invitedCode'])) {
-            return new ApiReturn('', 312, 'miss invited code');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'SELECT COUNT(*) FROM t_user_invited WHERE invited_id = ?';
         $invitedInfo = $this->db->getOne($sql, $invitedId);
         if ($invitedInfo) {
-            return new ApiReturn('', 309, '不能重复绑定');
+            return new ApiReturn('', 309, '您已填写过邀请码');
         }
         $sql = 'SELECT user_id, create_time FROM t_user WHERE invited_code = ?';
         $userInfo = $this->db->getRow($sql, $this->inputData['invitedCode']);
         if (!$userInfo) {
-            return new ApiReturn('', 313, '无效的邀请码');
+            return new ApiReturn('', 310, '邀请码无效，请重新输入');
         }
         $invitedCreate = $this->model->user2->userInfo($invitedId, 'create_time');
         if (strtotime($invitedCreate) < strtotime($userInfo['create_time'])) {
-            return new ApiReturn('', 314, '填写失败');//
+            return new ApiReturn('', 311, '验证码无效，请填写比您先注册的用户的邀请码');//
         }
         $unionInfo = $this->model->user2->userInfo($invitedId, 'unionid');
         if (!$unionInfo) {
-            return new ApiReturn('', 318, '需要先绑定微信');
+            return new ApiReturn('', 312, '请先绑定微信后，再填写邀请码');
         }
         $sql = 'INSERT INTO t_user_invited SET user_id = ?, invited_id = ?';
         $this->db->exec($sql, $userInfo['user_id'], $invitedId);

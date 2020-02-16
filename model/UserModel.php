@@ -107,7 +107,7 @@ class UserModel extends AbstractModel {
                 return $userId;
             }
         }
-        return new ApiReturn('', 201, '无效token');
+        return new ApiReturn('', 201, '登录失败');
     }
     
     public function getGold ($userId) {

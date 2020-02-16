@@ -88,10 +88,10 @@ class User2Model extends UserModel {
         $todayDate = date('Y-m-d');
         $userState = $this->userInfo($params['user_id'], 'user_status');
         if (!$userState) {
-            return new ApiReturn('', 203, '用户被冻结领取失败');
+            return new ApiReturn('', 203, '抱歉您的账户已被冻结');
         }
         if ('in' == $params['type']) {
-            $notInEveryTotal = array("newer", "phone", "wechat", "system", "invited_count");
+            $notInEveryTotal = array("newer", "wechat", "system", "invited_count", 'invited', 'do_invite');
             $sql = 'SELECT SUM(change_gold)
                     FROM t_gold
                     WHERE user_id = ?
@@ -100,7 +100,7 @@ class User2Model extends UserModel {
                     AND gold_source NOT IN ("' . implode('", "', $notInEveryTotal) .'")';
             $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
             if ($goldToday > $this->maxGoldEveryDay) {
-                return new ApiReturn('', 202, '今日金币领取已达上限');
+                return new ApiReturn('', 202, '抱歉您已达到今日金币获取上限');
             }
         }
         $sql = "INSERT INTO t_gold SET

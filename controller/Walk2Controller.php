@@ -26,7 +26,7 @@ Class Walk2Controller extends WalkController {
      */
     public function updateWalkAction () {
         if (!isset($this->inputData['stepCount'])) {
-            return new ApiReturn('', 401, '无效更新');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $walkReward = new WalkCounter2($this->userId, $this->inputData['stepCount']);
         return new ApiReturn(array('stepCount' => $walkReward->getStepCount()));
@@ -40,7 +40,7 @@ Class Walk2Controller extends WalkController {
      */
     public function taskAction() {
         if (!isset($this->inputData['type'])) {
-            return new ApiReturn('', 501, '无效获取');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $taskClass = new Task();
         $return = $taskClass->getTask($this->inputData['type'], $this->userId);
@@ -62,15 +62,15 @@ Class Walk2Controller extends WalkController {
      */
     public function getAwardAction () {
         if (!isset($this->inputData['type'])) {
-            return new ApiReturn('', 402, '无效领取');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $activityInfo = $this->db->getRow($sql, $this->inputData['type']);
         if (!$activityInfo) {
-            return new ApiReturn('', 402, '无效领取');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         if (!$activityInfo['activity_status']) {
-            return new ApiReturn('', 204, '活动结束领取奖励失败');
+            return new ApiReturn('', 204, '领取失败，请稍后再试');
         }
         $today = date('Y-m-d');
         switch ($this->inputData['type']) {
@@ -84,7 +84,7 @@ Class Walk2Controller extends WalkController {
                 ));
                 if ($receiveInfo) {
                     if (1 == $receiveInfo['receive_status']) {
-                        return new ApiReturn('', 403, '重复领取');
+                        return new ApiReturn('', 401, '您已领取过该奖励');
                     } else {
                         $doubleStatus = $this->inputData['isDouble'] ?? 0;
                         $updateStatus = $this->model->user2->updateGold(array(
@@ -101,7 +101,7 @@ Class Walk2Controller extends WalkController {
                         return $updateStatus;
                     }
                 } else {
-                    return new ApiReturn('', 402, '无效领取');
+                    return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
             case 'newer'://user2model/get-userInfo
             case 'wechat'://user2/build-wechat
@@ -109,7 +109,7 @@ Class Walk2Controller extends WalkController {
             case 'invited'://user2/build-invited
             case 'invited_count'://脚本crons/invited_count.php
             case 'lottery'://activity2/lottery-award
-                return new ApiReturn('', 402, '无效领取');
+                return new ApiReturn('', 205, '访问失败，请稍后再试');
             case 'sign':
                 $sql = 'SELECT receive_id, receive_status, receive_gold, end_time, is_double
                         FROM t_gold2receive
@@ -126,15 +126,15 @@ Class Walk2Controller extends WalkController {
                    'receive_date' => $today,
                 ));
                 if (!$historyInfo) {
-                    return new ApiReturn('', 402, '无效领取');
+                    return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
                 $secondDoubleStatus = $this->inputData['secondDou'] ?? 0;
                 if ($historyInfo['receive_status']) {
                     if (!$secondDoubleStatus) {  
-                        return new ApiReturn('', 404, '今日已签到');
+                        return new ApiReturn('', 402, '今日已签到');
                     } elseif ($historyInfo['is_double']) {
-                        return new ApiReturn('', 402, '无效领取');
+                        return new ApiReturn('', 402, '今日已签到');
                     }
                 } else {
                     $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
@@ -170,13 +170,13 @@ Class Walk2Controller extends WalkController {
                    'receive_type' => $this->inputData['type'] ?? ''
                 ));
                 if (!$historyInfo) {
-                    return new ApiReturn('', 402, '无效领取');
+                    return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
                 if ($historyInfo['receive_status']) {
-                    return new ApiReturn('', 403, '重复领取');
+                    return new ApiReturn('', 401, '您已领取过该奖励');
                 }
                 if ($historyInfo['end_time'] && strtotime($historyInfo['end_time']) > time()) {
-                    return new ApiReturn('', 405, '领取时间未到');
+                    return new ApiReturn('', 403, '时间未到，请稍后再来领取');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
                 $updateStatus = $this->model->user2->updateGold(array(
@@ -230,7 +230,7 @@ Class Walk2Controller extends WalkController {
             $currentGold = $totalGold - $bolckedGold;
             
             if ($withdrawalGold > $currentGold) {
-                return new ApiReturn('', 502, '提现所需金币不足');
+                return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
             }
             //是否绑定支付宝
             $sql = 'SELECT alipay_account, alipay_name FROM t_user WHERE user_id = ?';
@@ -240,7 +240,7 @@ Class Walk2Controller extends WalkController {
                 if (1 == $withdrawalAmount) {
                     $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = 1 AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $this->userId)) {
-                        return new ApiReturn('', 503, '1元提现只支持一次');
+                        return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
                 $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
@@ -256,10 +256,10 @@ Class Walk2Controller extends WalkController {
                     'alipay_name' => $alipayInfo['alipay_name']));
                 return new ApiReturn('');
             } else {
-                return new ApiReturn('', 504, '未绑定支付宝账号');
+                return new ApiReturn('', 406, '请先绑定支付宝账户');
             }
         } else {
-            return new ApiReturn('', 501, '缺少提现金额');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
     }
     

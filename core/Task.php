@@ -12,7 +12,7 @@ Class Task extends AbstractController {
         $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
         $activityInfo = $this->db->getRow($sql, $type);
         if (!$activityInfo) {
-            return new ApiReturn('', 402, '无效领取');
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $today = date('Y-m-d');
         switch ($type) {
@@ -28,7 +28,7 @@ Class Task extends AbstractController {
             case 'do_invite':
             case 'invited_count':
             case 'drink':
-                return new ApiReturn('', 501, '无效获取');
+                return new ApiReturn('', 205, '访问失败，请稍后再试');
             case 'wechat':
                 $unionId = $this->model->user->userInfo($userId, 'unionid');
                 $taskInfo = array('isBuild' => $unionId ? 1 : 0, 'award' => $activityInfo['activity_award_min']);
