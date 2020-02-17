@@ -8,7 +8,7 @@
 
 //生成以前没有邀请码用户的邀请码
 
-require_once __DIR__ . '../../init.inc.php';
+require_once __DIR__ . '/../../init.inc.php';
 
 $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
 $db->exec("SET time_zone = 'Asia/Shanghai'");
