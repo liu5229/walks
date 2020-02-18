@@ -7,7 +7,7 @@
  */
 
 class User2Model extends UserModel {
-    protected $maxGoldEveryDay = 3000;
+    protected $maxGoldEveryDay = 20000;
 
     /**
      * 获取用户信息/添加新用户
