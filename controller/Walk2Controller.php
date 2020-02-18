@@ -304,4 +304,18 @@ Class Walk2Controller extends WalkController {
         });
         return new ApiReturn($withdrawDetail);    
     }
+    
+    /**
+     * 上传第三方错误
+     * @return \ApiReturn
+     */
+    public function uploadErrorAction () {
+        if (isset($this->inputData['versionCode']) && isset($this->inputData['errorSource']) && isset($this->inputData['errorCode'])) {
+            $sql = 'INSERT INTO t_sdk_error SET user_id = ?, sdk_source = ?, version_id = ?, error_code = ?';
+            $this->exec($sql, $this->userId, $this->inputData['errorSource'], $this->inputData['versionCode'], $this->inputData['errorCode']);
+            return new ApiReturn();
+        } else {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+    }
 }
