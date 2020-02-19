@@ -10,10 +10,16 @@ Class Invited extends AbstractController {
     protected $length = 8;
     
     public function createCode() {
-        $createList = '123456789ABCDEFGHIJKLMNPQRSTUVWXYZ';
+//        $createList = '123456789ABCDEFGHIJKLMNPQRSTUVWXYZ';
+        $createList = '0123456789';
         $code = '';
         for($i=0;$i<$this->length;$i++) {
-            $code .= $createList{rand(0, 33)};
+            if ($i = 0) {
+                $code .= rand(1, 9);
+            } else {
+                $code .= $createList{rand(0, 9)};
+            }
+//            $code .= $createList{rand(0, 33)};
         }
         $sql = 'SELECT COUNT(user_id) FROM t_user WHERE invited_code = ?';
         $isExist = $this->db->getOne($sql, $code);
