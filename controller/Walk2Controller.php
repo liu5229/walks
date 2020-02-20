@@ -223,13 +223,9 @@ Class Walk2Controller extends WalkController {
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
             //获取当前用户可用金币
-            $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ?';
-            $totalGold = $this->db->getOne($sql, $this->userId);
-            $sql = 'SELECT SUM(withdraw_gold) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "pending"';
-            $bolckedGold = $this->db->getOne($sql, $this->userId);
-            $currentGold = $totalGold - $bolckedGold;
+            $userGoldInfo = $this->model->user2->getGold($this->userId);
             
-            if ($withdrawalGold > $currentGold) {
+            if ($withdrawalGold > $userGoldInfo['currentGold']) {
                 return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
             }
             //是否绑定支付宝
