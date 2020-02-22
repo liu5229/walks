@@ -30,6 +30,17 @@ Class AdminUserController extends AbstractController {
         }
         throw new \Exception("Error User Id");
     }
+    
+    public function changeStatusAction () {
+        if (isset($_POST['user_id'])) {
+            $sql = 'UPDATE t_user SET user_status = NOT(user_status) WHERE user_id = ?';
+            $return = $this->db->exec($sql, $_POST['user_id']);
+            if ($return) {
+                return array();
+            }
+        }
+        throw new \Exception("Operation failure");
+    }
 
     public function changeGoldAction() {
         if (isset($_POST['id']) && isset($_POST['change_type']) && isset($_POST['change_gold'])) {

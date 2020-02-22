@@ -6,8 +6,16 @@ Class AdminWithdrawController extends AbstractController {
         $totalCount = $this->db->getOne($sql);
         $list = array();
         if ($totalCount) {
-            $sql = "SELECT * FROM t_withdraw ORDER BY withdraw_id DESC LIMIT " . $this->page;
+            $sql = "SELECT w.*, u.create_time user_time, u.brand, u.model 
+                    FROM t_withdraw w
+                    LEFT JOIN t_user u USING(user_id)
+                    ORDER BY w.withdraw_id DESC 
+                    LIMIT " . $this->page;
             $list = $this->db->getAll($sql);
+        }
+        foreach ($list as &$info) {
+            $sql = 'SELECT COUNT(withdraw_id) count, IFNULL(SUM(withdraw_amount), 0) total FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+            $info = array_merge($info, $this->db->getRow($sql, $info['user_id']));
         }
         return array(
             'totalCount' => (int) $totalCount,

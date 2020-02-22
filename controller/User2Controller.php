@@ -151,7 +151,7 @@ Class User2Controller extends UserController {
             }
             switch ($advertiseInfo['advertise_validity_type']) {
                 case 'fixed':
-                    if ($todayTime < strtotime($advertiseInfo['advertise_validity_start']) || $todayTime > strtotime($advertiseInfo['advertise_validity_end'])) {
+                    if ($todayTime < strtotime($advertiseInfo['advertise_validity_start'] . ' 00:00:00') || $todayTime > strtotime($advertiseInfo['advertise_validity_end'] . ' 23:59:59')) {
                         break 2;
                     }
                     break;
@@ -284,7 +284,7 @@ Class User2Controller extends UserController {
             return new ApiReturn('', 310, '邀请码无效，请重新输入');
         }
         $invitedCreate = $this->model->user2->userInfo($invitedId, 'create_time');
-        if (strtotime($invitedCreate) < strtotime($userInfo['create_time'])) {
+        if (strtotime($invitedCreate) <= strtotime($userInfo['create_time'])) {
             return new ApiReturn('', 311, '验证码无效，请填写比您先注册的用户的邀请码');//
         }
         $unionInfo = $this->model->user2->userInfo($invitedId, 'unionid');

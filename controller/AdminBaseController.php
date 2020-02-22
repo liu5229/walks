@@ -62,10 +62,13 @@ Class AdminBaseController extends AbstractController {
         return  array('list' => array(
             array( 'id' => 1, 'resName' => '首页', 'resKey'=> 'index', 'resIcon'=> 'statistics'),
             array( 'id' => 2, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics'),
-            array( 'id' => 3, 'resName' => '版本管理', 'resKey'=> 'version', 'resIcon'=> 'moduleManage'),
-            array( 'id' => 4, 'resName' => '运营位管理', 'resKey'=> 'ad', 'resIcon'=> 'moduleManage'),
-            array( 'id' => 5, 'resName' => '提现管理', 'resKey'=> 'withdraw', 'resIcon'=> 'moduleManage'),
-            array( 'id' => 6, 'resName' => '用户管理', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 3, 'resName' => '运营位管理', 'resKey'=> 'ad', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 4, 'resName' => '提现管理', 'resKey'=> 'withdraw', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 5, 'resName' => '用户管理', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 6, 'resName' => '系统管理', 'resKey'=> '', 'resIcon'=> 'moduleManage', 'children' => array(
+                array( 'id' => 601, 'resName' => '版本升级', 'resKey'=> 'version', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 602, 'resName' => '广告频闭', 'resKey'=> 'version-ad', 'resIcon'=> 'moduleManage'),
+            )),
         ));
     }
     

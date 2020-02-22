@@ -35,11 +35,12 @@ Class AdminVersionController extends AbstractController {
                     } else {
                         $sql = 'INSERT INTO t_version SET ';
                     }
-                    $sql .= 'version_id = :version_id, version_name = :version_name, is_force_update = :is_force_update, version_log = :version_log';
+                    $sql .= 'version_id = :version_id, version_name = :version_name, is_force_update = :is_force_update, version_log = :version_log, need_update_id = :need_update_id';
                     $dataArr['version_name'] = $_POST['version_name'] ?? '';
                     $dataArr['is_force_update'] = $_POST['is_force_update'] ?? 0;
                     $dataArr['version_log'] = $_POST['version_log'] ?? '';
                     $dataArr['version_id'] = $_POST['version_id'] ?? '';
+                    $dataArr['need_update_id'] = $_POST['need_update_id'] ?? 0;
                     if ($uploadApk) {
                         $sql .= ', version_url = :version_url';
                         $dataArr['version_url'] = $uploadApk;
@@ -71,5 +72,40 @@ Class AdminVersionController extends AbstractController {
             return $versionInfo;
         }
         throw new \Exception("Error Activity Id");
+    }
+    
+    public function adListAction () {
+        $sql = "SELECT COUNT(*) FROM t_version_ad";
+        $totalCount = $this->db->getOne($sql);
+        $list = array();
+        if ($totalCount) {
+            $sql = "SELECT * FROM t_version_ad ORDER BY version_id DESC, app_name DESC LIMIT " . $this->page;
+            $list = $this->db->getAll($sql);
+        }
+        return array(
+            'totalCount' => (int) $totalCount,
+            'list' => $list
+        );
+    }
+    
+    public function adDetailAction () {
+        if (isset($_POST['action'])) {
+            switch ($_POST['action']) {
+                case 'change':
+                    $sql = 'UPDATE t_version_ad SET ad_status = NOT(ad_status) WHERE version_id = ? AND app_name = ?';
+                    $return = $this->db->exec($sql, $_POST['version_id'], $_POST['app_name']);
+                    break;
+                case 'add' :
+                    $sql = 'INSERT INTO t_version_ad SET ad_status = ?, version_id = ?, app_name = ?';
+                    $return = $this->db->exec($sql, !$_POST['ad_status'], $_POST['version_id'], $_POST['app_name']);
+                    break;
+            }
+            if ($return) {
+                return array();
+            } else {
+                throw new \Exception("Operation failure");
+            }
+        }
+        throw new \Exception("错误操作");
     }
 }
