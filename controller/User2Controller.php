@@ -152,13 +152,13 @@ Class User2Controller extends UserController {
             switch ($advertiseInfo['advertise_validity_type']) {
                 case 'fixed':
                     if ($todayTime < strtotime($advertiseInfo['advertise_validity_start'] . ' 00:00:00') || $todayTime > strtotime($advertiseInfo['advertise_validity_end'] . ' 23:59:59')) {
-                        break 2;
+                        continue;
                     }
                     break;
                 case 'limited':
                     $adEndTime = strtotime('+ ' . $advertiseInfo['advertise_validity_length'] . 'days', strtotime($userCreateTime));
                     if ($adEndTime < $todayTime) {
-                        break 2;
+                        continue;
                     }
                     break;
             }
