@@ -135,8 +135,8 @@ class User2Model extends UserModel {
      * @param type $userId
      */
     public function lastLogin ($userId) {
-        $sql = 'UPDATE t_user SET last_login_time = ? WHERE user_id = ?';
-        $this->db->exec($sql, date('Y-m-d H:i:s'), $userId);
+        $sql = 'UPDATE t_user SET last_login_time = ?, login_ip = ? WHERE user_id = ?';
+        $this->db->exec($sql, date('Y-m-d H:i:s'), $_SESSION['remote_addr'], $userId);
     }
             
             
