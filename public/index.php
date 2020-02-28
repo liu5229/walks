@@ -37,7 +37,7 @@ try {
         $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
     }
 } catch(\Exception $e) {
-    error_log($_SERVER['REMOTE_ADDR']);
+    error_log($_SERVER['REMOTE_ADDR'] ?? 'no ip');
     $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
 }
 
