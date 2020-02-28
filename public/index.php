@@ -1,6 +1,5 @@
 <?php
 try {
-    error_reporting(0);
     require_once 'init.inc.php';
     $requestUrl = strtok($_SERVER['REQUEST_URI'], '?');
     // remove the base path

@@ -128,7 +128,7 @@ class WalkCounter2 extends WalkCounter
                 receive_type = 'walk'";
             $this->db->exec($sql, array(
                 'user_id' => $this->userId,
-                'receive_walk' => $this->rewardCounter, 
+                'receive_walk' => $this->rewardCounter * $count, 
                 'receive_date' => $this->todayDate, 
                 'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max'])));
             $residualStep -= $this->rewardCounter;
