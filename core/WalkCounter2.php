@@ -142,26 +142,33 @@ class WalkCounter2 extends WalkCounter
         }
         
         //插入阶段步数奖励待领取
-        $sql = 'SELECT MAX(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
-        $stageStep = $this->db->getOne($sql, $this->userId, $this->todayDate) ?: 0;
-        foreach ($this->stageReward as $step => $gold) {
-            if ($step > $this->stepCount) {
-                break;
+        try {
+            $this->db->beginTransaction();
+            $sql = 'SELECT MAX(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
+            $stageStep = $this->db->getOne($sql, $this->userId, $this->todayDate) ?: 0;
+            foreach ($this->stageReward as $step => $gold) {
+                if ($step > $this->stepCount) {
+                    break;
+                }
+                if ($step <= $stageStep) {
+                    continue;
+                }
+                $sql = "INSERT INTO t_gold2receive SET 
+                    user_id = :user_id,
+                    receive_date = :receive_date,
+                    receive_gold = :receive_gold,
+                    receive_walk = :receive_walk,
+                    receive_type = 'walk_stage'";
+                $this->db->exec($sql, array(
+                    'user_id' => $this->userId,
+                    'receive_walk' => $step, 
+                    'receive_date' => $this->todayDate, 
+                    'receive_gold' => $gold));
             }
-            if ($step <= $stageStep) {
-                continue;
-            }
-            $sql = "INSERT INTO t_gold2receive SET 
-                user_id = :user_id,
-                receive_date = :receive_date,
-                receive_gold = :receive_gold,
-                receive_walk = :receive_walk,
-                receive_type = 'walk_stage'";
-            $this->db->exec($sql, array(
-                'user_id' => $this->userId,
-                'receive_walk' => $step, 
-                'receive_date' => $this->todayDate, 
-                'receive_gold' => $gold));
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw new \Exception($e->getMessage());
         }
     }
     
