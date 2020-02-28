@@ -1,5 +1,6 @@
 <?php
 try {
+    error_reporting(0);
     require_once 'init.inc.php';
     $requestUrl = strtok($_SERVER['REQUEST_URI'], '?');
     // remove the base path
@@ -37,7 +38,6 @@ try {
         $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
     }
 } catch(\Exception $e) {
-    error_log($_SERVER['REMOTE_ADDR'] ?? 'no ip');
     $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
 }
 
