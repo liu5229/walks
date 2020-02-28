@@ -164,7 +164,6 @@ class WalkCounter2 extends WalkCounter
                 'receive_date' => $this->todayDate, 
                 'receive_gold' => $gold));
         }
-        $this->db->commit();
     }
     
     protected function __walkStageList () {
