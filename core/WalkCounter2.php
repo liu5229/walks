@@ -133,6 +133,7 @@ class WalkCounter2 extends WalkCounter
                 receive_gold = :receive_gold,
                 receive_walk = :receive_walk,
                 receive_type = :receive_type)';
+            echo $sql;
             $this->db->exec($sql, array(
                 'user_id' => $this->userId,
                 'receive_walk' => $this->rewardCounter * $count, 
