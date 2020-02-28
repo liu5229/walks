@@ -112,9 +112,9 @@ class WalkCounter2 extends WalkCounter
         }
         
         //插入步数奖励待领取
-        $sql = 'SELECT SUM(receive_walk) sum, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
+        $sql = 'SELECT MAX(receive_walk) max, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
         $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
-        $residualStep = $this->stepCount - $receiceStep['sum'];
+        $residualStep = $this->stepCount - $receiceStep['max'];
         $count = $receiceStep['count'];
         while ($residualStep >= $this->rewardCounter) {
             $count++;
