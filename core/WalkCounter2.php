@@ -112,26 +112,33 @@ class WalkCounter2 extends WalkCounter
         }
         
         //插入步数奖励待领取
-        $sql = 'SELECT MAX(receive_walk) max, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
-        $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
-        $residualStep = $this->stepCount - $receiceStep['max'];
-        $count = $receiceStep['count'];
-        while ($residualStep >= $this->rewardCounter) {
-            $count++;
-            $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
-            $awardRange = $this->db->getRow($sql, $count);
-            $sql = "INSERT INTO t_gold2receive SET 
-                user_id = :user_id,
-                receive_date = :receive_date,
-                receive_gold = :receive_gold,
-                receive_walk = :receive_walk,
-                receive_type = 'walk'";
-            $this->db->exec($sql, array(
-                'user_id' => $this->userId,
-                'receive_walk' => $this->rewardCounter * $count, 
-                'receive_date' => $this->todayDate, 
-                'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max'])));
-            $residualStep -= $this->rewardCounter;
+        try {
+            $this->db->beginTransaction();
+            $sql = 'SELECT MAX(receive_walk) max, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
+            $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
+            $residualStep = $this->stepCount - $receiceStep['max'];
+            $count = $receiceStep['count'];
+            while ($residualStep >= $this->rewardCounter) {
+                $count++;
+                $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
+                $awardRange = $this->db->getRow($sql, $count);
+                $sql = "INSERT INTO t_gold2receive SET 
+                    user_id = :user_id,
+                    receive_date = :receive_date,
+                    receive_gold = :receive_gold,
+                    receive_walk = :receive_walk,
+                    receive_type = 'walk'";
+                $this->db->exec($sql, array(
+                    'user_id' => $this->userId,
+                    'receive_walk' => $this->rewardCounter * $count, 
+                    'receive_date' => $this->todayDate, 
+                    'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max'])));
+                $residualStep -= $this->rewardCounter;
+            }
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw new \Exception($e->getMessage());
         }
         
         //插入阶段步数奖励待领取
