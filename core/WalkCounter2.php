@@ -128,12 +128,11 @@ class WalkCounter2 extends WalkCounter
 //                receive_type = 'walk'";
             $sql = 'INSERT INTO t_gold2receive (user_id, receive_date, receive_gold, receive_walk, receive_type) 
                     SELECT :user_id, :receive_date, :receive_gold, :receive_walk, :receive_type FROM DUAL
-                    WHERE NOT EXISTS(SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id,
-                receive_date = :receive_date,
-                receive_gold = :receive_gold,
-                receive_walk = :receive_walk,
-                receive_type = :receive_type)';
-            echo $sql;
+                    WHERE NOT EXISTS(SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id 
+                AND receive_date = :receive_date,
+                AND receive_gold = :receive_gold,
+                AND receive_walk = :receive_walk,
+                AND receive_type = :receive_type)';
             $this->db->exec($sql, array(
                 'user_id' => $this->userId,
                 'receive_walk' => $this->rewardCounter * $count, 
