@@ -278,7 +278,7 @@ Class Activity2Controller extends AbstractController {
                 }
                 $sql = 'INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date)
                         SELECT :user_id, :receive_gold, :receive_walk, :receive_type, :receive_date FROM DUAL
-                        WHERE NOT EXIST (SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id AND receive_walk = :receive_walk AND receive_type = :receive_type AND receive_date = :receive_date)';
+                        WHERE NOT EXISTS (SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id AND receive_walk = :receive_walk AND receive_type = :receive_type AND receive_date = :receive_date)';
                 $return = $this->db->exec($sql, array(
                     'user_id' => $this->userId,
                     'receive_gold' => $clockinInfo['award_min'],
@@ -314,7 +314,7 @@ Class Activity2Controller extends AbstractController {
             if ($clockinTotalInfo['counter_min'] <= $receiveClockinCount) {
                 $sql = 'INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date)
                         SELECT :user_id, :receive_gold, :receive_walk, :receive_type, :receive_date FROM DUAL
-                        WHERE NOT EXIST (SELECT receive_id FROM t_gold2receive
+                        WHERE NOT EXISTS (SELECT receive_id FROM t_gold2receive
                         WHERE user_id = :user_id AND receive_walk = :receive_walk AND receive_type = :receive_type AND receive_date = :receive_date)';
                 $return = $this->db->exec($sql, array(
                     'user_id' => $this->userId,
