@@ -307,7 +307,7 @@ Class Activity2Controller extends AbstractController {
         }
         
         $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_type = ? AND receive_date = ? AND receive_status = 1';
-        $receiveClockinCount = $this->db-getOne($sql, $this->userId, 'clockin', $todayDate);
+        $receiveClockinCount = $this->db->getOne($sql, $this->userId, 'clockin', $todayDate);
         
         $sql = 'SELECT * FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
         $clockinTotalList = $this->db->getAll($sql, 'clockin_count');
