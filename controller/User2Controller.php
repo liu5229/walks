@@ -294,6 +294,8 @@ Class User2Controller extends UserController {
         $sql = 'INSERT INTO t_user_invited SET user_id = ?, invited_id = ?';
         $this->db->exec($sql, $userInfo['user_id'], $invitedId);
         
+        $relationId = $this->db->lastInsertId();
+        
         $return = array();
         $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
         $awardInfo = $this->db->getOne($sql, $userInfo['user_id'], 'invited');
@@ -307,7 +309,7 @@ Class User2Controller extends UserController {
                     'gold' => $goldInfo['activity_award_min'],
                     'source' => 'invited',
                     'type' => 'in',
-                    'relation_id' => $this->db->lastInsertId()));
+                    'relation_id' => $relationId));
                 $return['award'] = $goldInfo['activity_award_min'];
             }
             
@@ -318,7 +320,7 @@ Class User2Controller extends UserController {
                     'gold' => $gold['activity_award_min'],
                     'source' => 'do_invite',
                     'type' => 'in',
-                    'relation_id' => $this->db->lastInsertId()));
+                    'relation_id' => $relationId));
             }
         }
         return new ApiReturn($return);
