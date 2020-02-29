@@ -7,6 +7,18 @@
  */
 Class Activity2Controller extends AbstractController {
     protected $userId;
+    protected $clockinConfig = array(
+        1 => array('min' => ' 06:30:00', 'max' => ' 08:00:00'),
+        2 => array('min' => ' 06:30:00', 'max' => ' 08:00:00'),
+        3 => array('min' => ' 07:30:00', 'max' => ' 09:00:00'),
+        4 => array('min' => ' 09:00:00', 'max' => ' 11:00:00'),
+        5 => array('min' => ' 12:30:00', 'max' => ' 14:00:00'),
+        6 => array('min' => ' 13:30:00', 'max' => ' 15:00:00'),
+        7 => array('min' => ' 15:00:00', 'max' => ' 16:00:00'),
+        8 => array('min' => ' 15:00:00', 'max' => ' 17:30:00'),
+        9 => array('min' => ' 18:00:00', 'max' => ' 20:00:00'),
+        10 => array('min' => ' 21:00:00', 'max' => ' 22:30:00'),
+    );
     
     /**
      * 验证用户token 设置用户id
@@ -244,5 +256,95 @@ Class Activity2Controller extends AbstractController {
         $goldInfo = $this->model->user2->getGold($this->userId);
         return new ApiReturn(array('awardGold' => $awardInfo ? $awardInfo['receive_gold'] : 0, 'currentGold' => $goldInfo['currentGold']));
     }
+    
+    /**
+     * 打卡页接口
+     * @return \ApiReturn
+     */
+    public function getClockinAction () {
+        $nowTime = time();
+        $todayDate = date('Y-m-d');
+        $returnList = array();
+        $sql = 'SELECT * FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
+        $clockinList = $this->db->getAll($sql, 'clockin');
+        
+        foreach ($clockinList as $clockinInfo) {
+            $config = $this->clockinConfig[$clockinInfo['counter_min']];
+            $current = 0;
+            $tempArr = array();
+            if ($nowTime >= strtotime($todayDate . $config['min'])) {
+                if ($nowTime <= strtotime($todayDate . $config['max'])) {
+                    $current = 1;
+                }
+                $sql = 'INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date)
+                        SELECT :user_id, :receive_gold, :receive_walk, :receive_type, :receive_date FROM DUAL
+                        WHERE NOT EXIST (SELECT receive_id FROM t_gold2receive
+                        WHERE user_id = :user_id, receive_walk = :receive_walk, receive_type = :receive_type, receive_date = :receive_date)';
+                $return = $this->db->exec($sql, array(
+                    'user_id' => $this->userId,
+                    'receive_gold' => $clockinInfo['award_min'],
+                    'receive_walk' => $clockinInfo['counter_min'],
+                    'receive_type' => 'clockin',
+                    'receive_date' => $todayDate));
+                if ($return) {
+                    $tempArr = array(
+                        'id' => $this->db->lastInsertId(),
+                        'num' => $clockinInfo['award_min'],
+                        'type' => 'clockin',
+                        'isReceived' => 0);
+                } else {
+                    $sql = 'SELECT * FROM t_gold2receive
+                        WHERE user_id = :user_id, receive_walk = :receive_walk, receive_type = :receive_type, receive_date = :receive_date';
+                    $clockinDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], 'clockin', $todayDate);
+                    $tempArr = array(
+                        'id' => $clockinDetail['receive_id'],
+                        'num' => $clockinDetail['receive_gold'],
+                        'type' => 'clockin',
+                        'isReceived' => $clockinDetail['receive_status']);
+                }
+            }
+            $returnList['list'][] = array_merge($tempArr, array('award' => $clockinInfo['award_min'], 'isCurrent' => $current));
+        }
+        
+        $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_type = ? AND receive_date = ? AND receive_status = 1';
+        $receiveClockinCount = $this->db-getOne($sql, $this->userId, 'clockin', $todayDate);
+        
+        $sql = 'SELECT * FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
+        $clockinTotalList = $this->db->getAll($sql, 'clockin_count');
+        foreach ($clockinTotalList as $clockinTotalInfo) {
+            $tempArr = array();
+            if ($clockinTotalInfo['counter_min'] <= $receiveClockinCount) {
+                $sql = 'INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date)
+                        SELECT :user_id, :receive_gold, :receive_walk, :receive_type, :receive_date FROM DUAL
+                        WHERE NOT EXIST (SELECT receive_id FROM t_gold2receive
+                        WHERE user_id = :user_id, receive_walk = :receive_walk, receive_type = :receive_type, receive_date = :receive_date)';
+                $return = $this->db->exec($sql, array(
+                    'user_id' => $this->userId,
+                    'receive_gold' => $clockinTotalInfo['award_min'],
+                    'receive_walk' => $clockinTotalInfo['counter_min'],
+                    'receive_type' => 'clockin_count',
+                    'receive_date' => $todayDate));
+                if ($return) {
+                    $tempArr = array(
+                        'id' => $this->db->lastInsertId(),
+                        'num' => $clockinInfo['award_min'],
+                        'type' => 'clockin_count',
+                        'isReceived' => 0);
+                } else {
+                    $sql = 'SELECT * FROM t_gold2receive
+                        WHERE user_id = :user_id, receive_walk = :receive_walk, receive_type = :receive_type, receive_date = :receive_date';
+                    $clockinDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], 'clockin_count', $todayDate);
+                    $tempArr = array(
+                        'id' => $clockinDetail['receive_id'],
+                        'num' => $clockinDetail['receive_gold'],
+                        'type' => 'clockin_count',
+                        'isReceived' => $clockinDetail['receive_status']);
+                }
+            }
+            $returnList['total'][] = array_merge($tempArr, array('count' => $clockinTotalInfo['counter_min']));
+        }
+        return new ApiReturn($returnList);
+    }
+    
 }
 
