@@ -61,6 +61,20 @@ Class Activity2Controller extends AbstractController {
         $return['invitedCount'] = $this->db->getOne($sql, $this->userId);
         return new ApiReturn($return);
     }
+    /**
+     * 获取用户邀请信息
+     * @return \ApiReturn
+     */
+    public function getInvitedDetailAction() {
+        $sql = 'SELECT u.nickname, g.change_gold gold, unix_timestamp(i.create_time) * 1000 cTime
+                FROM t_user_invited i
+                LEFT JOIN t_user u WHERE i.invited_id = u.user_id
+                LEFT JOIN t_gold g WHERE g.gold_source = "do_invite" AND g.relation_id = i.id
+                WHERE i.user_id = ?
+                ORDER BY i.id DESC';
+        $returnList = $this->db->getAll($sql, $this->userId);
+        return new ApiReturn($returnList);
+    }
     
     /**
      * 获取喝水任务

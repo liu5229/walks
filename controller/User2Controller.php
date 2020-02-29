@@ -306,7 +306,8 @@ Class User2Controller extends UserController {
                 $this->model->user2->updateGold(array('user_id' => $invitedId,
                     'gold' => $goldInfo['activity_award_min'],
                     'source' => 'invited',
-                    'type' => 'in'));
+                    'type' => 'in',
+                    'relation_id' => $this->db->lastInsertId()));
                 $return['award'] = $goldInfo['activity_award_min'];
             }
             
@@ -316,7 +317,8 @@ Class User2Controller extends UserController {
                 $this->model->user2->updateGold(array('user_id' => $userInfo['user_id'],
                     'gold' => $gold['activity_award_min'],
                     'source' => 'do_invite',
-                    'type' => 'in'));
+                    'type' => 'in',
+                    'relation_id' => $this->db->lastInsertId()));
             }
         }
         return new ApiReturn($return);
