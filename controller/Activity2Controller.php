@@ -293,7 +293,7 @@ Class Activity2Controller extends AbstractController {
                         'isReceived' => 0);
                 } else {
                     $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
-                    $clockinDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], 'clockin', $todayDate);
+                    $clockinDetail = $this->db->getRow($sql, $this->userId, $clockinInfo['counter_min'], 'clockin', $todayDate);
                     $tempArr = array(
                         'id' => $clockinDetail['receive_id'],
                         'num' => $clockinDetail['receive_gold'],
@@ -325,17 +325,17 @@ Class Activity2Controller extends AbstractController {
                 if ($return) {
                     $tempArr = array(
                         'id' => $this->db->lastInsertId(),
-                        'num' => $clockinInfo['award_min'],
+                        'num' => $clockinTotalInfo['award_min'],
                         'type' => 'clockin_count',
                         'isReceived' => 0);
                 } else {
                     $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
-                    $clockinDetail = $this->db->getRow($sql, $this->userId, $drinkInfo['counter_min'], 'clockin_count', $todayDate);
+                    $clockinTotalDetail = $this->db->getRow($sql, $this->userId, $clockinTotalInfo['counter_min'], 'clockin_count', $todayDate);
                     $tempArr = array(
-                        'id' => $clockinDetail['receive_id'],
-                        'num' => $clockinDetail['receive_gold'],
+                        'id' => $clockinTotalDetail['receive_id'],
+                        'num' => $clockinTotalDetail['receive_gold'],
                         'type' => 'clockin_count',
-                        'isReceived' => $clockinDetail['receive_status']);
+                        'isReceived' => $clockinTotalDetail['receive_status']);
                 }
             }
             $returnList['total'][] = array_merge($tempArr, array('count' => $clockinTotalInfo['counter_min']));

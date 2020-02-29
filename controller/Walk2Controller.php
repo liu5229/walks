@@ -190,7 +190,7 @@ Class Walk2Controller extends WalkController {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                     $this->db->exec($sql, $doubleStatus, $historyInfo['receive_id']);
                     
-                    if (!in_array($this->inputData['type'], array('drink', 'lottery_count'))) {
+                    if (!in_array($this->inputData['type'], array('drink', 'lottery_count', 'clockin', 'clockin_count'))) {
                         $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                         $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                         if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
