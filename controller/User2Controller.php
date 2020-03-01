@@ -370,6 +370,7 @@ Class User2Controller extends UserController {
             if (!in_array($ext, array('jpg','jpeg', 'png', 'gif', 'bmp'))) {
                 return new ApiReturn('', 313,'上传图片格式不正确');
             }
+            echo strlen($code);
             
             $saveFile = date('Ymd') . '/';
             if (!is_dir(UPLOAD_IMAGE_DIR . $saveFile)) {
