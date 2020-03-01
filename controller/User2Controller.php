@@ -331,7 +331,7 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        if (!isset($this->inputData['content']) || !isset($this->inputData['phone'])) {
+        if (!isset($this->inputData['content']) && $this->inputData['content']) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         //判断多次提交需要超过多久
@@ -354,7 +354,7 @@ Class User2Controller extends UserController {
         $this->db->exec($sql, array(
             'user_id' => $userId,
             'content' => $this->inputData['content'],
-            'phone' => $this->inputData['phone'],
+            'phone' => $this->inputData['phone'] ?? 0,
             'image_1' => $image1 ?? '',
             'image_2' => $image2 ?? '',
             'image_3' => $image3 ?? '',
