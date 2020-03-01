@@ -367,14 +367,15 @@ Class User2Controller extends UserController {
 //        strlen($code);
         if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $code, $result)){
             $ext = strtolower($result[2]);
-            if (!file_exists(UPLOAD_IMAGE_DIR)) {
-                @mkdir(UPLOAD_IMAGE_DIR, 0700);
-            }
             if (!in_array($ext, array('jpg','jpeg', 'png', 'gif', 'bmp'))) {
                 return new ApiReturn('', 313,'上传图片格式不正确');
             }
             
-            $saveFile = date('ymd') .  '/' . substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
+            $saveFile = date('Ymd') . '/';
+            if (!is_dir(UPLOAD_IMAGE_DIR . $saveFile)) {
+                mkdir($saveFile, 0755, true);
+            }
+            $saveFile .= substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
             if (file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)))) {
                 return $saveFile;
             } else {
