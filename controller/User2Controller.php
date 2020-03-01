@@ -384,7 +384,7 @@ Class User2Controller extends UserController {
             
             $saveFile .= substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
             if (file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)))) {
-                return $saveFile;
+                return 'upload/image/' . $saveFile;
             } else {
                 return new ApiReturn('', 314,'上传失败');
             }
