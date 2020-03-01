@@ -35,7 +35,7 @@ while (true) {
     $sql = 'SELECT COUNT(user_id) FROM t_user_first_login WHERE date = ?';
     $loginUser = $db->getOne($sql, $reportDaily);
     
-    $sql = 'SELECT COUNT(DISTINCT user_id) FROM `t_gold` WHERE change_date = ? AND gold_source = "share"';
+    $sql = 'SELECT COUNT(DISTINCT user_id) FROM t_gold WHERE change_date = ? AND gold_source = "share"';
     $shareCount = $db->getOne($sql, $reportDaily);
     
     $sql = 'REPLACE INTO t_report SET withdraw_value = :withdraw_value, 
