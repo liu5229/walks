@@ -373,7 +373,7 @@ Class User2Controller extends UserController {
             
             $saveFile = date('Ymd') . '/';
             if (!is_dir(UPLOAD_IMAGE_DIR . $saveFile)) {
-                $a = mkdir($saveFile, 0755, true);
+                $a = mkdir(UPLOAD_IMAGE_DIR . $saveFile, 0755, true);
             }
             echo UPLOAD_IMAGE_DIR . $saveFile;
             var_dump($a);
