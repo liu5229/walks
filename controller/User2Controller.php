@@ -371,13 +371,12 @@ Class User2Controller extends UserController {
                 return new ApiReturn('', 313,'上传图片格式不正确');
             }
             
-            $a = file_put_contents(UPLOAD_IMAGE_DIR . 'aa'. $ext, base64_decode(str_replace($result[1], '', $code)));
-            var_dump($a);
-            exit;
             $saveFile = date('Ymd') . '/';
             if (!is_dir(UPLOAD_IMAGE_DIR . $saveFile)) {
-                mkdir($saveFile, 0755, true);
+                $a = mkdir($saveFile, 0755, true);
             }
+            echo UPLOAD_IMAGE_DIR . $saveFile;
+            exit;
             $saveFile .= substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
             $a = file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)));
             var_dump($a);
