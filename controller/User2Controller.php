@@ -373,7 +373,7 @@ Class User2Controller extends UserController {
             
             $length = strlen($code) - strlen($result[1]);
             $size = $length - $length / 4;
-            if ($size > 10 * 1024) {
+            if ($size > 1024 * 1024) {
                 return new ApiReturn('', 316,'上传图片大小不能超过1M');
             }
             
