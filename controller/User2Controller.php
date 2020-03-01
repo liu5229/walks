@@ -376,7 +376,8 @@ Class User2Controller extends UserController {
                 mkdir($saveFile, 0755, true);
             }
             $saveFile .= substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
-            file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)));
+            $a = file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)));
+            var_dump($a);
             exit;
             if (file_put_contents(UPLOAD_IMAGE_DIR . $saveFile, base64_decode(str_replace($result[1], '', $code)))) {
                 return $saveFile;
