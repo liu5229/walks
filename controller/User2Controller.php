@@ -392,6 +392,5 @@ Class User2Controller extends UserController {
             return new ApiReturn('', 314,'上传失败');
         }
     }
-
     
 }
