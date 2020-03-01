@@ -6,10 +6,11 @@ define('CONFIG_DIR', ROOT_DIR  . 'config/');
 define('CORE_DIR', ROOT_DIR  . 'core/');
 define('CONTROLLER_DIR', ROOT_DIR  . 'controller/');
 define('MODEL_DIR', ROOT_DIR  . 'model/');
-define('UPLOAD_DIR', ROOT_DIR  . 'upload/');
 define('LOG_DIR', ROOT_DIR . 'log/');
 define('APP_DIR', PUBLIC_DIR  . 'app/');
 define('IMG_DIR', PUBLIC_DIR  . 'img/');
+define('UPLOAD_DIR', PUBLIC_DIR  . 'upload/');
+define('UPLOAD_IMAGE_DIR', UPLOAD_DIR  . 'image/');
 
 /**
  * load the private configure
