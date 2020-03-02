@@ -92,4 +92,20 @@ Class AdminUserController extends AbstractController {
         }
         throw new \Exception("Error Config Id");
     }
+    
+    public function feedbackAction () {
+        $sql = "SELECT COUNT(*) FROM t_user_feedback";
+        $totalCount = $this->db->getOne($sql);
+        $list = array();
+        if ($totalCount) {
+            $sql = "SELECT f.*, u.nickname, u.phone_number, u.brand, u.model FROM t_user_feedback f
+                LEFT JOIN t_user u USING(user_id)
+                ORDER BY f.feedback_id DESC LIMIT " . $this->page;
+            $list = $this->db->getAll($sql);
+        }
+        return array(
+            'totalCount' => (int) $totalCount,
+            'list' => $list
+        );
+    }
 }

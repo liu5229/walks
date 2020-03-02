@@ -335,7 +335,7 @@ Class User2Controller extends UserController {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         //判断多次提交需要超过多久
-        $sql = 'SELECT create_time FROM t_upload_image WHERE user_id = ? ORDER BY upload_id DESC';
+        $sql = 'SELECT create_time FROM t_user_feedback WHERE user_id = ? ORDER BY feedback_id DESC';
         $lastUpload = $this->db->getOne($sql, $userId);
         if ($lastUpload && (time() - strtotime($lastUpload) < 600)) {
             return new ApiReturn('', 315, '上传太频繁');
@@ -350,7 +350,7 @@ Class User2Controller extends UserController {
             }
         }
         
-        $sql = 'INSERT INTO t_upload_image SET user_id = :user_id, content = :content, phone = :phone, image_1 = :image_1, image_2 = :image_2, image_3 = :image_3';
+        $sql = 'INSERT INTO t_user_feedback SET user_id = :user_id, content = :content, phone = :phone, image_1 = :image_1, image_2 = :image_2, image_3 = :image_3';
         $this->db->exec($sql, array(
             'user_id' => $userId,
             'content' => $this->inputData['content'],
