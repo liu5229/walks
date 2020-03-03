@@ -108,4 +108,21 @@ Class AdminUserController extends AbstractController {
             'list' => $list
         );
     }
+    
+    public function invitedAction () {
+        $sql = "SELECT COUNT(*) FROM t_user_invited";
+        $totalCount = $this->db->getOne($sql);
+        $list = array();
+        if ($totalCount) {
+            $sql = "SELECT i.*, u.nickname u_name, ui.nickname i_name FROM t_user_invited i
+                LEFT JOIN t_user u ON u.user_id = i.user_id
+                LEFT JOIN t_user ui ON ui.user_id = i.invited_id
+                ORDER BY i.id DESC LIMIT " . $this->page;
+            $list = $this->db->getAll($sql);
+        }
+        return array(
+            'totalCount' => (int) $totalCount,
+            'list' => $list
+        );
+    }
 }

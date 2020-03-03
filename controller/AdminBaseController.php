@@ -67,6 +67,7 @@ Class AdminBaseController extends AbstractController {
             array( 'id' => 5, 'resName' => '用户管理', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
             array( 'id' => 7, 'resName' => '用户反馈', 'resKey'=> 'feedback', 'resIcon'=> 'moduleManage'),
             array( 'id' => 8, 'resName' => '三方错误码', 'resKey'=> 'sdk-error', 'resIcon'=> 'moduleManage'),
+            array( 'id' => 9, 'resName' => '用户邀请', 'resKey'=> 'invited', 'resIcon'=> 'moduleManage'),
             array( 'id' => 6, 'resName' => '系统管理', 'resKey'=> '', 'resIcon'=> 'moduleManage', 'children' => array(
                 array( 'id' => 601, 'resName' => '版本升级', 'resKey'=> 'version', 'resIcon'=> 'moduleManage'),
                 array( 'id' => 602, 'resName' => '广告频闭', 'resKey'=> 'version-ad', 'resIcon'=> 'moduleManage'),
