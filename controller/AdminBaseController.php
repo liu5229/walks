@@ -62,10 +62,10 @@ Class AdminBaseController extends AbstractController {
         return  array('list' => array(
             array( 'id' => 1, 'resName' => '首页', 'resKey'=> 'index', 'resIcon'=> 'statistics'),
             array( 'id' => 2, 'resName' => '用户管理', 'resKey'=> '', 'resIcon'=> 'moduleManage', 'children' => array(
-                array( 'id' => 601, 'resName' => '用户明细', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
-                array( 'id' => 602, 'resName' => '提现管理', 'resKey'=> 'withdraw', 'resIcon'=> 'moduleManage'),
-                array( 'id' => 603, 'resName' => '用户反馈', 'resKey'=> 'feedback', 'resIcon'=> 'moduleManage'),
-                array( 'id' => 604, 'resName' => '用户邀请', 'resKey'=> 'invited', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 201, 'resName' => '用户明细', 'resKey'=> 'user', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 202, 'resName' => '提现管理', 'resKey'=> 'withdraw', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 203, 'resName' => '用户反馈', 'resKey'=> 'feedback', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 204, 'resName' => '用户邀请', 'resKey'=> 'invited', 'resIcon'=> 'moduleManage'),
             )),
 //            array( 'id' => 3, 'resName' => '活动管理', 'resKey'=> 'activity', 'resIcon'=> 'statistics'),
             array( 'id' => 4, 'resName' => '运营位管理', 'resKey'=> 'ad', 'resIcon'=> 'moduleManage'),
