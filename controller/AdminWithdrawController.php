@@ -2,16 +2,25 @@
 
 Class AdminWithdrawController extends AbstractController {
     public function listAction () {
-        $sql = "SELECT COUNT(*) FROM t_withdraw";
-        $totalCount = $this->db->getOne($sql);
+        $whereArr = array('1 = 1');
+        $dataArr = array();
+        
+        if (isset($_POST['status']) && $_POST['status']) {
+            $whereArr[] = 'w.withdraw_status = :withdraw_status';
+            $dataArr['withdraw_status'] = $_POST['status'];
+        }
+        $where = 'WHERE ' . implode(' AND ', $whereArr);
+        $sql = "SELECT COUNT(*) FROM t_withdraw w " . $where;
+        $totalCount = $this->db->getOne($sql, $dataArr);
         $list = array();
         if ($totalCount) {
             $sql = "SELECT w.*, u.create_time user_time, u.brand, u.model, u.phone_number
                     FROM t_withdraw w
                     LEFT JOIN t_user u USING(user_id)
+                    $where
                     ORDER BY w.withdraw_id DESC 
                     LIMIT " . $this->page;
-            $list = $this->db->getAll($sql);
+            $list = $this->db->getAll($sql, $dataArr);
         }
         foreach ($list as &$info) {
             $sql = 'SELECT COUNT(withdraw_id) count, IFNULL(SUM(withdraw_amount), 0) total FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
