@@ -367,9 +367,9 @@ Class User2Controller extends UserController {
 //        strlen($code);
         if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $code, $result)){
             $ext = strtolower($result[2]);
-            if (!in_array($ext, array('jpg','jpeg', 'png', 'gif', 'bmp'))) {
-                return new ApiReturn('', 313,'上传图片格式不正确');
-            }
+//            if (!in_array($ext, array('jpg','jpeg', 'png', 'gif', 'bmp'))) {
+//                return new ApiReturn('', 313,'上传图片格式不正确');
+//            }
             
             $length = strlen($code) - strlen($result[1]);
             $size = $length - $length / 4;
