@@ -97,7 +97,7 @@ Class AdminVersionController extends AbstractController {
                     break;
                 case 'add' :
                     $sql = 'INSERT INTO t_version_ad SET ad_status = ?, version_id = ?, app_name = ?';
-                    $return = $this->db->exec($sql, !$_POST['ad_status'], $_POST['version_id'], $_POST['app_name']);
+                    $return = $this->db->exec($sql, $_POST['ad_status'], $_POST['version_id'], $_POST['app_name']);
                     break;
             }
             if ($return) {

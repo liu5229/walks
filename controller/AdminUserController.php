@@ -2,12 +2,21 @@
 
 Class AdminUserController extends AbstractController {
     public function listAction () {
-        $sql = "SELECT COUNT(*) FROM t_user ORDER BY user_id";
-        $totalCount = $this->db->getOne($sql);
+        $whereArr = array('1 = 1');
+        $dataArr = array();
+        
+        if (isset($_POST['user_id']) && $_POST['user_id']) {
+            $whereArr[] = 'user_id = :user_id';
+            $dataArr['user_id'] = $_POST['user_id'];
+        }
+        $where = 'WHERE ' . implode(' AND ', $whereArr);
+        
+        $sql = "SELECT COUNT(*) FROM t_user " . $where;
+        $totalCount = $this->db->getOne($sql, $dataArr);
         $list = array();
         if ($totalCount) {
-            $sql = "SELECT * FROM t_user ORDER BY user_id DESC LIMIT " . $this->page;
-            $list = $this->db->getAll($sql);
+            $sql = "SELECT * FROM t_user $where ORDER BY user_id DESC LIMIT " . $this->page;
+            $list = $this->db->getAll($sql, $dataArr);
             foreach ($list as &$userInfo) {
                 $userInfo = array_merge($userInfo, $this->model->user->getGold($userInfo['user_id']));
             }
