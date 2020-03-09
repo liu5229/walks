@@ -103,21 +103,44 @@ class User2Model extends UserModel {
                 return new ApiReturn('', 202, '抱歉您已达到今日金币获取上限');
             }
         }
-        $sql = "INSERT INTO t_gold SET
-                user_id = :user_id,
-                change_gold = :change_gold,
-                gold_source = :gold_source,
-                change_type = :change_type,
-                relation_id = :relation_id,
-                change_date = :change_date";
-        $this->db->exec($sql, array(
-            'user_id' => $params['user_id'],
-            'change_gold' => $params['gold'],
-            'gold_source' => $params['source'],
-            'change_type' => $params['type'],
-            'relation_id' => $params['relation_id'] ?? 0,
-            'change_date' => $todayDate
-        ));
+        if ('sign' == $params['type']) {
+            $sql = "INSERT INTO t_gold SET
+                    user_id = :user_id,
+                    change_gold = :change_gold,
+                    gold_source = :gold_source,
+                    change_type = :change_type,
+                    relation_id = :relation_id,
+                    change_date = :change_date";
+            $this->db->exec($sql, array(
+                'user_id' => $params['user_id'],
+                'change_gold' => $params['gold'],
+                'gold_source' => $params['source'],
+                'change_type' => $params['type'],
+                'relation_id' => $params['relation_id'] ?? 0,
+                'change_date' => $todayDate
+            ));
+        } else {
+            $sql = "INSERT INTO t_gold (user_id, change_gold, gold_source, change_type, relation_id, change_date) 
+                    SELECT :user_id, :change_gold, :gold_source, :change_type, :relation_id, :change_date
+                    WHERE NOT EXISTS(
+                    SELECT * 
+                    FROM t_gold 
+                    WHERE user_id = :user_id 
+                    AND change_gold = :change_gold 
+                    AND gold_source = :gold_source 
+                    AND change_type = :change_type
+                    AND relation_id = :relation_id
+                    AND change_date = :change_date)";
+            $this->db->exec($sql, array(
+                'user_id' => $params['user_id'],
+                'change_gold' => $params['gold'],
+                'gold_source' => $params['source'],
+                'change_type' => $params['type'],
+                'relation_id' => $params['relation_id'] ?? 0,
+                'change_date' => $todayDate
+            ));
+        }
+        
         return TRUE;
     }
     
