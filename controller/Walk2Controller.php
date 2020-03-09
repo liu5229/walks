@@ -306,9 +306,9 @@ Class Walk2Controller extends WalkController {
      * @return \ApiReturn
      */
     public function uploadErrorAction () {
-        if (isset($this->inputData['versionCode']) && isset($this->inputData['errorSource']) && isset($this->inputData['errorCode']) && isset($this->inputData['adposId'])) {
-            $sql = 'INSERT INTO t_sdk_error SET user_id = ?, sdk_source = ?, version_id = ?, error_code = ?';
-            $this->db->exec($sql, $this->userId, $this->inputData['errorSource'], $this->inputData['versionCode'], $this->inputData['errorCode'], $this->inputData['adposId']);
+        if (isset($this->inputData['versionCode']) && isset($this->inputData['errorSource']) && isset($this->inputData['errorCode'])) {
+            $sql = 'INSERT INTO t_sdk_error SET user_id = ?, sdk_source = ?, version_id = ?, error_code = ?, adpos_id = ?';
+            $this->db->exec($sql, $this->userId, $this->inputData['errorSource'], $this->inputData['versionCode'], $this->inputData['errorCode'], $this->inputData['adposId'] ?? '');
             return new ApiReturn();
         } else {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
