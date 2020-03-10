@@ -336,11 +336,12 @@ Class Walk2Controller extends WalkController {
      */
     public function withdrawDetailAction () {
         $statusArray = array('pending' => '审核中', 'success' => '审核成功', 'failure' => '审核失败');
-        $sql = "SELECT withdraw_amount amount, withdraw_status status, create_time wTime  FROM t_withdraw WHERE user_id = ? ORDER BY withdraw_id DESC";
+        $sql = "SELECT withdraw_amount amount, withdraw_status status, create_time wTime, withdraw_method method  FROM t_withdraw WHERE user_id = ? ORDER BY withdraw_id DESC";
         $withdrawDetail = $this->db->getAll($sql, $this->userId);
         array_walk($withdrawDetail, function (&$v) use ($statusArray) {
             $v['status'] = $statusArray[$v['status']];
             $v['wTime'] = strtotime($v['wTime']) * 1000;
+            $v['method'] = (('alipay' == $v['method']) ? '支付宝现金' : '微信现金');
         });
         return new ApiReturn($withdrawDetail);    
     }
