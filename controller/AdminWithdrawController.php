@@ -9,6 +9,11 @@ Class AdminWithdrawController extends AbstractController {
             $whereArr[] = 'w.withdraw_status = :withdraw_status';
             $dataArr['withdraw_status'] = $_POST['status'];
         }
+        
+        if (isset($_POST['method']) && $_POST['method']) {
+            $whereArr[] = 'w.withdraw_method = :withdraw_method';
+            $dataArr['withdraw_method'] = $_POST['method'];
+        }
         $where = 'WHERE ' . implode(' AND ', $whereArr);
         $sql = "SELECT COUNT(*) FROM t_withdraw w " . $where;
         $totalCount = $this->db->getOne($sql, $dataArr);
