@@ -48,8 +48,7 @@ Class AdminWithdrawController extends AbstractController {
 //                        'phone' => $userInfo['alipay_account'],
 //                        'name' => $userInfo['alipay_name']));
                     $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
-                    $payInfo = $this->db->getOne($sql, $_POST['withdraw_id']);
-                    var_dump($payInfo);
+                    $payInfo = $this->db->getRow($sql, $_POST['withdraw_id']);
                     switch ($payInfo['withdraw_method']) {
                         case 'alipay':
                             $returnStatus = TRUE;
