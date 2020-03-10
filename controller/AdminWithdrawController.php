@@ -47,7 +47,19 @@ Class AdminWithdrawController extends AbstractController {
 //                        'price' => $userInfo['withdraw_amount'],
 //                        'phone' => $userInfo['alipay_account'],
 //                        'name' => $userInfo['alipay_name']));
-                    $returnStatus = TRUE;
+                    $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
+                    $payInfo = $this->db->getOne($sql, $_POST['withdraw_id']);
+                    switch ($payInfo['withdraw_method']) {
+                        case 'alipay':
+                            $returnStatus = TRUE;
+                            break;
+                        case 'wechat':
+                            $wechatPay = new Wxpay();
+                            $returnStatus = $wechatPay->transfer($userInfo['withdraw_amount'], $userInfo['wechat_openid']);
+                            break;
+                        default: 
+                            throw new \Exception("Operation failure");
+                    }
                     if (TRUE === $returnStatus) {
                         $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
                         $userInfo = $this->db->getRow($sql, $_POST['withdraw_id']);
