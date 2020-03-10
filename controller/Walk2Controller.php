@@ -293,7 +293,7 @@ Class Walk2Controller extends WalkController {
                 $this->db->exec($sql, array('user_id' => $this->userId,
                     'withdraw_amount' => $withdrawalAmount,
                     'withdraw_gold' => $withdrawalGold, 
-                    'wechat_openid' => $payInfo['alipay_account']));
+                    'wechat_openid' => $payInfo['openid']));
                 return new ApiReturn('');
             } else {
                 return new ApiReturn('', 407, '请先绑定微信账户');
