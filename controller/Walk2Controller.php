@@ -260,6 +260,50 @@ Class Walk2Controller extends WalkController {
     }
     
     /**
+     * 申请提现接口 微信20200310
+     * @return \ApiReturn
+     */
+    public function requestWithdrawalNewAction () {
+        if (isset($this->inputData['amount']) && $this->inputData['amount']) {
+            $withdrawalAmount = $this->inputData['amount'];
+            $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
+            //获取当前用户可用金币
+            $userGoldInfo = $this->model->user2->getGold($this->userId);
+            
+            if ($withdrawalGold > $userGoldInfo['currentGold']) {
+                return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
+            }
+            //是否绑定支付宝
+            $sql = 'SELECT unionid, openid FROM t_user WHERE user_id = ?';
+            $payInfo = $this->db->getRow($sql, $this->userId);
+            if (isset($payInfo['unionid']) && $payInfo['unionid'] && isset($payInfo['openid']) && $payInfo['openid']) {
+                //1元提现只能一次 to do
+                if (1 == $withdrawalAmount) {
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = 1 AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $this->userId)) {
+                        return new ApiReturn('', 405, '新用户首次提现专享');
+                    }
+                }
+                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
+                        withdraw_amount = :withdraw_amount, 
+                        withdraw_gold = :withdraw_gold, 
+                        withdraw_status = "pending", 
+                        withdraw_method = "wechat",
+                        wechat_openid = :wechat_openid';
+                $this->db->exec($sql, array('user_id' => $this->userId,
+                    'withdraw_amount' => $withdrawalAmount,
+                    'withdraw_gold' => $withdrawalGold, 
+                    'wechat_openid' => $payInfo['alipay_account']));
+                return new ApiReturn('');
+            } else {
+                return new ApiReturn('', 407, '请先绑定微信账户');
+            }
+        } else {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+    }
+    
+    /**
      * 金币明细列表
      * @return \ApiReturn
      */
