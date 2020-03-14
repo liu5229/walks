@@ -41,10 +41,10 @@ Class Task extends AbstractController {
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $userId);
-                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
+                $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayInfo = $this->db->getRow($sql, $userId, $today, $type);
                 if(!$todayInfo) {
-                    $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1 ORDER BY receive_id DESC LIMIT 1';
+                    $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ? AND change_date = ? AND gold_source = ?';
                     $isSignLastDay = $this->db->getOne($sql, $userId, date('Y-m-d', strtotime("-1 day")), $type);
                     if (!$isSignLastDay) {
                         $checkInDays = 0;
@@ -57,15 +57,23 @@ Class Task extends AbstractController {
                     
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
                     $this->db->exec($sql, $userId, $today, $type, $awardRow['award_min']);
+                    $todayInfo = array('id' => $this->db->lastInsertId(), 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
                 }
                 $fromDate = $today;
                 $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
                 if ($checkInDays) {
-                    $checkInDays -= ($todayInfo['receive_status'] ?? 0);
+                    $checkInDays -= ($todayInfo['isReceive'] ?? 0);
                     $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
                 }
-                $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble, IF(receive_date="' . $today . '", 1, 0) isToday FROM t_gold2receive WHERE user_id = ? AND receive_date >= ? AND receive_type = ? ORDER BY receive_id';
-                $checkInInfo = $this->db->getAll($sql, $userId, $fromDate, $type);
+                $sql = 'SELECT gold_id id , change_gold num, 1 isReceive, 0 isDouble, 0 isToday 
+                        FROM t_gold 
+                        WHERE user_id = ? 
+                        AND change_date >= ? 
+                        AND change_date < ?
+                        AND gold_source = ? 
+                        ORDER BY gold_id';
+                $checkInInfo = $this->db->getAll($sql, $userId, $fromDate, $today, $type);
+                $checkInInfo[] = array_merge(array('isToday' => 1), $todayInfo);
                 
                 $i = 0;
                 $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = "sign" ORDER BY config_id ASC';
