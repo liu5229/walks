@@ -217,8 +217,8 @@ Class User2Controller extends UserController {
         }
         $userInfo['gearList'] = array();
         foreach (array(1, 5) as $withdraw) {
-            $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
-            if (!$this->db->getOne($sql, $withdraw)) {
+            $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND withdraw_status = "success"';
+            if (!$this->db->getOne($sql, $withdraw, $userId)) {
                 $userInfo['gearList'][] = $withdraw;
             }
         }
