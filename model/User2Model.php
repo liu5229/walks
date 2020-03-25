@@ -27,6 +27,10 @@ class User2Model extends UserModel {
         
         if ($userInfo) {
             $goldInfo = $this->getGold($userInfo['user_id']);
+            if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
+                $sql = 'UPDATE t_user SET umeng_token = ? WHERE user_id = ?';
+                $this->db->exec($sql, $deviceInfo['umengToken'], $userInfo['user_id']);
+            }
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
             $isOneCashed = $this->db->getOne($sql, $userInfo['user_id']);
             return  array(
@@ -46,9 +50,10 @@ class User2Model extends UserModel {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?';
+            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, VAID = ?, AAID = ?, OAID = ?, 
+                brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?';
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode);
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '');
             $userId = $this->db->lastInsertId();
             
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
