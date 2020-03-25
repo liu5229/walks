@@ -324,6 +324,8 @@ Class Walk2Controller extends WalkController {
             }
             if ('system' == $v['source']) {
                 $v['gSource'] = '官方操作';
+            } elseif ('newer_invalid' == $v['gold_source']) {
+                $v['gSource'] = '新手红包过期';
             }
             $v['gTime'] = strtotime($v['gTime']) * 1000;
         });

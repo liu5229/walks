@@ -216,13 +216,13 @@ Class User2Controller extends UserController {
             $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
         }
         $userInfo['gearList'] = array();
-        foreach (array(1, 5) as $withdraw) {
+        foreach (array(1, 5) as $key => $withdraw) {
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND withdraw_status = "success"';
             if (!$this->db->getOne($sql, $withdraw, $userId)) {
-                $userInfo['gearList'][] = $withdraw;
+                $userInfo['gearList'][] = array('key' => $key, 'value' => $withdraw);
             }
         }
-        $userInfo['gearList'] = array_merge($userInfo['gearList'], array(15, 30, 50, 100));
+        $userInfo['gearList'] = array_merge($userInfo['gearList'], array(array('key' => 2, 'value' => 15), array('key' => 3, 'value' => 30), array('key' => 4, 'value' => 50), array('key' => 5, 'value' => 100)));
         return new ApiReturn($userInfo);
     }
     

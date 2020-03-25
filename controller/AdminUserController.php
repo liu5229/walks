@@ -90,6 +90,8 @@ Class AdminUserController extends AbstractController {
                     }
                     if ('system' == $v['gold_source']) {
                         $v['gSource'] = '官方操作';
+                    } elseif ('newer_invalid' == $v['gold_source']) {
+                        $v['gSource'] = '新手红包过期';
                     }
                 });
             }

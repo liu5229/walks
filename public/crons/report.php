@@ -29,8 +29,8 @@ while (true) {
     $sql = 'SELECT COUNT(*) FROM t_user WHERE create_time >= ? AND create_time < ?';
     $newUser = $db->getOne($sql, $start, $end);
     
-    $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE create_time >= ? AND create_time < ? AND change_type = "in"';
-    $newGold = $db->getOne($sql, $start, $end) ?: 0;
+    $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE change_date = ? AND change_type = "in"';
+    $newGold = $db->getOne($sql, $reportDaily) ?: 0;
     
     $sql = 'SELECT COUNT(user_id) FROM t_user_first_login WHERE date = ?';
     $loginUser = $db->getOne($sql, $reportDaily);
