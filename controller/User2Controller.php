@@ -219,10 +219,10 @@ Class User2Controller extends UserController {
         foreach (array(1, 5) as $key => $withdraw) {
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND withdraw_status = "success"';
             if (!$this->db->getOne($sql, $withdraw, $userId)) {
-                $userInfo['gearList'][] = array('key' => $key, 'value' => $withdraw);
+                $userInfo['gearList'][] = array('values' => $key, 'nums' => $withdraw);
             }
         }
-        $userInfo['gearList'] = array_merge($userInfo['gearList'], array(array('key' => 2, 'value' => 15), array('key' => 3, 'value' => 30), array('key' => 4, 'value' => 50), array('key' => 5, 'value' => 100)));
+        $userInfo['gearList'] = array_merge($userInfo['gearList'], array(array('values' => 2, 'nums' => 15), array('values' => 3, 'nums' => 30), array('values' => 4, 'nums' => 50), array('values' => 5, 'nums' => 100)));
         return new ApiReturn($userInfo);
     }
     
