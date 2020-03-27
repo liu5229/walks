@@ -270,7 +270,7 @@ Class Walk2Controller extends WalkController {
             $payInfo = $this->db->getRow($sql, $this->userId);
             $umengApi = new Umeng();
             $umengReturn = $umengApi->verify($payInfo['umeng_token']);
-            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score < 70) {
+            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score <= 80) {
                 return new ApiReturn('', 408, '申请失败');
             }
             $withdrawalAmount = $this->inputData['amount'];
