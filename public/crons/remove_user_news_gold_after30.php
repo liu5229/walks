@@ -35,7 +35,7 @@ foreach ($userList as $userInfo) {
     $model->user2->updateGold($params);
     
     $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
-    $db->exec($sql, $variableName, $userId);
+    $db->exec($sql, $variableName, $userInfo['user_id']);
 }
 
 echo 'done';
