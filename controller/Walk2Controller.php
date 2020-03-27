@@ -265,6 +265,14 @@ Class Walk2Controller extends WalkController {
      */
     public function requestWithdrawalNewAction () {
         if (isset($this->inputData['amount']) && $this->inputData['amount']) {
+            //是否绑定微信
+            $sql = 'SELECT unionid, openid, umeng_token FROM t_user WHERE user_id = ?';
+            $payInfo = $this->db->getRow($sql, $this->userId);
+            $umengApi = new Umeng();
+            $umengReturn = $umengApi->verify($payInfo['umeng_token']);
+            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score < 70) {
+                return new ApiReturn('', 408, '申请失败');
+            }
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
             //获取当前用户可用金币
@@ -273,9 +281,6 @@ Class Walk2Controller extends WalkController {
             if ($withdrawalGold > $userGoldInfo['currentGold']) {
                 return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
             }
-            //是否绑定支付宝
-            $sql = 'SELECT unionid, openid FROM t_user WHERE user_id = ?';
-            $payInfo = $this->db->getRow($sql, $this->userId);
             if (isset($payInfo['unionid']) && $payInfo['unionid'] && isset($payInfo['openid']) && $payInfo['openid']) {
                 //1元提现只能一次 to do
                 if (in_array($withdrawalAmount, array(1, 5))) {
