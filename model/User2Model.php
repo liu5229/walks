@@ -28,8 +28,14 @@ class User2Model extends UserModel {
         if ($userInfo) {
             $goldInfo = $this->getGold($userInfo['user_id']);
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
-                $sql = 'UPDATE t_user SET umeng_token = ? WHERE user_id = ?';
-                $this->db->exec($sql, $deviceInfo['umengToken'], $userInfo['user_id']);
+                $umengClass = new Umeng();
+                $score = 0;
+                $umengReturn = $umengClass->verify($userInfo['umeng_token']);
+                if (TRUE !== $umengReturn && TRUE === $umengReturn->suc) {
+                    $score = $umengReturn->score;
+                }
+                $sql = 'UPDATE t_user SET umeng_token = ?, umeng_score = ? WHERE user_id = ?';
+                $this->db->exec($sql, $deviceInfo['umengToken'], $score, $userInfo['user_id']);
             }
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
             $isOneCashed = $this->db->getOne($sql, $userInfo['user_id']);
