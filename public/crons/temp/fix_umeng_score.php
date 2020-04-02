@@ -16,7 +16,7 @@ foreach ($userList as $userInfo) {
     $umengReturn = $umengClass->verify($userInfo['umeng_token']);
     if (TRUE !== $umengReturn && TRUE === $umengReturn->suc) {
         $sql = 'UPDATE t_user SET umeng_score = ? WHERE user_id = ?';
-        $db->exec($sql, $umengReturn->score, $userId);
+        $db->exec($sql, $umengReturn->score, $userInfo['user_id']);
     }
 }
 
