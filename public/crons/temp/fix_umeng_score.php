@@ -12,10 +12,9 @@ $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 $sql = 'SELECT user_id, umeng_token FROM t_user WHERE umeng_token != "" AND umeng_score = 0';
 $userList = $db->getAll($sql);
 $umengClass = new Umeng();
-foreach ($umengClass as $userInfo) {
+foreach ($userList as $userInfo) {
     $umengReturn = $umengClass->verify($userInfo['umeng_token']);
     if (TRUE !== $umengReturn && TRUE === $umengReturn->suc) {
-        echo 111;
         $sql = 'UPDATE t_user SET umeng_score = ? WHERE user_id = ?';
         $db->exec($sql, $umengReturn->score, $userId);
     }
