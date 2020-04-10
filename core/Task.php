@@ -97,12 +97,23 @@ Class Task extends AbstractController {
                         $endTime = date('Y-m-d H:i:s');
                     }
                     
-                    $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
-                    $configInfo = $this->db->getRow($sql, $type, 1);
-                    if ($configInfo) {
+                    //todo
+                    $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
+                    $updateConfig = $this->db->getOne($sql, $type);
+                    if ($updateConfig) {
+                        $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+                        $withDraw = $this->db->getOne($sql, $userId);
+                        $sql = 'SELECT * FROM t_award_config_update WHERE config_type = ? AND (counter = 0 OR counter = ?) AND withdraw <= ? ORDER BY withdraw DESC';
+                        $configInfo = $this->db->getRow($sql, $type, 1, $withDraw);
                         $gold = rand($configInfo['award_min'], $configInfo['award_max']);
                     } else {
-                        $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                        $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
+                        $configInfo = $this->db->getRow($sql, $type, 1);
+                        if ($configInfo) {
+                            $gold = rand($configInfo['award_min'], $configInfo['award_max']);
+                        } else {
+                            $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                        }
                     }
                     
                     $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';

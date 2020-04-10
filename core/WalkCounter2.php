@@ -116,10 +116,22 @@ class WalkCounter2 extends WalkCounter
         $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
         $residualStep = $this->stepCount - $receiceStep['max'];
         $count = $receiceStep['count'];
+        $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
+        $updateConfig = $this->db->getOne($sql, 'walk');
+        if ($updateConfig) {
+            $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+            $withDraw = $this->db->getOne($sql, $this->userId);
+        }
         while ($residualStep >= $this->rewardCounter) {
             $count++;
-            $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
-            $awardRange = $this->db->getRow($sql, $count);
+            if ($updateConfig) {
+                $sql = 'SELECT award_min, award_max FROM t_award_config_update WHERE config_type = "walk" AND counter <= ? AND withdraw <= ? ORDER BY withdraw DESC, counter DESC';
+                $awardRange = $this->db->getRow($sql, $count, $withDraw);
+            } else {
+                $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
+                $awardRange = $this->db->getRow($sql, $count);
+            }
+            
             $sql = 'INSERT INTO t_gold2receive (user_id, receive_date, receive_gold, receive_walk, receive_type) 
                     SELECT :user_id, :receive_date, :receive_gold, :receive_walk, :receive_type FROM DUAL
                     WHERE NOT EXISTS(SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id

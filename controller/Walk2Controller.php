@@ -195,13 +195,25 @@ Class Walk2Controller extends WalkController {
                         $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                         if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
                             $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                            $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
-                            $configInfo = $this->db->getRow($sql, $this->inputData['type'], $activityCount + 1);
-                            if ($configInfo) {
+                            
+                            $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
+                            $updateConfig = $this->db->getOne($sql, $this->inputData['type']);
+                            if ($updateConfig) {
+                                $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+                                $withDraw = $this->db->getOne($sql, $this->userId);
+                                $sql = 'SELECT * FROM t_award_config_update WHERE config_type = ? AND (counter = 0 OR counter = ?) AND withdraw <= ? ORDER BY withdraw DESC';
+                                $configInfo = $this->db->getRow($sql, $this->inputData['type'], $activityCount + 1, $withDraw);
                                 $gold = rand($configInfo['award_min'], $configInfo['award_max']);
                             } else {
-                                $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                                $sql = 'SELECT * FROM t_award_config WHERE config_type = ? AND counter_min = ?';
+                                $configInfo = $this->db->getRow($sql, $this->inputData['type'], $activityCount + 1);
+                                if ($configInfo) {
+                                    $gold = rand($configInfo['award_min'], $configInfo['award_max']);
+                                } else {
+                                    $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
+                                }
                             }
+                            
                             $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
                             $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                         }
