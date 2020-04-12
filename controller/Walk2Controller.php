@@ -383,10 +383,17 @@ Class Walk2Controller extends WalkController {
      * 
      */
     public function walkCountListAction () {
-        $sql = 'SELECT * FROM t_walk WHERE user_id = ? AND walk_date >= ?';
-        $walkInfo = $this->db->getPairs($sql, $this->userId, date('Y-m-d', strtotime('-6 day')));
+        $startTime = strtotime('-6 day');
+        $sql = 'SELECT walk_date, total_walk FROM t_walk WHERE user_id = ? AND walk_date >= ?';
+        $walkInfo = $this->db->getPairs($sql, $this->userId, date('Y-m-d', $startTime));
+        for ($i=0;$i<7;$i++) {
+            $date = date('Y-m-d', $startTime);
+            $return[] = array('walkTime' => $startTime * 1000, 'walkCount' => $walkInfo[$date] ?? 0);
+            $startTime = strtotime('+1 day', $startTime);
+        }
         var_dump($this->userId);
         var_dump(date('Y-m-d', strtotime('-6 day')));
         var_dump($walkInfo);
+        return new ApiReturn($return);
     }
 }
