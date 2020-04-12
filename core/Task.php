@@ -100,9 +100,11 @@ Class Task extends AbstractController {
                     //todo
                     $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
                     $updateConfig = $this->db->getOne($sql, $type);
-                    if ($updateConfig) {
-                        $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
-                        $withDraw = $this->db->getOne($sql, $userId);
+                    
+                    $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+                    $withDraw = $this->db->getOne($sql, $userId);
+                    
+                    if ($updateConfig && $withDraw) {
                         $sql = 'SELECT * FROM t_award_config_update WHERE config_type = ? AND (counter = 0 OR counter = ?) AND withdraw <= ? ORDER BY withdraw DESC';
                         $configInfo = $this->db->getRow($sql, $type, 1, $withDraw);
                         $gold = rand($configInfo['award_min'], $configInfo['award_max']);

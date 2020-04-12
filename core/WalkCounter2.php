@@ -118,13 +118,15 @@ class WalkCounter2 extends WalkCounter
         $count = $receiceStep['count'];
         $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
         $updateConfig = $this->db->getOne($sql, 'walk');
-        if ($updateConfig) {
-            $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
-            $withDraw = $this->db->getOne($sql, $this->userId);
-        }
+        $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+        $withDraw = $this->db->getOne($sql, $this->userId);
+//        if ($updateConfig) {
+//            $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+//            $withDraw = $this->db->getOne($sql, $this->userId);
+//        }
         while ($residualStep >= $this->rewardCounter) {
             $count++;
-            if ($updateConfig) {
+            if ($updateConfig && $withDraw) {
                 $sql = 'SELECT award_min, award_max FROM t_award_config_update WHERE config_type = "walk" AND counter <= ? AND withdraw <= ? ORDER BY withdraw DESC, counter DESC';
                 $awardRange = $this->db->getRow($sql, $count, $withDraw);
             } else {
