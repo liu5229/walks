@@ -384,7 +384,9 @@ Class Walk2Controller extends WalkController {
      */
     public function walkCountListAction () {
         $sql = 'SELECT * FROM t_walk WHERE user_id = ? AND walk_date >= ?';
-        $walkInfo = $this->db->getParis($sql, $this->userId, date('Y-m-d', strtotime('-6 day')));
+        $walkInfo = $this->db->getPairs($sql, $this->userId, date('Y-m-d', strtotime('-6 day')));
+        var_dump($this->userId);
+        var_dump(date('Y-m-d', strtotime('-6 day')));
         var_dump($walkInfo);
     }
 }
