@@ -378,4 +378,13 @@ Class Walk2Controller extends WalkController {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
     }
+    
+    /**
+     * 
+     */
+    public function walkCountListAction () {
+        $sql = 'SELECT * FROM t_walk WHERE user_id = ? AND walk_date >= ?';
+        $walkInfo = $this->db->getParis($sql, $this->userId, date('Y-m-d', strtotime('-6 day')));
+        var_dump($walkInfo);
+    }
 }
