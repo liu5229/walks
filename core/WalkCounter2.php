@@ -167,7 +167,7 @@ class WalkCounter2 extends WalkCounter
         $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
         $withDraw = $this->db->getOne($sql, $this->userId);
 
-        $sql = 'SELECT COUNT(receive_id) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND is_receive = 0';
+        $sql = 'SELECT COUNT(receive_id) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 0';
         $notReceiveCount = $this->db->getOne($sql, $this->userId, $this->todayDate);
 
         while ($residualStep >= $this->rewardCounter) {
