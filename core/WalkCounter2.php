@@ -62,7 +62,7 @@ class WalkCounter2 extends WalkCounter
                         AND receive_date = ? 
                         AND receive_type = "walk"
                         AND receive_status = 1';
-                $return['restCount'] = ceil($this->stepCount / $this->rewardCounter) - $this->db->getOne($sql, $this->userId, $this->todayDate);
+                $return['restCount'] = floor($this->stepCount / $this->rewardCounter) - $this->db->getOne($sql, $this->userId, $this->todayDate);
                 return $return;
             case 'walk_stage':
                 return $this->__walkStageList();
