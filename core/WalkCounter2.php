@@ -25,9 +25,9 @@ class WalkCounter2 extends WalkCounter
         $this->stepCount = $stepCount;
         $this->todayDate = date('Y-m-d');
         $this->setStageReward();
-        if($this->stepCount) {
-            $this->calculationReward();
-        }
+        $this->calculationReward();
+        //插入步数奖励待领取
+        $this->__insertWalkAward();
     }
     
     public function getReturnInfo ($type) {
@@ -111,44 +111,6 @@ class WalkCounter2 extends WalkCounter
             $this->db->exec($sql, $this->stepCount, $this->userId, $this->todayDate);
         }
         
-        //插入步数奖励待领取
-        $sql = 'SELECT MAX(receive_walk) max, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
-        $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
-        $residualStep = $this->stepCount - $receiceStep['max'];
-        $count = $receiceStep['count'];
-        $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
-        $updateConfig = $this->db->getOne($sql, 'walk');
-        $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
-        $withDraw = $this->db->getOne($sql, $this->userId);
-//        if ($updateConfig) {
-//            $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
-//            $withDraw = $this->db->getOne($sql, $this->userId);
-//        }
-        while ($residualStep >= $this->rewardCounter) {
-            $count++;
-            if ($updateConfig && $withDraw) {
-                $sql = 'SELECT award_min, award_max FROM t_award_config_update WHERE config_type = "walk" AND counter <= ? AND withdraw <= ? ORDER BY withdraw DESC, counter DESC';
-                $awardRange = $this->db->getRow($sql, $count, $withDraw);
-            } else {
-                $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
-                $awardRange = $this->db->getRow($sql, $count);
-            }
-            
-            $sql = 'INSERT INTO t_gold2receive (user_id, receive_date, receive_gold, receive_walk, receive_type) 
-                    SELECT :user_id, :receive_date, :receive_gold, :receive_walk, :receive_type FROM DUAL
-                    WHERE NOT EXISTS(SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id
-                AND receive_date = :receive_date
-                AND receive_walk = :receive_walk
-                AND receive_type = :receive_type)';
-            $this->db->exec($sql, array(
-                'user_id' => $this->userId,
-                'receive_walk' => $this->rewardCounter * $count, 
-                'receive_date' => $this->todayDate, 
-                'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max']),
-                'receive_type' => 'walk'));
-            $residualStep -= $this->rewardCounter;
-        }
-        
         //插入阶段步数奖励待领取
         $sql = 'SELECT MAX(receive_walk) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk_stage"';
         $stageStep = $this->db->getOne($sql, $this->userId, $this->todayDate) ?: 0;
@@ -190,5 +152,51 @@ class WalkCounter2 extends WalkCounter
     protected function setStageReward () {
         $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = ? ORDER BY counter_min ASC';
         $this->stageReward = $this->db->getPairs($sql, 'walk_stage');
+    }
+
+    /**
+     * 插入步数奖励待领取
+     */
+    protected function __insertWalkAward () {
+        $sql = 'SELECT MAX(receive_walk) max, COUNT(receive_id) count FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk"';
+        $receiceStep = $this->db->getRow($sql, $this->userId, $this->todayDate);
+        $residualStep = $this->stepCount - $receiceStep['max'];
+        $count = $receiceStep['count'];
+        $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
+        $updateConfig = $this->db->getOne($sql, 'walk');
+        $sql = 'SELECT MAX(withdraw_amount) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "success"';
+        $withDraw = $this->db->getOne($sql, $this->userId);
+
+        $sql = 'SELECT COUNT(receive_id) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND is_receive = 0';
+        $notReceiveCount = $this->db->getOne($sql, $this->userId, $this->todayDate);
+
+        while ($residualStep >= $this->rewardCounter) {
+            if ($notReceiveCount >= 5) {
+                break;
+            }
+            $count++;
+            if ($updateConfig && $withDraw) {
+                $sql = 'SELECT award_min, award_max FROM t_award_config_update WHERE config_type = "walk" AND counter <= ? AND withdraw <= ? ORDER BY withdraw DESC, counter DESC';
+                $awardRange = $this->db->getRow($sql, $count, $withDraw);
+            } else {
+                $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
+                $awardRange = $this->db->getRow($sql, $count);
+            }
+
+            $sql = 'INSERT INTO t_gold2receive (user_id, receive_date, receive_gold, receive_walk, receive_type) 
+                    SELECT :user_id, :receive_date, :receive_gold, :receive_walk, :receive_type FROM DUAL
+                    WHERE NOT EXISTS(SELECT receive_id FROM t_gold2receive WHERE user_id = :user_id
+                AND receive_date = :receive_date
+                AND receive_walk = :receive_walk
+                AND receive_type = :receive_type)';
+            $this->db->exec($sql, array(
+                'user_id' => $this->userId,
+                'receive_walk' => $this->rewardCounter * $count,
+                'receive_date' => $this->todayDate,
+                'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max']),
+                'receive_type' => 'walk'));
+            $notReceiveCount++;
+            $residualStep -= $this->rewardCounter;
+        }
     }
 }
