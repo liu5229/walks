@@ -32,6 +32,7 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 !defined('JY_WALK_ADMIN_USER') && define('JY_WALK_ADMIN_USER', 'username');
 !defined('JY_WALK_ADMIN_PASSWORD') && define('JY_WALK_ADMIN_PASSWORD', '123456');
 
+!defined('PAY_MODE') && define('PAY_MODE', FALSE);
 /**
  * register autoload
  */

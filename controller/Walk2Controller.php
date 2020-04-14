@@ -279,15 +279,33 @@ Class Walk2Controller extends WalkController {
     public function requestWithdrawalNewAction () {
         if (isset($this->inputData['amount']) && $this->inputData['amount']) {
             //是否绑定微信
-            $sql = 'SELECT unionid, openid, umeng_token FROM t_user WHERE user_id = ?';
+            $sql = 'SELECT unionid, openid, umeng_token, user_status FROM t_user WHERE user_id = ?';
             $payInfo = $this->db->getRow($sql, $this->userId);
-            $umengApi = new Umeng();
-            $umengReturn = $umengApi->verify($payInfo['umeng_token']);
-            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score < 70) {
+            if (!$payInfo['user_status']) {
                 return new ApiReturn('', 408, '申请失败');
             }
+            $umengApi = new Umeng();
+            $umengReturn = $umengApi->verify($payInfo['umeng_token']);
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
+            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score < 90) {
+                //update user invild && insert request failed
+                $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
+                $this->db->exec($sql, $this->userId);
+                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
+                        withdraw_amount = :withdraw_amount, 
+                        withdraw_gold = :withdraw_gold, 
+                        withdraw_status = "failed", 
+                        withdraw_method = "wechat",
+                        wechat_openid = :wechat_openid,
+                        withdraw_remark = :withdraw_remark';
+                $this->db->exec($sql, array('user_id' => $this->userId,
+                    'withdraw_amount' => $withdrawalAmount,
+                    'withdraw_gold' => $withdrawalGold,
+                    'wechat_openid' => $payInfo['openid'],
+                    'withdraw_remark' => '友盟分值低于90分'));
+                return new ApiReturn('', 408, '申请失败');
+            }
             //获取当前用户可用金币
             $userGoldInfo = $this->model->user2->getGold($this->userId);
             

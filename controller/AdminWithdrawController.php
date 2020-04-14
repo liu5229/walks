@@ -64,8 +64,6 @@ Class AdminWithdrawController extends AbstractController {
                             throw new \Exception("Operation failure");
                     }
                     if (TRUE === $returnStatus) {
-                        $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
-                        $userInfo = $this->db->getRow($sql, $_POST['withdraw_id']);
                         $sql = "INSERT INTO t_gold SET
                                 user_id = :user_id,
                                 change_gold = :change_gold,
@@ -74,8 +72,8 @@ Class AdminWithdrawController extends AbstractController {
                                 relation_id = :relation_id,
                                 change_date = :change_date";
                         $this->db->exec($sql, array(
-                            'user_id' => $userInfo['user_id'],
-                            'change_gold' => $userInfo['withdraw_gold'],
+                            'user_id' => $payInfo['user_id'],
+                            'change_gold' => $payInfo['withdraw_gold'],
                             'gold_source' => 'withdraw',
                             'change_type' => 'out',
                             'relation_id' => $_POST['withdraw_id'],

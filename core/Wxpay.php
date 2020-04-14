@@ -15,6 +15,9 @@ Class Wxpay {
     }
     
     public function transfer ($amount, $openId, $orderNumber = '') {
+        if (!PAY_MODE) {
+            return TRUE;
+        }
 //        $openId = 'oS0AYxI1hoEyqqHgRFZINK7UiqEA';
 //        $amount = 100;
         $createList = '123456789ABCDEFGHIJKLMNPQRSTUVWXYZ';
