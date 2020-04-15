@@ -32,7 +32,7 @@ while (true) {
                                 change_type = :change_type,
                                 relation_id = :relation_id,
                                 change_date = :change_date";
-            $this->db->exec($sql, array(
+            $db->exec($sql, array(
                 'user_id' => $withdrawInfo['user_id'],
                 'change_gold' => $withdrawInfo['withdraw_gold'],
                 'gold_source' => 'withdraw',
@@ -41,12 +41,12 @@ while (true) {
                 'change_date' => date('Y-m-d')
             ));
             $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
-            $return = $this->db->exec($sql, $withdrawInfo['withdraw_id']);
+            $return = $db->exec($sql, $withdrawInfo['withdraw_id']);
             $count++;
         } else {
             //to do failure reason from api return
             $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
-            $return = $this->db->exec($sql, $returnStatus, $withdrawInfo['withdraw_id']);
+            $return = $db->exec($sql, $returnStatus, $withdrawInfo['withdraw_id']);
         }
     }
 }
