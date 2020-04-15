@@ -15,6 +15,9 @@ $count = 0;
 while (true) {
     $sql = 'SELECT * FROM t_withdraw WHERE withdraw_status = "pending" AND withdraw_amount = 1 AND withdraw_method = "wechat" ORDER BY withdraw_id';
     $withdrawList = $db->getAll($sql);
+    if (!$withdrawList) {
+        break;
+    }
 
     foreach ($withdrawList as $withdrawInfo) {
         if ($count >= $maxEvery) {

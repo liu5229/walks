@@ -295,7 +295,7 @@ Class Walk2Controller extends WalkController {
                 $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
                         withdraw_amount = :withdraw_amount, 
                         withdraw_gold = :withdraw_gold, 
-                        withdraw_status = "failed", 
+                        withdraw_status = "failure", 
                         withdraw_method = "wechat",
                         wechat_openid = :wechat_openid,
                         withdraw_remark = :withdraw_remark';
