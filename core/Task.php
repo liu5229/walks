@@ -97,7 +97,6 @@ Class Task extends AbstractController {
                         $endTime = date('Y-m-d H:i:s');
                     }
                     
-                    //todo
                     $sql = 'SELECT COUNT(*) FROM t_award_config_update WHERE config_type = ?';
                     $updateConfig = $this->db->getOne($sql, $type);
                     

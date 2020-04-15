@@ -31,10 +31,7 @@ class newPdo extends \PDO
         // parent's constructor
         parent::__construct($dsn, $username, $password, $options);
 
-        /**
-         * Currently, it can't be used with persistent \PDO instances
-         * @todo
-         */
+        //Currently, it can't be used with persistent \PDO instances
         // $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array('Ebd\Db\PDOStatment', array()));
 
         // set the default error mode
