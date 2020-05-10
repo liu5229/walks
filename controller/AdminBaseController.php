@@ -74,6 +74,10 @@ Class AdminBaseController extends AbstractController {
                 array( 'id' => 602, 'resName' => '广告频闭', 'resKey'=> 'version-ad', 'resIcon'=> 'moduleManage'),
                 array( 'id' => 603, 'resName' => '三方错误码', 'resKey'=> 'sdk-error', 'resIcon'=> 'moduleManage'),
             )),
+            array( 'id' => 7, 'resName' => '狗狗世界', 'resKey'=> 'dogsworld', 'resIcon'=> 'moduleManage', 'children' => array(
+                array( 'id' => 601, 'resName' => '版本升级', 'resKey'=> 'dogs-version', 'resIcon'=> 'moduleManage'),
+                array( 'id' => 602, 'resName' => '广告频闭', 'resKey'=> 'dogs-version-ad', 'resIcon'=> 'moduleManage'),
+            )),
         ));
     }
     

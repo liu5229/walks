@@ -21,6 +21,7 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 }
 
 !defined('HOST_NAME') && define('HOST_NAME', '127.0.0.1/');
+!defined('HOST_OSS') && define('HOST_OSS', '127.0.0.1/');
 
 !defined('DB_HOST') && define('DB_HOST', '192.168.0.25');
 !defined('DB_PORT') && define('DB_PORT', 3306);
