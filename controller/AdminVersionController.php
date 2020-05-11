@@ -21,12 +21,17 @@ Class AdminVersionController extends AbstractController {
                 case 'edit' :
                     $uploadApk = '';
                     if (isset($_POST['version_url']['file']['response']['data'][0]['file']['name'])) {
-                        $apkName = 'release-' . ($_POST['version_name'] ?? '') . '-' . date('Ymd') . '.apk';
+                        $apkName = (ENV_PRODUCTION ? '' : 'test-') . 'release-' . ($_POST['version_name'] ?? '') . '-' . date('Ymd') . '.apk';
                         $a = @rename(APP_DIR . $_POST['version_url']['file']['response']['data'][0]['file']['name'], APP_DIR . $apkName);
                         if (!$a) {
                             throw new \Exception("Upload failure");
                         }
                         $uploadApk = 'app/' . $apkName;
+                        $oss = new Oss();
+                        $uploadReturn = $oss->upload($uploadApk, APP_DIR . $apkName);
+                        if ($uploadReturn !== TRUE) {
+                            throw new \Exception("Upload Oss failure");
+                        }
                     }
                     $dataArr = array();
                     //add `id` in t_version
