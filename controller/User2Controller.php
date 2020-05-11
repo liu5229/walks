@@ -114,7 +114,7 @@ Class User2Controller extends UserController {
             'versionCode' => $versionInfo['version_id'],
             'versionName' => $versionInfo['version_name'],
             'forceUpdate' => $versionInfo['is_force_update'],
-            'apkUrl' => HOST_NAME . $versionInfo['version_url'],
+            'apkUrl' => HOST_OSS . $versionInfo['version_url'],
             'updateLog' => $versionInfo['version_log'],
             'needUpdateVersionCode' => $versionInfo['need_update_id'],
         ));
