@@ -6,7 +6,6 @@ require_once 'alipay/request/AlipayFundTransUniTransferRequest.php';
 class Alipay {
     protected $aop;
 
-
     public function __construct () {
         $aop = new AopClient ();
         $aop->gatewayUrl = 'https://openapi.alipay.com/gateway.do';
@@ -88,7 +87,7 @@ class Alipay {
                 return FALSE;
             }
         } catch (Exception $e) {
-            file_put_contents(LOG_DIR . 'alipay.log', date('Y-m-d H:i:s') . "|" . $exception->getErrorMessage() . PHP_EOL, FILE_APPEND);
+            file_put_contents(LOG_DIR . 'alipay.log', date('Y-m-d H:i:s') . "|" . $e->getErrorMessage() . PHP_EOL, FILE_APPEND);
             return FALSE;
         }
     }

@@ -129,7 +129,7 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1);
+        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0);
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
