@@ -269,7 +269,7 @@ Class Activity2Controller extends AbstractController {
         }
         
         $goldInfo = $this->model->user2->getGold($this->userId);
-        return new ApiReturn(array('awardGold' => $awardInfo ? $awardInfo['receive_gold'] : 0, 'currentGold' => $goldInfo['currentGold']));
+        return new ApiReturn(array('awardGold' => $awardInfo ? ($awardInfo['receive_gold']  * ($doubleStatus + 1)) : 0, 'currentGold' => $goldInfo['currentGold']));
     }
     
     /**
