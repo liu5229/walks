@@ -19,7 +19,7 @@ Class Activity2Controller extends AbstractController {
         9 => array('min' => ' 18:00:00', 'max' => ' 20:00:00'),
         10 => array('min' => ' 21:00:00', 'max' => ' 22:30:00'),
     );
-    protected $scratchImgList = array(1 => 'https://oss.stepcounter.cn/img/scratch_01.png', 2 => 'https://oss.stepcounter.cn/img/scratch_02.png', 3 => 'https://oss.stepcounter.cn/img/scratch_03.png', 4 => 'https://oss.stepcounter.cn/img/scratch_04.png', 5 => 'https://oss.stepcounter.cn/img/scratch_05.png', 6 => 'https://oss.stepcounter.cn/img/scratch_06.png', 7 => 'https://oss.stepcounter.cn/img/scratch_07.png', 8 => 'https://oss.stepcounter.cn/img/scratch_08.png', 9 => 'https://oss.stepcounter.cn/img/scratch_09.png', 10 => 'https://oss.stepcounter.cn/img/scratch_10.png');
+    protected $scratchConfigList = array(1 => array('img' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 100000), 2 => array('img' => 'https://oss.stepcounter.cn/img/scratch_02.png', 'gold' => 100000), 3 => array('img' => 'https://oss.stepcounter.cn/img/scratch_03.png', 'gold' => 100000), 4 => array('img' => 'https://oss.stepcounter.cn/img/scratch_04.png', 'gold' => 100000), 5 => array('img' => 'https://oss.stepcounter.cn/img/scratch_05.png', 'gold' => 100000), 6 => array('img' => 'https://oss.stepcounter.cn/img/scratch_06.png', 'gold' => 100000), 7 => array('img' => 'https://oss.stepcounter.cn/img/scratch_07.png', 'gold' => 100000), 8 => array('img' => 'https://oss.stepcounter.cn/img/scratch_08.png', 'gold' => 100000), 9 => array('img' => 'https://oss.stepcounter.cn/img/scratch_09.png', 'gold' => 100000), 10 => array('img' => 'https://oss.stepcounter.cn/img/scratch_10.png', 'gold' => 100000));
     protected $scratchClock = array();
     
     /**
@@ -376,7 +376,6 @@ Class Activity2Controller extends AbstractController {
     public function scratchListAction () {
         $config = array(7, 11, 15, 20, 23);
         $nowHours = date('H');
-        $nowHours = 23;
         $todayDate = date('Y-m-d');
         $endTime = '';
         $batch = 0;
@@ -408,28 +407,28 @@ Class Activity2Controller extends AbstractController {
                 if (1 == $scratchInfo['receive_status'] && $lockList && !$lockAdd) {
                     //添加未解锁的刮刮卡 排序位于未打开和 已打开的刮刮卡之间
                     foreach ($lockList as $lockKey) {
-                        $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 1, 'isOpen' => 0, 'number' => $lockKey);
+                        $returnList[] = array('bgImg' => $this->scratchConfigList[$lockKey]['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $lockKey, 'maxGold' => $this->scratchConfigList[$lockKey]['gold']);
                     }
                     $lockAdd = TRUE;
                 }
-                $returnList[] = array('bgImg' => $this->scratchImgList[$scratchInfo['scratch_num']], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
+                $returnList[] = array('bgImg' => $this->scratchConfigList[$scratchInfo['scratch_num']]['img'], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'maxGold' => $this->scratchConfigList[$scratchInfo['scratch_num']]['gold'], 'id' => $scratchInfo['id'], 'num' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
             }
             if (!$lockAdd) {
                 for ($i=5;$i<=10;$i++) {
-                    $returnList[] = array('bgImg' => $this->scratchImgList[$i], 'isLock' => 1, 'isOpen' => 0, 'number' => $i);
+                    $returnList[] = array('bgImg' => $this->scratchConfigList[$i]['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $i, 'maxGold' => $this->scratchConfigList[$i]['gold']);
                 }
             }
         } else {
-            foreach ($this->scratchImgList as $key => $scratchImg) {
+            foreach ($this->scratchConfigList as $key => $scratchImg) {
                 $content = $this->__scratchContent();
                 if ($key > 5) {
-                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 1, 'isOpen' => 0, 'number' => $key);
+                    $returnList[] = array('bgImg' => $scratchImg['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $key, 'maxGold' => $scratchImg['gold']);
                     continue;
                 }
                 $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
-                $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['gold'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
+                $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
                 if ($result) {
-                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'id' => $this->db->lastInsertId(), 'gold' => $content['gold'], 'type' => 'scratch', 'content' => json_decode($content['content']));
+                    $returnList[] = array('bgImg' => $scratchImg['img'], 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'maxGold' => $scratchImg['gold'], 'id' => $this->db->lastInsertId(), 'num' => $content['num'], 'type' => 'scratch', 'content' => json_decode($content['content']));
                 } else {
                     return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
@@ -472,7 +471,7 @@ Class Activity2Controller extends AbstractController {
             }
         }
         shuffle($return);
-        return array('gold' => $golds * 50 , 'content' => json_encode($return));
+        return array('num' => $golds * 10 , 'content' => json_encode($return));
     }
 
     
