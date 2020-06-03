@@ -375,7 +375,7 @@ Class Activity2Controller extends AbstractController {
      */
     public function scratchListAction () {
         $config = array(7, 11, 15, 20, 23);
-        $nowHours = date('h');
+        $nowHours = date('H');
         $todayDate = date('Y-m-d');
         $endTime = '';
         $batch = 0;
