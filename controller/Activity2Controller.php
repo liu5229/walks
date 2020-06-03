@@ -374,8 +374,27 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchListAction () {
+        $config = array(7, 11, 15, 20, 23);
+        $nowHours = date('h');
         $todayDate = date('Y-m-d');
-        $batch = 1;
+        $endTime = '';
+        $batch = 0;
+        foreach ($config as $k => $hours) {
+            if ($nowHours < $hours) {
+                $batch = $k - 1;
+                if (0 == $k) {
+                    $todayDate = date('Y-m-d', strtotime('-1 day'));
+                    $batch = 5;
+                }
+                $endTime = strtotime(date('Y-m-d ' . $hours . ':00:00'));
+                break;
+            }
+        }
+        if (!$endTime) {
+            $batch = 1;
+            $endTime = strtotime(date('Y-m-d 7:00:00', strtotime('+1 day')));
+        }
+
         //查找刮刮卡信息
         $sql = 'SELECT * FROM t_activity_scratch WHERE user_id = ? AND receive_date = ? AND scratch_batch = ? ORDER BY receive_status ASC, id ASC';
         $scratchList = $this->db->getAll($sql, $this->userId, $todayDate, $batch);
@@ -414,7 +433,7 @@ Class Activity2Controller extends AbstractController {
                 }
             }
         }
-        return new ApiReturn($returnList);
+        return new ApiReturn(array('list' => $returnList, 'currentTime' => time() * 1000, 'endTime' => $endTime));
 
         //clock 7
         $a = array('bgImg' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 1, 'is_lock' => 1, 'isOpen' => 1, 'id' => 1, 'number' => 1, 'type' => 'scratch', 'content' => array(0, 0, 0, 1, 1, 1), 'sort' => '');
