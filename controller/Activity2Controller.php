@@ -411,7 +411,7 @@ Class Activity2Controller extends AbstractController {
                     }
                     $lockAdd = TRUE;
                 }
-                $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
+                $returnList[] = array('bgImg' => $this->scratchImgList[$scratchInfo['scratch_num']], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
             }
             if (!$lockAdd) {
                 for ($i=5;$i<=10;$i++) {
