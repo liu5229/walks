@@ -384,14 +384,14 @@ Class Activity2Controller extends AbstractController {
             $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'sort'));
             $lockAdd = FALSE;
             foreach ($scratchList as $scratchInfo) {
-                if (1 == $scratchInfo['is_open'] && $lockList && !$lockAdd) {
+                if (1 == $scratchInfo['receive_status'] && $lockList && !$lockAdd) {
                     //添加未解锁的刮刮卡 排序位于未打开和 已打开的刮刮卡之间
                     foreach ($lockList as $lockKey) {
                         $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 1, 'isOpen' => 0, 'number' => $lockKey);
                     }
                     $lockAdd = TRUE;
                 }
-                $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => $scratchInfo['scratch_content']);
+                $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
             }
             if (!$lockAdd) {
                 for ($i=5;$i<=10;$i++) {
@@ -403,11 +403,12 @@ Class Activity2Controller extends AbstractController {
                 $content = $this->__scratchContent();
                 if ($key > 5) {
                     $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 1, 'isOpen' => 0, 'number' => $key);
+                    continue;
                 }
                 $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
                 $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['gold'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
                 if ($result) {
-                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'id' => $this->db->lastInsertId(), 'gold' => $content['gold'], 'type' => 'scratch', 'content' => $content['content']);
+                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'id' => $this->db->lastInsertId(), 'gold' => $content['gold'], 'type' => 'scratch', 'content' => json_decode($content['content']));
                 } else {
                     return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
