@@ -404,7 +404,7 @@ Class Activity2Controller extends AbstractController {
                 if ($key > 5) {
                     $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 1, 'isOpen' => 0, 'number' => $key);
                 }
-                $sql = 'INSERT INTO t_activity_scratch VALUE (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
+                $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
                 $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['gold'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
                 if ($result) {
                     $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'id' => $this->db->lastInsertId(), 'gold' => $content['gold'], 'type' => 'scratch', 'content' => $content['content']);
