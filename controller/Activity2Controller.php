@@ -375,7 +375,6 @@ Class Activity2Controller extends AbstractController {
      */
     public function scratchListAction () {
         $config = array(7, 11, 15, 20, 23);
-        var_dump($config);exit;
         $nowHours = date('H');
         $nowHours = 11;
         $todayDate = date('Y-m-d');
@@ -387,14 +386,14 @@ Class Activity2Controller extends AbstractController {
                     $todayDate = date('Y-m-d', strtotime('-1 day'));
                     $batch = 5;
                 } else {
-                    $batch = $k - 1;
+                    $batch = $k;
                 }
                 $endTime = strtotime(date('Y-m-d ' . $hours . ':00:00')) * 1000;
                 break;
             }
         }
         if (!$endTime) {
-            $batch = 1;
+            $batch = 5;
             $endTime = strtotime(date('Y-m-d 7:00:00', strtotime('+1 day'))) * 1000;
         }
 
