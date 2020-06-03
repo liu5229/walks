@@ -395,7 +395,6 @@ Class Activity2Controller extends AbstractController {
             $batch = 1;
             $endTime = strtotime(date('Y-m-d 7:00:00', strtotime('+1 day'))) * 1000;
         }
-        var_dump($batch);
 
         //查找刮刮卡信息
         $sql = 'SELECT * FROM t_activity_scratch WHERE user_id = ? AND receive_date = ? AND scratch_batch = ? ORDER BY receive_status ASC, id ASC';
