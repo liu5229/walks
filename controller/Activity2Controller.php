@@ -19,6 +19,8 @@ Class Activity2Controller extends AbstractController {
         9 => array('min' => ' 18:00:00', 'max' => ' 20:00:00'),
         10 => array('min' => ' 21:00:00', 'max' => ' 22:30:00'),
     );
+    protected $scratchImgList = array(1 => 'https://oss.stepcounter.cn/img/scratch_01.png', 2 => 'https://oss.stepcounter.cn/img/scratch_02.png', 3 => 'https://oss.stepcounter.cn/img/scratch_03.png', 4 => 'https://oss.stepcounter.cn/img/scratch_04.png', 5 => 'https://oss.stepcounter.cn/img/scratch_05.png', 6 => 'https://oss.stepcounter.cn/img/scratch_06.png', 7 => 'https://oss.stepcounter.cn/img/scratch_07.png', 8 => 'https://oss.stepcounter.cn/img/scratch_08.png', 9 => 'https://oss.stepcounter.cn/img/scratch_09.png', 10 => 'https://oss.stepcounter.cn/img/scratch_10.png');
+    protected $scratchClock = array();
     
     /**
      * 验证用户token 设置用户id
@@ -357,6 +359,100 @@ Class Activity2Controller extends AbstractController {
         }
         return new ApiReturn($returnList);
     }
+
+    /**
+     * 刮刮卡喜报轮播列表接口 todo
+     * @return ApiReturn
+     */
+    public function scratchNewsAction () {
+        $returnList = array('恭喜换乐马，成功刮中30000金币', '恭喜换乐马2，成功刮中30000金币', '恭喜换乐马3，成功刮中30000金币', '恭喜换乐马4，成功刮中30000金币');
+        return new ApiReturn($returnList);
+    }
+
+    /**
+     * 刮刮卡列表接口 todo
+     * @return ApiReturn
+     */
+    public function scratchListAction () {
+        $todayDate = date('Y-m-d');
+        $batch = 1;
+        //查找刮刮卡信息
+        $sql = 'SELECT * FROM t_activity_scratch WHERE user_id = ? AND receive_date = ? AND scratch_batch = ? ORDER BY receive_status ASC, id ASC';
+        $scratchList = $this->db->getAll($sql, $this->userId, $todayDate, $batch);
+        $returnList = array();
+        if ($scratchList) {
+            $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'sort'));
+            $lockAdd = FALSE;
+            foreach ($scratchList as $scratchInfo) {
+                if (1 == $scratchInfo['is_open'] && $lockList && !$lockAdd) {
+                    //添加未解锁的刮刮卡 排序位于未打开和 已打开的刮刮卡之间
+                    foreach ($lockList as $lockKey) {
+                        $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 1, 'isOpen' => 0, 'number' => $lockKey);
+                    }
+                    $lockAdd = TRUE;
+                }
+                $returnList[] = array('bgImg' => $this->scratchImgList[$lockKey], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'id' => $scratchInfo['id'], 'gold' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => $scratchInfo['scratch_content']);
+            }
+            if (!$lockAdd) {
+                for ($i=5;$i<=10;$i++) {
+                    $returnList[] = array('bgImg' => $this->scratchImgList[$i], 'isLock' => 1, 'isOpen' => 0, 'number' => $i);
+                }
+            }
+        } else {
+            foreach ($this->scratchImgList as $key => $scratchImg) {
+                $content = $this->__scratchContent();
+                if ($key > 5) {
+                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 1, 'isOpen' => 0, 'number' => $key);
+                }
+                $sql = 'INSERT INTO t_activity_scratch VALUE (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
+                $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['gold'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
+                if ($result) {
+                    $returnList[] = array('bgImg' => $scratchImg, 'isLock' => 0, 'isOpen' => 0, 'number' => $key, 'id' => $this->db->lastInsertId(), 'gold' => $content['gold'], 'type' => 'scratch', 'content' => $content['content']);
+                } else {
+                    return new ApiReturn('', 205, '访问失败，请稍后再试');
+                }
+            }
+        }
+        return new ApiReturn($returnList);
+
+        //clock 7
+        $a = array('bgImg' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 1, 'is_lock' => 1, 'isOpen' => 1, 'id' => 1, 'number' => 1, 'type' => 'scratch', 'content' => array(0, 0, 0, 1, 1, 1), 'sort' => '');
+    }
+
+    /**
+     * 上报观看激励视频解锁刮刮卡接口 todo
+     * @return ApiReturn
+     */
+    public function scratchUnlockAction () {
+
+    }
+
+    /**
+     * 领取刮刮卡金币奖励接口 todo
+     * @return ApiReturn
+     */
+    public function scratchAwardAction () {
+
+    }
+
+    /**
+     * 获取刮刮卡结果
+     * @return array
+     */
+    protected function __scratchContent () {
+        $golds = rand(0, 5);
+        $return = array_fill(0,6,0);
+        foreach ($return as $k => &$v) {
+            if ($k < $golds) {
+                $v = 1;
+            } else {
+                break;
+            }
+        }
+        shuffle($return);
+        return array('gold' => $golds * 50 , 'content' => json_encode($return));
+    }
+
     
 }
 
