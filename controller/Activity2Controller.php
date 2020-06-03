@@ -381,18 +381,19 @@ Class Activity2Controller extends AbstractController {
         $batch = 0;
         foreach ($config as $k => $hours) {
             if ($nowHours < $hours) {
-                $batch = $k - 1;
                 if (0 == $k) {
                     $todayDate = date('Y-m-d', strtotime('-1 day'));
                     $batch = 5;
+                } else {
+                    $batch = $k - 1;
                 }
-                $endTime = strtotime(date('Y-m-d ' . $hours . ':00:00'));
+                $endTime = strtotime(date('Y-m-d ' . $hours . ':00:00')) * 1000;
                 break;
             }
         }
         if (!$endTime) {
             $batch = 1;
-            $endTime = strtotime(date('Y-m-d 7:00:00', strtotime('+1 day')));
+            $endTime = strtotime(date('Y-m-d 7:00:00', strtotime('+1 day'))) * 1000;
         }
 
         //查找刮刮卡信息
