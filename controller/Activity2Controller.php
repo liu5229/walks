@@ -19,7 +19,7 @@ Class Activity2Controller extends AbstractController {
         9 => array('min' => ' 18:00:00', 'max' => ' 20:00:00'),
         10 => array('min' => ' 21:00:00', 'max' => ' 22:30:00'),
     );
-    protected $scratchConfigList = array(1 => array('img' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 100000), 2 => array('img' => 'https://oss.stepcounter.cn/img/scratch_02.png', 'gold' => 100000), 3 => array('img' => 'https://oss.stepcounter.cn/img/scratch_03.png', 'gold' => 100000), 4 => array('img' => 'https://oss.stepcounter.cn/img/scratch_04.png', 'gold' => 100000), 5 => array('img' => 'https://oss.stepcounter.cn/img/scratch_05.png', 'gold' => 100000), 6 => array('img' => 'https://oss.stepcounter.cn/img/scratch_06.png', 'gold' => 100000), 7 => array('img' => 'https://oss.stepcounter.cn/img/scratch_07.png', 'gold' => 100000), 8 => array('img' => 'https://oss.stepcounter.cn/img/scratch_08.png', 'gold' => 100000), 9 => array('img' => 'https://oss.stepcounter.cn/img/scratch_09.png', 'gold' => 100000), 10 => array('img' => 'https://oss.stepcounter.cn/img/scratch_10.png', 'gold' => 100000));
+    protected $scratchConfigList = array(1 => array('img' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 100000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 10, 5 => 10)), 2 => array('img' => 'https://oss.stepcounter.cn/img/scratch_02.png', 'gold' => 80000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 15, 5 => 5)), 3 => array('img' => 'https://oss.stepcounter.cn/img/scratch_03.png', 'gold' => 50000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 15, 5 => 5)), 4 => array('img' => 'https://oss.stepcounter.cn/img/scratch_04.png', 'gold' => 50000, 'probability' => array(1 => 40, 2 => 27, 3 => 20, 4 => 10, 5 => 3)), 5 => array('img' => 'https://oss.stepcounter.cn/img/scratch_05.png', 'gold' => 30000, 'probability' => array(1 => 50, 2 => 20, 3 => 18, 4 => 10, 5 => 2)), 6 => array('img' => 'https://oss.stepcounter.cn/img/scratch_06.png', 'gold' => 100000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 10, 5 => 10)), 7 => array('img' => 'https://oss.stepcounter.cn/img/scratch_07.png', 'gold' => 80000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 15, 5 => 5)), 8 => array('img' => 'https://oss.stepcounter.cn/img/scratch_08.png', 'gold' => 50000, 'probability' => array(1 => 30, 2 => 30, 3 => 20, 4 => 15, 5 => 5)), 9 => array('img' => 'https://oss.stepcounter.cn/img/scratch_09.png', 'gold' => 50000, 'probability' => array(1 => 40, 2 => 27, 3 => 20, 4 => 10, 5 => 3)), 10 => array('img' => 'https://oss.stepcounter.cn/img/scratch_10.png', 'gold' => 30000, 'probability' => array(1 => 50, 2 => 20, 3 => 18, 4 => 10, 5 => 2)));
     protected $scratchClock = array();
     
     /**
@@ -361,16 +361,17 @@ Class Activity2Controller extends AbstractController {
     }
 
     /**
-     * 刮刮卡喜报轮播列表接口 todo
+     * 刮刮卡喜报轮播列表接口
      * @return ApiReturn
      */
     public function scratchNewsAction () {
-        $returnList = array('恭喜换乐马，成功刮中30000金币', '恭喜换乐马2，成功刮中30000金币', '恭喜换乐马3，成功刮中30000金币', '恭喜换乐马4，成功刮中30000金币');
+        //todo 更换数据
+        $returnList = array("恭喜用户summer, 成功刮中10元现金","恭喜用户换乐马, 成功刮中8元现金","恭喜用户林小宅, 成功刮中3元现金","恭喜用户游客2020064, 成功刮中3元现金","恭喜用户AKB48 成功刮中5元现金","恭喜用户天天向上 成功刮中5元现金","恭喜用户游客2020021, 成功刮中5元现金","恭喜用户赵方舟，成功刮中8元现金","恭喜用户陆天泽 成功刮中10元现金","恭喜用户游客2010021 成功刮中10元现金","恭喜用户游客2022021, 成功刮中5元现金","恭喜用户游客2020221, 成功刮中5元现金","恭喜用户百媚书生 成功刮中1元现金","恭喜用户春晨, 成功刮中1元现金","恭喜用户念念 成功刮中1元现金","恭喜用户美好, 成功刮中3元现金","恭喜用户A星河 成功刮中5元现金","恭喜用户西岳, 成功刮中5元现金","恭喜用户安然自在, 成功刮中10元现金","恭喜用户A链接小王， 成功刮中10元现金","恭喜用户王小憨, 成功刮中8元现金","恭喜用户静心 成功刮中1元现金","恭喜用户游客2020121，成功刮中8元现金","恭喜用户游客2020225 成功刮中10元现金");
         return new ApiReturn($returnList);
     }
 
     /**
-     * 刮刮卡列表接口 todo
+     * 刮刮卡列表接口
      * @return ApiReturn
      */
     public function scratchListAction () {
@@ -424,7 +425,7 @@ Class Activity2Controller extends AbstractController {
                     $returnList[] = array('bgImg' => $scratchImg['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $key, 'maxGold' => $scratchImg['gold']);
                     continue;
                 }
-                $content = $this->__scratchContent();
+                $content = $this->__scratchContent($scratchImg['probability']);
                 $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
                 $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
                 if ($result) {
@@ -438,7 +439,7 @@ Class Activity2Controller extends AbstractController {
     }
 
     /**
-     * 上报观看激励视频解锁刮刮卡接口 todo
+     * 上报观看激励视频解锁刮刮卡接口
      * @return ApiReturn
      */
     public function scratchUnlockAction () {
@@ -469,7 +470,7 @@ Class Activity2Controller extends AbstractController {
         if ($info) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
-        $content = $this->__scratchContent();
+        $content = $this->__scratchContent($this->scratchConfigList[$this->inputData['number']]['probability']);
         $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
         $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $this->inputData['number'], 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
         if ($result) {
@@ -480,7 +481,7 @@ Class Activity2Controller extends AbstractController {
     }
 
     /**
-     * 领取刮刮卡金币奖励接口 todo
+     * 领取刮刮卡金币奖励接口
      * @return ApiReturn
      */
     public function scratchAwardAction () {
@@ -518,8 +519,19 @@ Class Activity2Controller extends AbstractController {
      * 获取刮刮卡结果
      * @return array
      */
-    protected function __scratchContent () {
-        $golds = rand(1, 5);
+    protected function __scratchContent ($probability) {
+        //todo 添加概率
+        $randomTotal = array_sum($probability);
+        $random = rand(1, $randomTotal);
+        $sum = $golds = 0;
+        foreach ($probability as $id => $pro) {
+            $sum += $pro;
+            if ($random <= $sum) {
+                $golds = $id;
+                break;
+            }
+        }
+
         $return = array_fill(0,6,0);
         foreach ($return as $k => &$v) {
             if ($k < $golds) {
