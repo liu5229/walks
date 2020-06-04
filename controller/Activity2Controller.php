@@ -456,7 +456,7 @@ Class Activity2Controller extends AbstractController {
             return new ApiReturn('', 204, '领取失败，请稍后再试');
         }
 
-        $sql = 'SELECT receive_status, receive_gold, id FROM t_activity_scratch WHERE id = ?, AND user_id = ? AND receive_gold = ?';
+        $sql = 'SELECT receive_status, receive_gold, id FROM t_activity_scratch WHERE id = ? AND user_id = ? AND receive_gold = ?';
         $awardInfo = $this->db->getRow($sql, $this->inputData['id'] ?? 0, $this->userId, $this->inputData['num'] ?? 0);
 
         if ($awardInfo) {
