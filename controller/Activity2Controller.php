@@ -467,7 +467,7 @@ Class Activity2Controller extends AbstractController {
             $doubleStatus = $this->inputData['isDouble'] ?? 0;
             $updateStatus = $this->model->user2->updateGold(array('user_id' => $this->userId, 'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1), 'source' => 'scratch', 'type' => 'in', 'relation_id' => $awardInfo['id']));
             if (TRUE === $updateStatus) {
-                $sql = 'UPDATE t_activity_scratch SET receive_status = 1, is_double = ? WHERE receive_id = ?';
+                $sql = 'UPDATE t_activity_scratch SET receive_status = 1, is_double = ? WHERE id = ?';
                 $this->db->exec($sql, $doubleStatus, $awardInfo['id']);
             } else {
                 return $updateStatus;
