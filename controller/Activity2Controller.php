@@ -402,7 +402,7 @@ Class Activity2Controller extends AbstractController {
         $scratchList = $this->db->getAll($sql, $this->userId, $todayDate, $batch);
         $returnList = array();
         if ($scratchList) {
-            $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'number'));
+            $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'scratch_num'));
             $lockAdd = FALSE;
             foreach ($scratchList as $scratchInfo) {
                 if (1 == $scratchInfo['receive_status'] && $lockList && !$lockAdd) {
