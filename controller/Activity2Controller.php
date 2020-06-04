@@ -435,9 +435,6 @@ Class Activity2Controller extends AbstractController {
             }
         }
         return new ApiReturn(array('list' => $returnList, 'currentTime' => time() * 1000, 'endTime' => $endTime));
-
-        //clock 7
-        $a = array('bgImg' => 'https://oss.stepcounter.cn/img/scratch_01.png', 'gold' => 1, 'is_lock' => 1, 'isOpen' => 1, 'id' => 1, 'number' => 1, 'type' => 'scratch', 'content' => array(0, 0, 0, 1, 1, 1), 'sort' => '');
     }
 
     /**
@@ -453,7 +450,34 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchAwardAction () {
+        $sql = 'SELECT * FROM t_activity WHERE activity_type = ?';
+        $scratchActInfo = $this->db->getRow($sql, 'scratch');
+        if (!$scratchActInfo['activity_status']) {
+            return new ApiReturn('', 204, '领取失败，请稍后再试');
+        }
 
+        $sql = 'SELECT receive_status, receive_gold, id FROM t_activity_scratch WHERE id = ?, AND user_id = ? AND receive_gold = ?';
+        $awardInfo = $this->db->getRow($sql, $this->inputData['id'] ?? 0, $this->userId, $this->inputData['num'] ?? 0);
+
+        if ($awardInfo) {
+            //领取金币
+            if ($awardInfo['receive_status']) {
+                return new ApiReturn('', 401, '您已领取过该奖励');
+            }
+            $doubleStatus = $this->inputData['isDouble'] ?? 0;
+            $updateStatus = $this->model->user2->updateGold(array('user_id' => $this->userId, 'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1), 'source' => 'scratch', 'type' => 'in', 'relation_id' => $awardInfo['id']));
+            if (TRUE === $updateStatus) {
+                $sql = 'UPDATE t_activity_scratch SET receive_status = 1, is_double = ? WHERE receive_id = ?';
+                $this->db->exec($sql, $doubleStatus, $awardInfo['id']);
+            } else {
+                return $updateStatus;
+            }
+        } else {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+
+        $goldInfo = $this->model->user2->getGold($this->userId);
+        return new ApiReturn(array('awardGold' => $awardInfo ? ($awardInfo['receive_gold']  * ($doubleStatus + 1)) : 0, 'currentGold' => $goldInfo['currentGold']));
     }
 
     /**
