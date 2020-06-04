@@ -420,11 +420,11 @@ Class Activity2Controller extends AbstractController {
             }
         } else {
             foreach ($this->scratchConfigList as $key => $scratchImg) {
-                $content = $this->__scratchContent();
                 if ($key > 5) {
                     $returnList[] = array('bgImg' => $scratchImg['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $key, 'maxGold' => $scratchImg['gold']);
                     continue;
                 }
+                $content = $this->__scratchContent();
                 $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
                 $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $key, 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
                 if ($result) {
@@ -442,7 +442,41 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchUnlockAction () {
+        $config = array(7, 11, 15, 20, 23);
+        $nowHours = date('H');
+        $todayDate = date('Y-m-d');
+        $batch = 0;
+        foreach ($config as $k => $hours) {
+            if ($nowHours < $hours) {
+                if (0 == $k) {
+                    $todayDate = date('Y-m-d', strtotime('-1 day'));
+                    $batch = 5;
+                } else {
+                    $batch = $k;
+                }
+                break;
+            }
+        }
+        if (!$batch) {
+            $batch = 5;
+        }
+        if (!in_array($this->inputData['number'], array(6, 7, 8, 9, 10))) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
 
+        $sql = 'SELECT id FROM t_activity_scratch WHERE scratch_num = ? AND scratch_batch = ? AND user_id = ? AND receive_date = ?';
+        $info = $this->db->getRow($sql, $this->inputData['number'], $batch, $this->userId, $todayDate);
+        if ($info) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $content = $this->__scratchContent();
+        $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
+        $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $this->inputData['number'], 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
+        if ($result) {
+            return new ApiReturn(array('bgImg' => $this->scratchConfigList[$this->inputData['number']]['img'], 'isLock' => 0, 'isOpen' => 0, 'number' => $this->inputData['number'], 'maxGold' => $this->scratchConfigList[$this->inputData['number']]['gold'], 'id' => $this->db->lastInsertId(), 'num' => $content['num'], 'type' => 'scratch', 'content' => json_decode($content['content'])));
+        } else {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
     }
 
     /**
