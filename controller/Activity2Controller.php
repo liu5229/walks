@@ -402,7 +402,7 @@ Class Activity2Controller extends AbstractController {
         $scratchList = $this->db->getAll($sql, $this->userId, $todayDate, $batch);
         $returnList = array();
         if ($scratchList) {
-            $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'sort'));
+            $lockList = array_diff(array(6, 7, 8, 9, 10), array_column($scratchList, 'number'));
             $lockAdd = FALSE;
             foreach ($scratchList as $scratchInfo) {
                 if (1 == $scratchInfo['receive_status'] && $lockList && !$lockAdd) {
@@ -415,8 +415,9 @@ Class Activity2Controller extends AbstractController {
                 $returnList[] = array('bgImg' => $this->scratchConfigList[$scratchInfo['scratch_num']]['img'], 'isLock' => 0, 'isOpen' => $scratchInfo['receive_status'], 'number' => $scratchInfo['scratch_num'], 'maxGold' => $this->scratchConfigList[$scratchInfo['scratch_num']]['gold'], 'id' => $scratchInfo['id'], 'num' => $scratchInfo['receive_gold'], 'type' => 'scratch', 'content' => json_decode($scratchInfo['scratch_content']));
             }
             if (!$lockAdd) {
-                for ($i=5;$i<=10;$i++) {
-                    $returnList[] = array('bgImg' => $this->scratchConfigList[$i]['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $i, 'maxGold' => $this->scratchConfigList[$i]['gold']);
+                //添加未解锁的刮刮卡 排序位于未打开和 已打开的刮刮卡之间
+                foreach ($lockList as $lockKey) {
+                    $returnList[] = array('bgImg' => $this->scratchConfigList[$lockKey]['img'], 'isLock' => 1, 'isOpen' => 0, 'number' => $lockKey, 'maxGold' => $this->scratchConfigList[$lockKey]['gold']);
                 }
             }
         } else {
