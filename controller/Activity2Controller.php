@@ -365,7 +365,6 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchNewsAction () {
-        //todo 更换数据
         $returnList = array("恭喜用户summer, 成功刮中10元现金","恭喜用户换乐马, 成功刮中8元现金","恭喜用户林小宅, 成功刮中3元现金","恭喜用户游客2020064, 成功刮中3元现金","恭喜用户AKB48 成功刮中5元现金","恭喜用户天天向上 成功刮中5元现金","恭喜用户游客2020021, 成功刮中5元现金","恭喜用户赵方舟，成功刮中8元现金","恭喜用户陆天泽 成功刮中10元现金","恭喜用户游客2010021 成功刮中10元现金","恭喜用户游客2022021, 成功刮中5元现金","恭喜用户游客2020221, 成功刮中5元现金","恭喜用户百媚书生 成功刮中1元现金","恭喜用户春晨, 成功刮中1元现金","恭喜用户念念 成功刮中1元现金","恭喜用户美好, 成功刮中3元现金","恭喜用户A星河 成功刮中5元现金","恭喜用户西岳, 成功刮中5元现金","恭喜用户安然自在, 成功刮中10元现金","恭喜用户A链接小王， 成功刮中10元现金","恭喜用户王小憨, 成功刮中8元现金","恭喜用户静心 成功刮中1元现金","恭喜用户游客2020121，成功刮中8元现金","恭喜用户游客2020225 成功刮中10元现金");
         return new ApiReturn($returnList);
     }
@@ -375,7 +374,7 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchListAction () {
-        $config = array(7, 11, 15, 20, 23);
+        $config = array(7, 11, 15, 19, 23);
         $nowHours = date('H');
         $todayDate = date('Y-m-d');
         $endTime = '';
@@ -444,7 +443,7 @@ Class Activity2Controller extends AbstractController {
      * @return ApiReturn
      */
     public function scratchUnlockAction () {
-        $config = array(7, 11, 15, 20, 23);
+        $config = array(7, 11, 15, 19, 23);
         $nowHours = date('H');
         $todayDate = date('Y-m-d');
         $batch = 0;
@@ -471,9 +470,11 @@ Class Activity2Controller extends AbstractController {
         if ($info) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
+
         $content = $this->__scratchContent($this->scratchConfigList[$this->inputData['number']]['probability']);
         $sql = 'INSERT INTO t_activity_scratch (`user_id`, `receive_gold`, `scratch_num`, `scratch_batch`, `scratch_content`, `receive_date`) SELECT :user_id, :receive_gold, :scratch_num, :scratch_batch, :scratch_content, :receive_date FROM DUAL WHERE NOT EXISTS (SELECT id FROM t_activity_scratch WHERE user_id = :user_id AND scratch_num = :scratch_num AND scratch_batch = :scratch_batch AND receive_date = :receive_date)';
         $result = $this->db->exec($sql, array('user_id' => $this->userId, 'receive_gold' => $content['num'], 'scratch_num' => $this->inputData['number'], 'scratch_batch' => $batch, 'scratch_content' => $content['content'], 'receive_date' => $todayDate));
+
         if ($result) {
             return new ApiReturn(array('bgImg' => $this->scratchConfigList[$this->inputData['number']]['img'], 'isLock' => 0, 'isOpen' => 0, 'number' => $this->inputData['number'], 'maxGold' => $this->scratchConfigList[$this->inputData['number']]['gold'], 'id' => $this->db->lastInsertId(), 'num' => $content['num'], 'type' => 'scratch', 'content' => json_decode($content['content'])));
         } else {
@@ -521,7 +522,6 @@ Class Activity2Controller extends AbstractController {
      * @return array
      */
     protected function __scratchContent ($probability) {
-        //todo 添加概率
         $randomTotal = array_sum($probability);
         $random = rand(1, $randomTotal);
         $sum = $golds = 0;
@@ -533,6 +533,7 @@ Class Activity2Controller extends AbstractController {
             }
         }
 
+        //0: 非红包 1：红包
         $return = array_fill(0,6,0);
         foreach ($return as $k => &$v) {
             if ($k < $golds) {
