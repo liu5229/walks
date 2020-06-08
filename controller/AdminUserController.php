@@ -9,6 +9,10 @@ Class AdminUserController extends AbstractController {
             $whereArr[] = 'user_id = :user_id';
             $dataArr['user_id'] = $_POST['user_id'];
         }
+        if (isset($_POST['invited_code']) && $_POST['invited_code']) {
+            $whereArr[] = 'invited_code = :invited_code';
+            $dataArr['invited_code'] = $_POST['invited_code'];
+        }
         $where = 'WHERE ' . implode(' AND ', $whereArr);
         
         $sql = "SELECT COUNT(*) FROM t_user " . $where;
