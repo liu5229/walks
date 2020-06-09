@@ -19,7 +19,7 @@ Class AdminWithdrawController extends AbstractController {
         $totalCount = $this->db->getOne($sql, $dataArr);
         $list = array();
         if ($totalCount) {
-            $sql = "SELECT w.*, u.create_time user_time, u.brand, u.model, u.phone_number
+            $sql = "SELECT w.*, u.create_time user_time, u.brand, u.model, u.phone_number, u.umeng_score
                     FROM t_withdraw w
                     LEFT JOIN t_user u USING(user_id)
                     $where
