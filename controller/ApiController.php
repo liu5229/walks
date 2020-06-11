@@ -34,7 +34,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             //插入访问日志
-            $sql = 'INSERT INTO t_api_log (`source`, `type`, `order_id`, `user_id`, `params`) SELECT :souce, :type, :order_id, :user_id, :params FROM DUAL WHERE NOT EXISTS (SELECT log_id FROM t_api_log WHERE source = :source AND order_id = :order_id)';
+            $sql = 'INSERT INTO t_api_log (`source`, `type`, `order_id`, `user_id`, `params`) SELECT :source, :type, :order_id, :user_id, :params FROM DUAL WHERE NOT EXISTS (SELECT log_id FROM t_api_log WHERE source = :source AND order_id = :order_id)';
             $result = $this->db->exec($sql, array('source' => 'tuia', 'type' => 'tuia_farm', 'order_id' => $_POST['orderId'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
             if ($result) {
                 //添加金币
