@@ -14,7 +14,7 @@ Class ApiController extends AbstractController {
         // reason 充值理由
         if (isset($_POST['userId']) && isset($_POST['timestamp']) && isset($_POST['prizeFlag']) && isset($_POST['orderId']) && isset($_POST['appKey']) && isset($_POST['sign']) && isset($_POST['score']) && isset($_POST['reason'])) {
             //时效性验证
-            if (abs($_POST['timestamp'] - time() * 1000) > 1000 * 60 * 5) {
+            if (!$_POST['timestamp'] || abs($_POST['timestamp'] - time() * 1000) > 1000 * 60 * 5) {
                 $return = array('code' => '602', 'msg' => '验证时效性失败', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
                 return json_encode($return);
             }
