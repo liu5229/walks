@@ -33,8 +33,11 @@ try {
     }
     if ($result instanceof apiReturn) {
         $return = array('code' => $result->code, 'data' => $result->data, 'msg' => $result->msg);
-    } else {
+    } elseif (is_array($result)) {
         $return = array('status' => 'ok', 'data' => $result, 'msg' => '');
+    } else {
+        echo $result;
+        exit;
     }
 } catch(\Exception $e) {
     $return = array('status' => 'error', 'data' => '', 'msg' => $e->getMessage());
