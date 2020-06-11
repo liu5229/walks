@@ -28,7 +28,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             $sql = 'SELECT user_id, imei FROM t_user WHERE device_id = ?';
-            $userInfo = $this->db->getOne($sql, $_POST['userId']);
+            $userInfo = $this->db->getRow($sql, $_POST['userId']);
             if (!$userInfo) {
                 $return = array('code' => '605', 'msg' => '无效用户', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
                 return json_encode($return);
