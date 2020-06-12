@@ -31,7 +31,7 @@ class User2Model extends UserModel {
                 $umengClass = new Umeng();
                 $score = 0;
                 $umengReturn = $umengClass->verify($deviceInfo['umengToken']);
-                if (TRUE !== $umengReturn && TRUE === $umengReturn->suc) {
+                if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc) {
                     $score = $umengReturn->score;
                 }
                 $sql = 'UPDATE t_user SET umeng_token = ?, umeng_score = ? WHERE user_id = ?';
