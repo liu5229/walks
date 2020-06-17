@@ -62,7 +62,7 @@ class User2Model extends UserModel {
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
                 $umengClass = new Umeng();
                 $umengReturn = $umengClass->verify($deviceInfo['umengToken']);
-                if (TRUE !== $umengReturn && TRUE === $umengReturn->suc) {
+                if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc) {
                     $score = $umengReturn->score;
                 }
             }

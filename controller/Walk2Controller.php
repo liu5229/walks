@@ -288,7 +288,7 @@ Class Walk2Controller extends WalkController {
             $umengReturn = $umengApi->verify($payInfo['umeng_token']);
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
-            if (TRUE !== $umengReturn && TRUE === $umengReturn->suc && $umengReturn->score < 90) {
+            if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc && $umengReturn->score < 90) {
                 //update user invild && insert request failed
                 $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
                 $this->db->exec($sql, $this->userId);
@@ -397,9 +397,10 @@ Class Walk2Controller extends WalkController {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
     }
-    
+
     /**
-     * 
+     * 获取最近7天步数
+     * @return ApiReturn
      */
     public function walkCountListAction () {
         $startTime = strtotime('-6 day');
