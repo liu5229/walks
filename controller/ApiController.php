@@ -96,7 +96,8 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             $sql = 'SELECT user_id, imei FROM t_user WHERE device_id = ?';
-            $userInfo = $this->db->getRow($sql, $_POST['rewardDataJson']['mediaUserId'] ?? '');
+            $rewardData = json_decode($_POST['rewardDataJson']);
+            $userInfo = $this->db->getRow($sql, $rewardData['mediaUserId'] ?? '');
             if (!$userInfo) {
                 $return = array('code' => '705', 'msg' => '无效用户');
                 return json_encode($return);
@@ -107,7 +108,7 @@ Class ApiController extends AbstractController {
             if ($result) {
                 //添加金币
                 $sql = 'INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date';
-                $this->db->exec($sql, array('user_id' => $userInfo['user_id'], 'change_gold' => $_POST['rewardDataJson']['userCurrency'] ?? 0, 'gold_source' => 'yuwan_box', 'change_type' => 'in', 'relation_id' => $this->db->lastInsertId(), 'change_date' => date('Y-m-d')));
+                $this->db->exec($sql, array('user_id' => $userInfo['user_id'], 'change_gold' => $rewardData['userCurrency'] ?? 0, 'gold_source' => 'yuwan_box', 'change_type' => 'in', 'relation_id' => $this->db->lastInsertId(), 'change_date' => date('Y-m-d')));
                 //返回数据
                 $return = array('code' => '0', 'msg' => '');
                 return json_encode($return);
