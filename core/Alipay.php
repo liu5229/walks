@@ -91,8 +91,38 @@ class Alipay {
             return FALSE;
         }
     }
-    
-    
+
+    public function token ($code) {
+        $request = new \AlipaySystemOauthTokenRequest ();
+        $request->setGrantType("authorization_code");
+//        $code = "255ad1ecf4fd47c9971c14db1479YA53";
+        $request->setCode($code);
+        $result = $this->aop->execute ( $request);
+        if (isset($result->error_response)) {
+            return FALSE;
+        }
+        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
+        if (isset($result->$responseNode->code) && $result->$responseNode->code != 10000){
+            return FALSE;
+        } else {
+            return $result->$responseNode->access_token;
+        }
+    }
+
+    public function info ($token) {
+//        $accessToken = 'kuaijieB44d5dccae72a41719abd742da87ffX53';
+        $request = new \AlipayUserInfoShareRequest ();
+        $result = $this->aop->execute ( $request , $token );
+        if (isset($result->error_response)) {
+            return FALSE;
+        }
+        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
+        if (isset($result->$responseNode->code) && $result->$responseNode->code != 10000){
+            return FALSE;
+        } else {
+            return $result->$responseNode->user_id;
+        }
+    }
     
 }
 

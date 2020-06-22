@@ -208,13 +208,16 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $sql = 'SELECT alipay_account account, phone_number phone, unionid FROM t_user WHERE user_id = ?';
+        $sql = 'SELECT alipay_account account, phone_number phone, ali_user_id ali unionid FROM t_user WHERE user_id = ?';
         $userInfo = $this->db->getRow($sql, $userId);
         if ($userInfo['account']) {
             $userInfo['account'] = substr_replace($userInfo['account'], '****', 3, 4);
         }
         if ($userInfo['phone']) {
             $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
+        }
+        if ($userInfo['ali']) {
+            $userInfo['ali'] = substr_replace($userInfo['ali'], '****', 3, 4);
         }
         $userInfo['gearList'] = array();
         
@@ -375,6 +378,41 @@ Class User2Controller extends UserController {
             'image_2' => $image2 ?? '',
             'image_3' => $image3 ?? '',
         ));
+        return new ApiReturn();
+    }
+
+
+    /**
+     * 绑定支付宝信息
+     * @return array|int
+     */
+    public function bindAliAction () {
+        $userId = $this->model->user2->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (!isset($this->inputData['auth_code'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+
+        $aliAPi = new Alipay();
+        $accessToken = $aliAPi->token($this->params('auth_code'));
+        if (FALSE === $accessToken) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $aliUserId = $aliAPi->info($accessToken);
+        if (FALSE === $aliUserId) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        //插入支付宝userid 完成实名认证
+        $sql = 'SELECT user_id FROM t_user WHERE ali_user_id = ?';
+        $bindAliUserId = $this->locator->db->getOne($sql, $aliUserId);
+        if ($bindAliUserId && $bindAliUserId != $this->userId) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        } else {
+            $sql = 'UPDATE t_user SET ali_user_id = ? WHERE user_id = ? AND ali_user_id = 0';
+            $this->locator->db->exec($sql, $aliUserId, $this->userId);
+        }
         return new ApiReturn();
     }
 
