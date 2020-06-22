@@ -404,11 +404,11 @@ Class User2Controller extends UserController {
         //插入支付宝userid 完成实名认证
         $sql = 'SELECT user_id FROM t_user WHERE ali_user_id = ?';
         $bindAliUserId = $this->db->getOne($sql, $aliUserId);
-        if ($bindAliUserId && $bindAliUserId != $this->userId) {
+        if ($bindAliUserId && $bindAliUserId != $userId) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         } else {
             $sql = 'UPDATE t_user SET ali_user_id = ? WHERE user_id = ? AND ali_user_id = 0';
-            $this->db->exec($sql, $aliUserId, $this->userId);
+            $this->db->exec($sql, $aliUserId, $userId);
         }
         return new ApiReturn();
     }
