@@ -208,16 +208,13 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $sql = 'SELECT alipay_account account, phone_number phone, ali_user_id ali unionid FROM t_user WHERE user_id = ?';
+        $sql = 'SELECT alipay_account account, phone_number phone, ali_user_id ali, unionid FROM t_user WHERE user_id = ?';
         $userInfo = $this->db->getRow($sql, $userId);
         if ($userInfo['account']) {
             $userInfo['account'] = substr_replace($userInfo['account'], '****', 3, 4);
         }
         if ($userInfo['phone']) {
             $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
-        }
-        if ($userInfo['ali']) {
-            $userInfo['ali'] = substr_replace($userInfo['ali'], '****', 3, 4);
         }
         $userInfo['gearList'] = array();
         
