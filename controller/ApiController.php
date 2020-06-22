@@ -96,7 +96,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             $sql = 'SELECT user_id, imei FROM t_user WHERE device_id = ?';
-            $rewardData = json_decode($_POST['rewardDataJson']);
+            $rewardData = json_decode($_POST['rewardDataJson'], true);
             $userInfo = $this->db->getRow($sql, $rewardData['mediaUserId'] ?? '');
             if (!$userInfo) {
                 $return = array('code' => '705', 'msg' => '无效用户');
