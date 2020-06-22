@@ -2,6 +2,8 @@
 //https://docs.open.alipay.com/api_28/alipay.fund.trans.uni.transfer/
 require_once 'alipay/AopClient.php';
 require_once 'alipay/request/AlipayFundTransUniTransferRequest.php';
+require_once 'alipay/request/AlipaySystemOauthTokenRequest.php';
+require_once 'alipay/request/AlipayUserInfoShareRequest.php';
 
 class Alipay {
     protected $aop;
