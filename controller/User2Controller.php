@@ -393,7 +393,7 @@ Class User2Controller extends UserController {
         }
 
         $aliAPi = new Alipay();
-        $accessToken = $aliAPi->token($this->params('auth_code'));
+        $accessToken = $aliAPi->token($this->inputData['auth_code']);
         if (FALSE === $accessToken) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
