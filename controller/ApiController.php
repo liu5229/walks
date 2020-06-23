@@ -12,6 +12,14 @@ Class ApiController extends AbstractController {
         // sign 签名
         // score 如果充值的是数值类型的虚拟商品，则同时请求 充值对应的数值score，比如积分、金币等
         // reason 充值理由
+        if (DEBUG_MODE) {
+            //add api log
+            $logFile = LOG_DIR . 'access/' . date('Ymd') . '/';
+            if (!is_dir($logFile)) {
+                mkdir($logFile, 0755, true);
+            }
+            file_put_contents($logFile . 'access_' . date('H') . '.log', date('Y-m-d H:i:s') . '|tuia-farm|' . json_encode($_POST) . '|' . PHP_EOL, FILE_APPEND);
+        }
         if (isset($_POST['userId']) && isset($_POST['timestamp']) && isset($_POST['prizeFlag']) && isset($_POST['orderId']) && isset($_POST['appKey']) && isset($_POST['sign']) && isset($_POST['score']) && isset($_POST['reason'])) {
             //时效性验证
             if (!$_POST['timestamp'] || abs($_POST['timestamp'] - time() * 1000) > 1000 * 60 * 5) {
