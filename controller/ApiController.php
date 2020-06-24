@@ -20,12 +20,18 @@ Class ApiController extends AbstractController {
             }
             file_put_contents($logFile . 'access_' . date('H') . '.log', date('Y-m-d H:i:s') . '|tuia-farm|' . json_encode($_POST) . '|' . PHP_EOL, FILE_APPEND);
         }
-        if (isset($_POST['userId']) && isset($_POST['timestamp']) && isset($_POST['prizeFlag']) && isset($_POST['orderId']) && isset($_POST['appKey']) && isset($_POST['sign']) && isset($_POST['score']) && isset($_POST['reason'])) {
+        if (isset($_POST['userId']) && isset($_POST['timestamp']) && isset($_POST['prizeFlag']) && isset($_POST['orderId']) && isset($_POST['appKey']) && isset($_POST['sign']) && isset($_POST['reason'])) {
+            $goldArr = array('tuia_farm1' => 500, 'tuia_farm2' => 100);
+            if (!in_array($_POST['prizeFlag'], array('tuia_farm1', 'tuia_farm2'))) {
+                $return = array('code' => '607', 'msg' => '无效奖励', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
+                return json_encode($return);
+            }
+            $changeGold = $goldArr[$_POST['prizeFlag']];
             //时效性验证
-//            if (!$_POST['timestamp'] || abs($_POST['timestamp'] - time() * 1000) > 1000 * 60 * 5) {
-//                $return = array('code' => '602', 'msg' => '验证时效性失败', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
-//                return json_encode($return);
-//            }
+            if (!$_POST['timestamp'] || abs($_POST['timestamp'] - time() * 1000) > 1000 * 60 * 5) {
+                $return = array('code' => '602', 'msg' => '验证时效性失败', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
+                return json_encode($return);
+            }
             if ('2i6pkgFrvhovviEgjBxZT3e5beS9' != $_POST['appKey']) {
                 $return = array('code' => '603', 'msg' => '验证appKey失败', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => '', 'userId' => $_POST['userId']));
                 return json_encode($return);
