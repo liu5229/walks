@@ -208,7 +208,7 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $sql = 'SELECT alipay_account account, phone_number phone, ali_user_id ali, unionid FROM t_user WHERE user_id = ?';
+        $sql = 'SELECT alipay_account account, phone_number phone, IF(ali_user_id=0,0,1) ali, unionid FROM t_user WHERE user_id = ?';
         $userInfo = $this->db->getRow($sql, $userId);
         if ($userInfo['account']) {
             $userInfo['account'] = substr_replace($userInfo['account'], '****', 3, 4);
@@ -405,7 +405,7 @@ Class User2Controller extends UserController {
         $sql = 'SELECT user_id FROM t_user WHERE ali_user_id = ?';
         $bindAliUserId = $this->db->getOne($sql, $aliUserId);
         if ($bindAliUserId && $bindAliUserId != $userId) {
-            return new ApiReturn('', 205, '访问失败，请稍后再试');
+            return new ApiReturn('', 317, '支付宝已被绑定');
         } else {
             $sql = 'UPDATE t_user SET ali_user_id = ? WHERE user_id = ? AND ali_user_id = 0';
             $this->db->exec($sql, $aliUserId, $userId);
