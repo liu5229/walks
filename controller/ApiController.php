@@ -159,7 +159,7 @@ Class ApiController extends AbstractController {
 //        imei String Android 设备 ID 866280041545123
 //        appkey String 产品的唯一标示 在热云 trackingio平台生成的appkey f819f9cac5c030f812b2067d0cf8 18f7
 //        skey String 生成规则: MD5(format("%s_%s_%s", activeTime,大写 appkey, securitykey)).toUpperCase Securitykey 由广告主提供
-        if (isset($_GET['channel']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
+        if (isset($_GET['spreadname']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
             if ('reyun_jingyun' != $_GET['appkey']) {
                 $return = array('code' => '802', 'msg' => '验证appkey失败');
                 return json_encode($return);
@@ -176,7 +176,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
-            $this->db->exec($sql, $_GET['channel'], $userId);
+            $this->db->exec($sql, $_GET['spreadname'], $userId);
             $return = array('code' => '200', 'msg' => '更新成功');
             return json_encode($return);
         } else {
