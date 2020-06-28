@@ -2,6 +2,10 @@
 
 Class ApiController extends AbstractController {
 
+    /**
+     * 推啊的农场活动
+     * @return false|string
+     */
     public function tuiaFarmAction () {
         //tuia_farm
         // userId 用户 id，用户在媒体下的唯一识别信息，来源 于活劢链接中的 &userId=xxx，由媒体拼接提 供
@@ -74,7 +78,10 @@ Class ApiController extends AbstractController {
         }
     }
 
-
+    /**
+     * 鱼玩盒子 活动
+     * @return false|string
+     */
     public function yuwanBoxAction () {
         //yuwan
 //        参数名	必选	类型	说明
@@ -143,4 +150,44 @@ Class ApiController extends AbstractController {
         }
     }
 
+    /**
+     * 热云回调接口
+     * @return false|string
+     */
+    public function reyunAction () {
+        //channel String 渠道名 广点通，今日头条
+//        imei String Android 设备 ID 866280041545123
+//        appkey String 产品的唯一标示 在热云 trackingio平台生成的appkey f819f9cac5c030f812b2067d0cf8 18f7
+//        skey String 生成规则: MD5(format("%s_%s_%s", activeTime,大写 appkey, securitykey)).toUpperCase Securitykey 由广告主提供
+        if (isset($_GET['channel']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
+            if ('reyun_jingyun' != $_GET['appkey']) {
+                $return = array('code' => '802', 'msg' => '验证appkey失败');
+                return json_encode($return);
+            }
+            //securitykey：reyun_jingyun
+            if (md5($_GET['activeTime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun') != $_GET['skey']) {
+                $return = array('code' => '802', 'msg' => '验证签名失败');
+                return json_encode($return);
+            }
+            $sql = 'SELECT user_id FROM t_user WHERE imei = ?';
+            $userId = $this->db->getOne($sql, $_GET['imei']);
+            if (!$userId) {
+                $return = array('code' => '803', 'msg' => '无效用户');
+                return json_encode($return);
+            }
+            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
+            $this->db->exec($sql, $_GET['channel'], $userId);
+            $return = array('code' => '200', 'msg' => '更新成功');
+            return json_encode($return);
+        } else {
+            //code “0”:成功，“-1”:重填，“其他”:充值异 常。注意:响应 code 类型需为 String
+            //msg 充值失败信息
+            //orderId 推啊订单号 String
+            // extParam 用户设备id，Android:imei;ios:idfa 用户id:用户唯一标识
+            //{ "deviceId":"867772035090410", "userId":"123456"
+            //}
+            $return = array('code' => '801', 'msg' => '缺少参数');
+            return json_encode($return);
+        }
+    }
 }
