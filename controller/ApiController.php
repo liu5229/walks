@@ -165,7 +165,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             //securitykey：reyun_jingyun
-            if (md5($_GET['activeTime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun') != $_GET['skey']) {
+            if (strtoupper(md5($_GET['activeTime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun')) != $_GET['skey']) {
                 $return = array('code' => '802', 'msg' => '验证签名失败');
                 return json_encode($return);
             }
