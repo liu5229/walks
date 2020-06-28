@@ -160,7 +160,7 @@ Class ApiController extends AbstractController {
 //        appkey String 产品的唯一标示 在热云 trackingio平台生成的appkey f819f9cac5c030f812b2067d0cf8 18f7
 //        skey String 生成规则: MD5(format("%s_%s_%s", activeTime,大写 appkey, securitykey)).toUpperCase Securitykey 由广告主提供
         if (isset($_GET['spreadname']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
-            if ('reyun_jingyun' != $_GET['appkey']) {
+            if ('bec5fa78bd65aff94ca5d775df4ad294' != $_GET['appkey']) {
                 $return = array('code' => '802', 'msg' => '验证appkey失败');
                 return json_encode($return);
             }
