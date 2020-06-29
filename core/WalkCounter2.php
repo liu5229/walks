@@ -5,7 +5,7 @@ class WalkCounter2 extends WalkCounter
     //领取奖励条件步数
     protected $rewardCounter = 50;
     protected $walkAwardLimitTime = 10;//限制领取步数奖励间隔
-    protected $walkAwardLimitCount = 5;//限制领取步数奖励个数
+    protected $walkAwardLimitCount = 10;//限制领取步数奖励个数
     //阶段奖励规则
     protected $stageReward = array(
         1000 => 10,
