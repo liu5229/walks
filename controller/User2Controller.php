@@ -18,6 +18,7 @@ Class User2Controller extends UserController {
             }
             $this->model->user2->todayFirstLogin($userInfo['userId']);
             $this->model->user2->lastLogin($userInfo['userId']);
+            unset($userInfo['userId']);
             return new ApiReturn($userInfo);
         } else {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
