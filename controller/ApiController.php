@@ -159,6 +159,14 @@ Class ApiController extends AbstractController {
 //        imei String Android 设备 ID 866280041545123
 //        appkey String 产品的唯一标示 在热云 trackingio平台生成的appkey f819f9cac5c030f812b2067d0cf8 18f7
 //        skey String 生成规则: MD5(format("%s_%s_%s", activeTime,大写 appkey, securitykey)).toUpperCase Securitykey 由广告主提供
+        if (REYUN_DEBUG) {
+            //add api log
+            $logFile = LOG_DIR . 'access/' . date('Ymd') . '/';
+            if (!is_dir($logFile)) {
+                mkdir($logFile, 0755, true);
+            }
+            file_put_contents($logFile . 'access_' . date('H') . '.log', date('Y-m-d H:i:s') . '|reyun|' . json_encode($_GET) . '|' . PHP_EOL, FILE_APPEND);
+        }
         if (isset($_GET['spreadname']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
             if ('bec5fa78bd65aff94ca5d775df4ad294' != $_GET['appkey']) {
                 $return = array('code' => '802', 'msg' => '验证appkey失败');

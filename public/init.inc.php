@@ -30,6 +30,7 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 !defined('DB_DATABASE') && define('DB_DATABASE', 'jy_walk');
 
 !defined('DEBUG_MODE') && define('DEBUG_MODE', FALSE);
+!defined('REYUN_DEBUG') && define('REYUN_DEBUG', FALSE);
 !defined('ENV_PRODUCTION') && define('ENV_PRODUCTION', FALSE);
 
 !defined('JY_WALK_ADMIN_USER') && define('JY_WALK_ADMIN_USER', 'username');
