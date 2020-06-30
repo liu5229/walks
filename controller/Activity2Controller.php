@@ -517,6 +517,16 @@ Class Activity2Controller extends AbstractController {
         return new ApiReturn(array('awardGold' => $awardInfo ? ($awardInfo['receive_gold']  * ($doubleStatus + 1)) : 0, 'currentGold' => $goldInfo['currentGold']));
     }
 
+    public function yuwanInfoAction () {
+        $sql = 'SELECT change_gold, create_time FROM t_gold WHERE user_id = ? AND gold_source = ? ORDER BY gold_id DESC';
+        $info = $this->db->getRow($sql, $this->userId, 'yuwan_box');
+
+        $goldInfo = $this->model->user2->getGold($this->userId);
+        $info['currentGold'] = $goldInfo['currentGold'];
+
+        return $info;
+    }
+
     /**
      * 获取刮刮卡结果
      * @return array
