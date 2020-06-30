@@ -518,11 +518,13 @@ Class Activity2Controller extends AbstractController {
     }
 
     public function yuwanInfoAction () {
-        $sql = 'SELECT change_gold, create_time FROM t_gold WHERE user_id = ? AND gold_source = ? ORDER BY gold_id DESC';
-        $awardInfo = $this->db->getRow($sql, $this->userId, 'yuwan_box');
+        if (!isset($this->inputData['time'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $startTime = date('Y-m-d H:i:s', floor($this->inputData['time'] / 1000));
 
-        $info['award'] = $awardInfo ? $awardInfo['change_gold'] : 0;
-        $info['time'] = $awardInfo ? strtotime($awardInfo['create_time']) * 1000 : 0;
+        $sql = 'SELECT SUM(change_gold) gold FROM t_gold WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
+        $info['award'] = $this->db->getOne($sql, $this->userId, 'yuwan_box', $startTime) ?: 0;
 
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
