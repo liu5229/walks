@@ -518,8 +518,11 @@ Class Activity2Controller extends AbstractController {
     }
 
     public function yuwanInfoAction () {
-        $sql = 'SELECT change_gold award, create_time time FROM t_gold WHERE user_id = ? AND gold_source = ? ORDER BY gold_id DESC';
-        $info = $this->db->getRow($sql, $this->userId, 'yuwan_box');
+        $sql = 'SELECT change_gold, create_time FROM t_gold WHERE user_id = ? AND gold_source = ? ORDER BY gold_id DESC';
+        $awardInfo = $this->db->getRow($sql, $this->userId, 'yuwan_box');
+
+        $info['award'] = $awardInfo ? $awardInfo['change_gold'] : 0;
+        $info['time'] = $awardInfo ? strtotime($awardInfo['create_time']) * 1000 : 0;
 
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
