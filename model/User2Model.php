@@ -56,8 +56,9 @@ class User2Model extends UserModel {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, VAID = ?, AAID = ?, OAID = ?, 
-                brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
+            $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
+            $reyunAppName = $this->db->getOne($sql, $deviceInfo['IMEI']) ?: '';
+            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
                 $umengClass = new Umeng();
@@ -67,7 +68,7 @@ class User2Model extends UserModel {
                 }
             }
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score);
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName, $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score);
             $userId = $this->db->lastInsertId();
             
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';

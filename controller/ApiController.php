@@ -172,19 +172,25 @@ Class ApiController extends AbstractController {
                 $return = array('code' => '802', 'msg' => '验证appkey失败');
                 return json_encode($return);
             }
+            if (!$_GET['spreadname']) {
+                $return = array('code' => '803', 'msg' => '渠道号空');
+                return json_encode($return);
+            }
             //securitykey：reyun_jingyun
             if (strtoupper(md5($_GET['activeTime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun')) != $_GET['skey']) {
-                $return = array('code' => '802', 'msg' => '验证签名失败');
+                $return = array('code' => '804', 'msg' => '验证签名失败');
                 return json_encode($return);
             }
-            $sql = 'SELECT user_id FROM t_user WHERE imei = ?';
-            $userId = $this->db->getOne($sql, $_GET['imei']);
-            if (!$userId) {
-                $return = array('code' => '803', 'msg' => '无效用户');
-                return json_encode($return);
-            }
-            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
-            $this->db->exec($sql, $_GET['spreadname'], $userId);
+            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?';
+            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET));
+//            $sql = 'SELECT user_id FROM t_user WHERE imei = ?';
+//            $userId = $this->db->getOne($sql, $_GET['imei']);
+//            if (!$userId) {
+//                $return = array('code' => '803', 'msg' => '无效用户');
+//                return json_encode($return);
+//            }
+//            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
+//            $this->db->exec($sql, $_GET['spreadname'], $userId);
             $return = array('code' => '200', 'msg' => '更新成功');
             return json_encode($return);
         } else {
