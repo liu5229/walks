@@ -527,7 +527,7 @@ Class Activity2Controller extends AbstractController {
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
 
-        return $info;
+        return new ApiReturn($info);
     }
 
     /**
