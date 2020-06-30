@@ -167,7 +167,7 @@ Class ApiController extends AbstractController {
             }
             file_put_contents($logFile . 'access_' . date('H') . '.log', date('Y-m-d H:i:s') . '|reyun|' . json_encode($_GET) . '|' . PHP_EOL, FILE_APPEND);
         }
-        if (isset($_GET['spreadname']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activeTime'])) {
+        if (isset($_GET['spreadname']) && isset($_GET['imei']) && isset($_GET['appkey']) && isset($_GET['skey']) && isset($_GET['activetime'])) {
             if ('bec5fa78bd65aff94ca5d775df4ad294' != $_GET['appkey']) {
                 $return = array('code' => '802', 'msg' => '验证appkey失败');
                 return json_encode($return);
@@ -177,7 +177,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             //securitykey：reyun_jingyun
-            if (strtoupper(md5($_GET['activeTime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun')) != $_GET['skey']) {
+            if (strtoupper(md5($_GET['activetime'] . '_' . strtoupper($_GET['appkey']) . '_' . 'reyun_jingyun')) != $_GET['skey']) {
                 $return = array('code' => '804', 'msg' => '验证签名失败');
                 return json_encode($return);
             }
