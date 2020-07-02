@@ -532,6 +532,21 @@ Class Activity2Controller extends AbstractController {
         return new ApiReturn($info);
     }
 
+    public function farmInfoAction () {
+        if (!isset($this->inputData['time'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $startTime = date('Y-m-d H:i:s', floor($this->inputData['time'] / 1000));
+
+        $sql = 'SELECT SUM(change_gold) gold FROM t_gold WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
+        $info['award'] = $this->db->getOne($sql, $this->userId, 'tuia_farm', $startTime) ?: 0;
+
+        $goldInfo = $this->model->user2->getGold($this->userId);
+        $info['currentGold'] = $goldInfo['currentGold'];
+
+        return new ApiReturn($info);
+    }
+
     /**
      * 获取刮刮卡结果
      * @return array
