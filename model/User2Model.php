@@ -51,7 +51,8 @@ class User2Model extends UserModel {
                 'headimgurl' => $userInfo['headimgurl'],
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
-                'invitedCode' => $userInfo['invited_code']
+                'invitedCode' => $userInfo['invited_code'],
+                'appSource' => $userInfo['app_name'],
             );
         } else {
             $invitedClass = new Invited();
@@ -94,7 +95,8 @@ class User2Model extends UserModel {
                 'currentGold' => $gold,
                 'nickname' => $nickName,
                 'award' =>$gold,
-                'invitedCode' => $invitedCode
+                'invitedCode' => $invitedCode,
+                'appSource' => $deviceInfo['source'] ?? ''
             );
         }
     }
