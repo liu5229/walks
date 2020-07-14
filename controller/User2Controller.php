@@ -131,7 +131,7 @@ Class User2Controller extends UserController {
             return $userId;
         }
         //start 首页底部  top 任务页 头部  new 任务页新手任务  daily 任务页日常任务  my 我的页面 右上角  dogs 我的页面狗狗世界导流
-        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1);
+        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'task_h' => 0);
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
@@ -412,6 +412,30 @@ Class User2Controller extends UserController {
             $this->db->exec($sql, $aliUserId, $userId);
         }
         return new ApiReturn();
+    }
+
+    /**
+     * 获取用户渠道号
+     * 优先级  热云>apk包默认
+     * @return ApiReturn
+     */
+    public function sourceAction () {
+        $userId = $this->model->user2->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        $sql = 'SELECT IF(reyun_app_name = "", app_name, reyun_app_name) FROM t_user WHERE user_id = ?';
+        $appSource = $this->db->getOne($sql, $userId);
+        return new ApiReturn(array('appSource' => $appSource));
+    }
+
+    /**
+     * 获取tab内容
+     * @return ApiReturn
+     */
+    public function tabAction () {
+        //scratch 刮刮卡 box 鱼玩游戏
+        return new ApiReturn(array('tab' => 'scratch'));
     }
 
     /**
