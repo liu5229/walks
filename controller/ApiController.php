@@ -181,17 +181,20 @@ Class ApiController extends AbstractController {
                 $return = array('code' => '804', 'msg' => '验证签名失败');
                 return json_encode($return);
             }
-            $sql = 'SELECT user_id FROM t_user WHERE imei = ?';
-            $userId = $this->db->getOne($sql, $_GET['imei']);
-            if (!$userId) {
-                $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?';
-                $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET));
-                $return = array('code' => '803', 'msg' => '无效用户');
-                return json_encode($return);
-            }
-            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
-            $this->db->exec($sql, $_GET['spreadname'], $userId);
-            $return = array('code' => '200', 'msg' => '更新成功');
+//            $sql = 'SELECT user_id FROM t_user WHERE imei = ?';
+//            $userId = $this->db->getOne($sql, $_GET['imei']);
+//            if (!$userId) {
+//                $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?';
+//                $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET));
+//                $return = array('code' => '803', 'msg' => '无效用户');
+//                return json_encode($return);
+//            }
+
+            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?';
+            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET));
+//            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
+//            $this->db->exec($sql, $_GET['spreadname'], $userId);
+            $return = array('code' => '200', 'msg' => '保存成功');
             return json_encode($return);
         } else {
             //code “0”:成功，“-1”:重填，“其他”:充值异 常。注意:响应 code 类型需为 String
