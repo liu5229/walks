@@ -435,7 +435,7 @@ Class User2Controller extends UserController {
      */
     public function tabAction () {
         //scratch 刮刮卡 box 鱼玩游戏
-        return new ApiReturn(array('tab' => 'box'));
+        return new ApiReturn(array('tab' => 'scratch'));
     }
 
     /**
