@@ -11,7 +11,7 @@ $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 $model = new Model();
 
 while (true) {
-    $sql = 'SELECT log_id, imei, app_name FROM t_reyun_log WHERE status = 0 ORDER BY log_id ASC LIMIT 1000';
+    $sql = 'SELECT log_id, imei, app_name, create_time FROM t_reyun_log WHERE status = 0 ORDER BY log_id ASC LIMIT 1000';
     $reyunList = $db->getAll($sql);
     foreach ($reyunList as $reyunInfo) {
         $sql = 'SELECT user_id FROM `t_user` where imei = ?';
