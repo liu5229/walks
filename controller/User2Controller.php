@@ -435,7 +435,9 @@ Class User2Controller extends UserController {
      */
     public function tabAction () {
         //scratch 刮刮卡 box 鱼玩游戏
-        return new ApiReturn(array('tab' => 'scratch'));
+        $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
+        $tabType = $this->db->getOne($sql, 'tab_type');
+        return new ApiReturn(array('tab' => $tabType));
     }
 
     /**
