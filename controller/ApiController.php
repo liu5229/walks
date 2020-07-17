@@ -124,7 +124,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             //插入访问日志
-            $sql = 'INSERT INTO t_api_log (`source`, `type`, `order_id`, `user_id`, `params`) SELECT :source, :type, :order_id, :user_id, :params FROM DUAL WHERE NOT EXISTS (SELECT log_id FROM t_api_log WHERE source = :source AND order_id = :order_id)';
+            $sql = 'INSERT INTO t_api_log (`source`, `type`, `order_id`, `user_id`, `params`) SELECT :source, :type, :order_id, :user_id, :params FROM DUAL WHERE NOT EXISTS (SELECT log_id FROM t_api_log WHERE type = :type AND order_id = :order_id)';
             $result = $this->db->exec($sql, array('source' => 'yuwan', 'type' => 'yuwan_box', 'order_id' => $_POST['orderNo'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
             if ($result) {
                 //添加金币
@@ -146,6 +146,78 @@ Class ApiController extends AbstractController {
             //{ "deviceId":"867772035090410", "userId":"123456"
             //}
             $return = array('code' => '701', 'msg' => '缺少参数');
+            return json_encode($return);
+        }
+    }
+    /**
+     * 鱼玩盒子 活动
+     * @return false|string
+     */
+
+    public function yuwanCpaAction () {
+        //yuwan
+//        参数名	必选	类型	说明
+        //orderNo	是	string	新量象平台唯一订单号
+        //rewardDataJson	是	string	领取奖励信息（json_encode）
+        //sign	是	string	签名
+        //time	是	int	发送时 时间戳 (单位秒)
+
+//        rewardDataJson参数名	必选	类型	说明
+//advertName	是	string	广告名称
+//rewardRule	是	string	用户领取奖励规则标题
+//stageId	是	int	广告期数id
+//stageNum	是	string	广告期数信息
+//advertIcon	是	string	广告icon
+//rewardType	是	string	1:试玩 2:充值 3.冲刺奖励 4:注册奖励 5:奖励卡奖励(全额给用户)
+//isSubsidy	是	int	0 否 1 是 新量象平台补贴
+//mediaMoney	是	float	媒体方可获取的金额，单位元
+//rewardUserRate	是	float	领取时媒体设置的用户奖励比
+//currencyRate	是	float	媒体设置的媒体币兑换比率
+//userMoney	是	float	用户领取的金额, 单位元
+//userCurrency	是	float	用户领取的媒体币，(userCurrency = userMoney * currencyRate)
+//mediaUserId	是	int	媒体方登录用户ID
+//receivedTime	是	int	奖励收取时间 (时间戳，单位秒)
+        if (isset($_POST['orderNo']) && isset($_POST['rewardDataJson']) && isset($_POST['sign']) && isset($_POST['time'])) {
+            //时效性验证
+            if (!$_POST['time'] || abs($_POST['time'] - time()) > 1000 * 60 * 5) {
+                $return = array('code' => '802', 'msg' => '验证时效性失败');
+                return json_encode($return);
+            }
+            //签名验证
+            if (md5($_POST['rewardDataJson'] . $_POST['time'] . 'jpl9cfciwgwzpvxbnkjhix3164ykujpt') != $_POST['sign']) {
+                $return = array('code' => '804', 'msg' => '验证签名失败');
+                return json_encode($return);
+            }
+            $sql = 'SELECT user_id, imei FROM t_user WHERE device_id = ?';
+            $rewardData = json_decode($_POST['rewardDataJson'], true);
+            $userInfo = $this->db->getRow($sql, $rewardData['mediaUserId'] ?? '');
+            if (!$userInfo) {
+                $return = array('code' => '805', 'msg' => '无效用户');
+                return json_encode($return);
+            }
+            //插入访问日志
+            $sql = 'INSERT INTO t_api_log (`source`, `type`, `order_id`, `user_id`, `params`) SELECT :source, :type, :order_id, :user_id, :params FROM DUAL WHERE NOT EXISTS (SELECT log_id FROM t_api_log WHERE type = :type AND order_id = :order_id)';
+            $result = $this->db->exec($sql, array('source' => 'yuwan', 'type' => 'yuwan_cpa', 'order_id' => $_POST['orderNo'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
+            if ($result) {
+                //添加金币
+                $sql = 'INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date';
+                $this->db->exec($sql, array('user_id' => $userInfo['user_id'], 'change_gold' => $rewardData['userCurrency'] ?? 0, 'gold_source' => 'yuwan_cpa', 'change_type' => 'in', 'relation_id' => $this->db->lastInsertId(), 'change_date' => date('Y-m-d')));
+                //返回数据
+                $return = array('code' => '0', 'msg' => '');
+                return json_encode($return);
+            } else {
+                //返回数据
+                $return = array('code' => '806', 'msg' => '不能重复添加');
+                return json_encode($return);
+            }
+        } else {
+            //code “0”:成功，“-1”:重填，“其他”:充值异 常。注意:响应 code 类型需为 String
+            //msg 充值失败信息
+            //orderId 推啊订单号 String
+            // extParam 用户设备id，Android:imei;ios:idfa 用户id:用户唯一标识
+            //{ "deviceId":"867772035090410", "userId":"123456"
+            //}
+            $return = array('code' => '801', 'msg' => '缺少参数');
             return json_encode($return);
         }
     }
