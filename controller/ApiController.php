@@ -184,7 +184,7 @@ Class ApiController extends AbstractController {
                 return json_encode($return);
             }
             //签名验证
-            if (md5($_POST['rewardDataJson'] . $_POST['time'] . 'jpl9cfciwgwzpvxbnkjhix3164ykujpt') != $_POST['sign']) {
+            if (md5($_POST['orderNo'] . $_POST['time'] . 'jpl9cfciwgwzpvxbnkjhix3164ykujpt') != $_POST['sign']) {
                 $return = array('code' => '804', 'msg' => '验证签名失败');
                 return json_encode($return);
             }
