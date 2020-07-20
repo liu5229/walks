@@ -3,6 +3,8 @@
 //统计昨日以前的相关数据
 //每日1：00执行一次
 require_once __DIR__ . '/../init.inc.php';
+set_time_limit(0);
+ini_set('memory_limit', '1024M');
 
 $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
 $db->exec("SET time_zone = '+8:00'");
