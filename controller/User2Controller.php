@@ -140,7 +140,7 @@ Class User2Controller extends UserController {
                 WHERE advertise_location = ?
                 AND advertise_status = 1
                 ORDER BY advertise_sort DESC';
-        $advertiseList = $this->db->getAll($sql, HOST_NAME, $this->inputData['location']);
+        $advertiseList = $this->db->getAll($sql, HOST_OSS, $this->inputData['location']);
         $returnList = $tempArr = array();
         $adLimitCount = $adCount[$this->inputData['location']];
         $todayTime = time();
