@@ -2,6 +2,12 @@
 try {
     require_once 'init.inc.php';
     $requestUrl = strtok($_SERVER['REQUEST_URI'], '?');
+    switch ($requestUrl) {
+        case '/getMediaUserInfo' :
+            $requestUrl = '/api/tuia-info';
+            break;
+    }
+
     // remove the base path
     $requestUrl = substr($requestUrl, strlen('/'));
     // raw urldecode

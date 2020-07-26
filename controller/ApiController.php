@@ -279,4 +279,30 @@ Class ApiController extends AbstractController {
             return json_encode($return);
         }
     }
+
+    public function tuiaInfoAction () {
+        if (isset($_GET['sign'])) {
+            $aes = new Aes();
+            $signData = json_decode($aes->decrypt($_GET['sign']), TRUE);
+            if (isset($signData['userId'])) {
+                $sql = 'SELECT * FROM t_user WHERE device_id = ?';
+                $userInfo = $this->db->getRow($sql, $signData['userId']);
+                if ($userInfo) {
+                    $userData = json_encode(array('userId' => $signData['userId'], 'name' => '', 'sex' => $userInfo['sex'] ? (1 == $userInfo['sex'] ? '男' : '女') : '', 'phone' => $userInfo['phone'] ?? '', 'province' => $userInfo['province'] ?? '', 'city' => $userInfo['city'] ?? '', 'region' => '', 'address' => '', 'imei' => $userInfo['IMEI'] ?? '', 'idfa' => ''));
+                    $return = array("success" => true, "desc" => "成功", "data" => $aes->encrypt($userData));
+                } else {
+                    $return = array("success" => false, "desc" => "失败", "data" => "用户不存在");
+                }
+            } else {
+                $return = array("success" => false, "desc" => "失败", "data" => "参数不全");
+            }
+            return json_encode($return);
+        } else {
+            $return = array("success" => false, "desc" => "失败", "data" => "参数不全");
+            return json_encode($return);
+        }
+
+    }
+
+
 }
