@@ -135,7 +135,7 @@ Class User2Controller extends UserController {
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
-        $sql = 'SELECT advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
+        $sql = 'SELECT advertise_id, advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
                 FROM t_advertise
                 WHERE advertise_location = ?
                 AND advertise_status = 1
@@ -163,6 +163,11 @@ Class User2Controller extends UserController {
                         continue 2;
                     }
                     break;
+            }
+            if (in_array($advertiseInfo['advertise_id'], array(2, 10, 24))) {
+                $sql = 'SELECT device_id FROM t_user WHERE user_id = ?';
+                $deviceId = $this->db->getOne($sql, $userId);
+                $advertiseInfo['advertise_url'] .= '&userId = ' . $deviceId;
             }
             $tempArr = array('type' => $advertiseInfo['advertise_type'],
                 'name' => $advertiseInfo['advertise_name'],
