@@ -37,7 +37,7 @@ Class User3Controller extends User2Controller {
         }
         //start 首页底部  top 任务页 头部  new 任务页新手任务  daily 任务页日常任务  my 我的页面 右上角  dogs 我的页面狗狗世界导流
         $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'task_h' => 0);
-        if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount)) || !isset($this->inputData['version'])) {
+        if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount)) || !isset($this->inputData['versionCode'])) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'SELECT advertise_id, advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
@@ -46,7 +46,7 @@ Class User3Controller extends User2Controller {
                 AND advertise_status = 1
                 AND advertise_version <= ?
                 ORDER BY advertise_version, advertise_sort DESC';
-        $advertiseList = $this->db->getAll($sql, HOST_OSS, $this->inputData['location'], $this->inputData['version']);
+        $advertiseList = $this->db->getAll($sql, HOST_OSS, $this->inputData['location'], $this->inputData['versionCode']);
         $returnList = $tempArr = array();
         $adLimitCount = $adCount[$this->inputData['location']];
         $todayTime = time();
