@@ -126,7 +126,7 @@ Class Walk2Controller extends WalkController {
                     'relation_id' => 0));
                 if (TRUE === $updateStatus) {
                     $goldInfo = $this->model->user2->getGold($this->userId);
-                    return new ApiReturn(array('awardGold' => $activityInfo['award_min'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
+                    return new ApiReturn(array('awardGold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
             case 'sign':
