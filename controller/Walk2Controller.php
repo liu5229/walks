@@ -120,7 +120,7 @@ Class Walk2Controller extends WalkController {
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
                 $updateStatus = $this->model->user2->updateGold(array(
                     'user_id' => $this->userId,
-                    'gold' => $activityInfo['award_min'] * ($doubleStatus + 1),
+                    'gold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1),
                     'source' => $this->inputData['type'],
                     'type' => 'in',
                     'relation_id' => 0));
