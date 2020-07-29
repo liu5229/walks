@@ -55,7 +55,7 @@ class User3Model extends User2Model {
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
                 'appSource' => $userInfo['app_name'],
-                'newerGold' => $newInfo['currentGold'] ? 0 : $newInfo['activity_award_min'],
+                'newerGold' => $goldInfo['currentGold'] ? 0 : $newInfo['activity_award_min'],
             );
         } else {
             $invitedClass = new Invited();
