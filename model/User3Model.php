@@ -90,7 +90,7 @@ class User3Model extends User2Model {
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
                 'appSource' => $deviceInfo['source'] ?? '',
-                'newerGold' => $goldInfo['activity_status'] ? $goldInfo['activity_award_min'] : 0,
+                'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
             );
         }
     }
