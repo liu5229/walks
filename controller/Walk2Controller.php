@@ -111,7 +111,7 @@ Class Walk2Controller extends WalkController {
                 return new ApiReturn('', 205, '访问失败，请稍后再试');
             //新手红包 单次领取
             case 'newer'://user2model/get-userInfo
-                $sql = 'SELECT gold_id FROM t_gold WHERE user_id = ? AND gold_soucre = ?';
+                $sql = 'SELECT gold_id FROM t_gold WHERE user_id = ? AND gold_source = ?';
                 $newInfo = $this->db->getOne($sql, $this->userId, 'newer');
                 if ($newInfo) {
                     return new ApiReturn('', 401, '您已领取过该奖励');
