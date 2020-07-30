@@ -167,7 +167,7 @@ Class User2Controller extends UserController {
             if (in_array($advertiseInfo['advertise_id'], array(2, 10, 24))) {
                 $sql = 'SELECT device_id FROM t_user WHERE user_id = ?';
                 $deviceId = $this->db->getOne($sql, $userId);
-                $advertiseInfo['advertise_url'] .= '&userId = ' . $deviceId;
+                $advertiseInfo['advertise_url'] .= '&userId=' . $deviceId;
             }
             $tempArr = array('type' => $advertiseInfo['advertise_type'],
                 'name' => $advertiseInfo['advertise_name'],
@@ -480,5 +480,6 @@ Class User2Controller extends UserController {
             return new ApiReturn('', 314,'上传失败');
         }
     }
-    
+
+
 }
