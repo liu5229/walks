@@ -71,9 +71,9 @@ Class User3Controller extends User2Controller {
                     break;
             }
             if (in_array($advertiseInfo['advertise_id'], array(2, 10, 24))) {
-                $sql = 'SELECT device_id FROM t_user WHERE user_id = ?';
-                $deviceId = $this->db->getOne($sql, $userId);
-                $advertiseInfo['advertise_url'] .= '&userId=' . $deviceId;
+                $sql = 'SELECT access_token FROM t_user WHERE user_id = ?';
+                $accessToken = $this->db->getOne($sql, $userId);
+                $advertiseInfo['advertise_url'] .= '&userId=' . $accessToken;
             }
             $tempArr = array('type' => $advertiseInfo['advertise_type'],
                 'name' => $advertiseInfo['advertise_name'],
