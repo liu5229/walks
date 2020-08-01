@@ -80,7 +80,7 @@ function updateData($date, $count) {
         // 添加 虚拟用户
         $addUser = $virtualConfig[$contestInfo['contest_level']][$count];
         // 添加 虚拟完成用户
-        $virtualUser = $contestInfo['virtual_count'] + $addUser;
+        $virtualUser = $contestInfo['virtual_count'] + rand($addUser['min'], $addUser['max']);
         $virtualComplete = 0;
         if ($count >= 5) {
             // 虚拟用户完成比例
