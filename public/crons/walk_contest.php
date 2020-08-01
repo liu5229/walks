@@ -79,6 +79,7 @@ function updateData($date, $count) {
         }
         // 添加 虚拟用户
         $addUser = $virtualConfig[$contestInfo['contest_level']][$count];
+        var_dump($addUser);
         // 添加 虚拟完成用户
         $virtualUser = $contestInfo['virtual_count'] + rand($addUser['min'], $addUser['max']);
         $virtualComplete = 0;
