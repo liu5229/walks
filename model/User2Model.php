@@ -57,8 +57,7 @@ class User2Model extends UserModel {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
-            $reyunAppName = $this->db->getOne($sql, $deviceInfo['IMEI'] ?? '') ?: '';
+            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '');
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
@@ -182,6 +181,24 @@ class User2Model extends UserModel {
     public function lastLogin ($userId) {
         $sql = 'UPDATE t_user SET last_login_time = ?, login_ip = ? WHERE user_id = ?';
         $this->db->exec($sql, date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'] ?? '', $userId);
+    }
+
+    protected function reyunAppName ($imie, $oaid, $androidid) {
+        $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
+        $appName = $this->db->getOne($sql, $imie);
+        if ($appName) {
+            return $appName;
+        }
+        $appName = $this->db->getOne($sql, $oaid);
+        if ($appName) {
+            return $appName;
+        }
+        $appName = $this->db->getOne($sql, $androidid);
+        if ($appName) {
+            return $appName;
+        }
+        return '';
+
     }
             
             

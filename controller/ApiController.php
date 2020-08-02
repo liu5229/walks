@@ -280,6 +280,10 @@ Class ApiController extends AbstractController {
         }
     }
 
+    /**
+     * 返回用户信息给推啊
+     * @return false|string
+     */
     public function tuiaInfoAction () {
         if (isset($_GET['sign'])) {
             $aes = new Aes();

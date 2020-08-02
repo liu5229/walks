@@ -60,8 +60,7 @@ class User3Model extends User2Model {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
-            $reyunAppName = $this->db->getOne($sql, $deviceInfo['IMEI'] ?? '') ?: '';
+            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '');
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
