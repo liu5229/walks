@@ -65,7 +65,7 @@ function updateData($date, $count) {
 
     foreach ($contestList as $contestInfo) {
         // 添加 完成用户
-        $sql = 'SELECT c.id, c.user_id, c.is_complete, w.total_walk FROM t_walk_contest_user c LEFT JOIN t_walk w ON c.user_id = w.user_id AND w.walk_date = ? WHERE contest_id = ?';
+        $sql = 'SELECT c.id, c.user_id, c.is_complete, w.total_walk FROM t_walk_contest_user c LEFT JOIN t_walk w ON c.user_id = w.user_id  WHERE w.walk_date = ? AND contest_id = ?';
         $userList = $db->getAll($sql, $date, $contestInfo['contest_id']);
         $completeUserCount = 0;
         foreach ($userList as $userInfo) {
