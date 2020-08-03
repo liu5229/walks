@@ -22,7 +22,7 @@ Class Activity3Controller extends Activity2Controller {
             if ($todayContest) {
                 if (NULL === $todayWalks) {
                     $sql = 'SELECT total_walk FROM t_walk WHERE user_id = ? AND walk_date = ?';
-                    $todayWalks = $this->db->getOne($sql, $this->userId, $todayDate);
+                    $todayWalks = $this->db->getOne($sql, $this->userId, $todayDate) ?? 0;
                 }
                 //报名今天
                 //  期数 名称 periods
@@ -56,7 +56,7 @@ Class Activity3Controller extends Activity2Controller {
         }
 
         // 昨日活动奖励
-        $return['award'] = array();
+        $return['award'] = array(array('id' => 0));
         return new ApiReturn($return);
     }
 }
