@@ -14,7 +14,7 @@ Class Activity3Controller extends Activity2Controller {
             $sql = 'SELECT * FROM t_walk_contest LEFT JOIN t_walk_contest_user USING(contest_id) WHERE contest_date = ? AND user_id = ? AND contest_level = ?';
             $todayContest = $this->db->getRow($sql, $todayDate, $this->userId, $walks);
             $sql = 'SELECT * FROM t_walk_contest WHERE contest_date = ? AND contest_level = ?';
-            $tomorrowContest = $this->db->getRow($sql, $tomorrowDate);
+            $tomorrowContest = $this->db->getRow($sql, $tomorrowDate, $walks);
 
             $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE user_id = ? AND contest_id = ?';
             $isNextReg = $this->db->getRow($sql, $this->userId, $tomorrowContest['contest_id']) ? 1 : 0;
@@ -57,7 +57,7 @@ Class Activity3Controller extends Activity2Controller {
 
         // 昨日活动奖励
         $return['award'] = array();
-
+        return new ApiReturn($return);
     }
 }
 
