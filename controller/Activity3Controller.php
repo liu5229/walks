@@ -17,7 +17,7 @@ Class Activity3Controller extends Activity2Controller {
             $tomorrowContest = $this->db->getRow($sql, $tomorrowDate, $walks);
 
             $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE user_id = ? AND contest_id = ?';
-            $isNextReg = $this->db->getRow($sql, $this->userId, $tomorrowContest['contest_id']) ? 1 : 0;
+            $isNextReg = $this->db->getOne($sql, $this->userId, $tomorrowContest['contest_id']) ? 1 : 0;
             // 查询明日活动
             if ($todayContest) {
                 if (NULL === $todayWalks) {
