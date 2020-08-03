@@ -84,7 +84,7 @@ function updateData($date, $count) {
         $virtualComplete = 0;
         if ($count >= 5) {
             // 虚拟用户完成比例
-            $sql = 'SELECT rate FROM t_walk_contest_config WHERE contest_date >= ? AND contest_level = ? ORDER BY contest_date DESC';
+            $sql = 'SELECT rate FROM t_walk_contest_config WHERE contest_date <= ? AND contest_level = ? ORDER BY contest_date DESC';
             $rate = $db->getOne($sql, $date, $contestInfo['contest_level']);
 
             $virtualComplete = round($virtualUser * $rate /100);
