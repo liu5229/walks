@@ -5,6 +5,7 @@ Class Activity3Controller extends Activity2Controller {
     public function contestAction() {
         $todayDate = date("Y-m-d");
         $tomorrowDate = date("Y-m-d", strtotime('+1 day'));
+        $yesterdayDate = date("Y-m-d", strtotime('+1 day'));
         $return = array();
         $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
         $todayWalks = NULL;
@@ -56,7 +57,19 @@ Class Activity3Controller extends Activity2Controller {
         }
 
         // 昨日活动奖励
-        $return['award'] = array(array('id' => 0));
+        $sql = 'SELECT * FROM t_walk_contest c LEFT JOIN t_walk_contest_user cu ON cu.contest_id = c.contest_id WHERE c.contest_date = ? AND user_id = ?';
+        $yesterdayList = $this->db->getAll($sql, $yesterdayDate, $this->userId);
+        $type = $yesterdayList ? 1 : 0;
+        $receiveInfo = array();
+        foreach ($yesterdayList as $info) {
+            if ($info['is_complete']) {
+                $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
+                $receiveInfo[$info['contest_level']] = $this->db->getRow($sql, $this->userId, $info['contest_level'], 'walk_contest', $yesterdayDate);
+                $type = 2;
+            }
+        }
+        // type  无弹窗 弹窗未达标 弹窗可领取
+        $return['award'] = array('type' => $type, 'awardList' => $receiveInfo);
         return new ApiReturn($return);
     }
 }
