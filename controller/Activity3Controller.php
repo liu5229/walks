@@ -4,7 +4,7 @@ Class Activity3Controller extends Activity2Controller {
 
     public function contestAction() {
         $todayDate = date("Y-m-d");
-        $tomorrowDate = date("Y-m-d", strtotime('-1 day'));
+        $tomorrowDate = date("Y-m-d", strtotime('+1 day'));
         $return = array();
         $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
         $todayWalks = NULL;
