@@ -59,12 +59,13 @@ $db->exec($sql, $variableName, $execCount + 1);
 echo 'done';
 
 function updateData($date, $count) {
+    // todo
     global $db, $virtualConfig;
     $sql = 'SELECT * FROM t_walk_contest WHERE contest_date = ?';
     $contestList = $db->getAll($sql, $date);
 
     foreach ($contestList as $contestInfo) {
-        // 添加 完成用户
+        // 添加  当前 完成用户
         $sql = 'SELECT c.id, c.user_id, c.is_complete, w.total_walk FROM t_walk_contest_user c LEFT JOIN t_walk w ON c.user_id = w.user_id  WHERE w.walk_date = ? AND contest_id = ?';
         $userList = $db->getAll($sql, $date, $contestInfo['contest_id']);
         $completeUserCount = 0;
@@ -77,16 +78,16 @@ function updateData($date, $count) {
                 $db->exec($sql, $userInfo['id']);
             }
         }
-        // 添加 虚拟用户
+        // 添加 明天 虚拟用户
         $addUser = $virtualConfig[$contestInfo['contest_level']][$count];
-        // 添加 虚拟完成用户
         $virtualUser = $contestInfo['virtual_count'] + rand($addUser['min'], $addUser['max']);
+
+        // 添加 当前 虚拟完成用户
         $virtualComplete = 0;
         if ($count >= 5) {
             // 虚拟用户完成比例
             $sql = 'SELECT rate FROM t_walk_contest_config WHERE contest_date <= ? AND contest_level = ? ORDER BY contest_date DESC';
             $rate = $db->getOne($sql, $date, $contestInfo['contest_level']);
-
             $virtualComplete = round($virtualUser * $rate /100);
         }
 
