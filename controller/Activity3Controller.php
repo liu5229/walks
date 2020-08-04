@@ -134,7 +134,7 @@ Class Activity3Controller extends Activity2Controller {
             }
             $temp['completeCount'] = $contestInfo['complete_count'];
             $temp['totalAward'] = $contestInfo['total_count'] * $awardConfig[$contestInfo['contest_level']];
-            $temp['award'] = ceil($temp['totalAward'] / $contestInfo['complete_count']);
+            $temp['award'] = $contestInfo['complete_count'] ? ceil($temp['totalAward'] / $contestInfo['complete_count']) : 0;
             $list[] = $temp;
         }
         return array('totalAward' => $award['total'], 'maxAward' => $award['max'], 'totalReg' => $totalReg, 'maxWalk' => $maxWalk, 'contestList' => $list);
