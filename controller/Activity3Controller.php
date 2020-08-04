@@ -110,7 +110,7 @@ Class Activity3Controller extends Activity2Controller {
         $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
         // 获取的总金币 最大的奖励
         $sql = 'SELECT IFNULL(SUM(change_gold), 0) total, IFNULL(MAX(change_gold), 0) max FROM t_gold WHERE user_id = ? AND change_type = ?';
-        $award = $this->db->getOne($sql, $this->userId, 'walk_contest');
+        $award = $this->db->getRow($sql, $this->userId, 'walk_contest');
         // 参与次数
         $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE user_id = ?';
         $totalReg = $this->db->getOne($sql, $this->userId);
