@@ -2,6 +2,11 @@
 
 Class Activity3Controller extends Activity2Controller {
 
+    /**
+     *  步数挑战赛 20200804
+     *  获取步数挑战赛信息
+     * @return ApiReturn
+     */
     public function contestAction() {
         $todayDate = date("Y-m-d");
         $tomorrowDate = date("Y-m-d", strtotime('+1 day'));
@@ -26,22 +31,10 @@ Class Activity3Controller extends Activity2Controller {
                     $todayWalks = $this->db->getOne($sql, $this->userId, $todayDate) ?? 0;
                 }
                 //报名今天
-                //  期数 名称 periods
-                //	预计可获得金币 expectedAward
-                //	当前达标 completeCount
-                //	总奖池 totalAward
-                //	当前步数 currentWalks
-                //	目标步数 targetWalks
-                //	当前时间 currentTime
-                //	结束时间 endTime
-                //	下期是否已报名 isNextReg
+                //  期数 名称 periods 预计可获得金币 expectedAward 当前达标 completeCount 总奖池 totalAward 当前步数 currentWalks 目标步数 targetWalks 当前时间 currentTime 结束时间 endTime 下期是否已报名 isNextReg 下期期数 名称 nextPeriods 下期报名人数 nextRegCount 下期奖池 nextTotalAward 下期活动id nextId
                 //	下期的报名费用 nextRegFee // todo
                 //	下期最低奖励 nextMinAward // todo
-                //	下期期数 名称 nextPeriods
-                //	下期报名人数 nextRegCount
-                //	下期奖池 nextTotalAward
-
-                $return[$walks]['current'] = array('periods' => $todayContest['contest_periods'], 'expectedReward' => ceil($todayContest['total_count'] * $awardConfig[$walks] / $todayContest['complete_count']), 'completeCount' => $todayContest['complete_count'], 'totalAward' => $todayContest['total_count'] * $awardConfig[$walks], 'currentWalks' => $todayWalks, 'targetWalks' => $walks, 'currentTime' => time() * 1000, 'endTime' => strtotime($todayContest['contest_date'] . ' 23:59:59') * 1000, 'isNextReg' => $isNextReg, 'nextPeriods' => $tomorrowContest['contest_periods'], 'nextRegCount' => $tomorrowContest['total_count'], 'nextTotalAward' => $tomorrowContest['total_count'] * $awardConfig[$walks]);
+                $return[$walks]['current'] = array('periods' => $todayContest['contest_periods'], 'expectedReward' => ceil($todayContest['total_count'] * $awardConfig[$walks] / $todayContest['complete_count']), 'completeCount' => $todayContest['complete_count'], 'totalAward' => $todayContest['total_count'] * $awardConfig[$walks], 'currentWalks' => $todayWalks, 'targetWalks' => $walks, 'currentTime' => time() * 1000, 'endTime' => strtotime($todayContest['contest_date'] . ' 23:59:59') * 1000, 'isNextReg' => $isNextReg, 'nextPeriods' => $tomorrowContest['contest_periods'], 'nextRegCount' => $tomorrowContest['total_count'], 'nextTotalAward' => $tomorrowContest['total_count'] * $awardConfig[$walks], 'nextId' => $tomorrowContest['contest_id']);
             } else {
                 //  期数名称 periods
                 //	总奖池 totalAward
@@ -51,8 +44,9 @@ Class Activity3Controller extends Activity2Controller {
                 //	是否已报名 isReg
                 //	报名费用 regFee // todo
                 //	最低奖励 minAward // todo
+                //  活动id id
                 //未报名今天
-                $return[$walks]['next'] = array('periods' => $tomorrowContest['contest_periods'], 'totalAward' => $tomorrowContest['total_count'] * $awardConfig[$walks], 'regCount' => $tomorrowContest['total_count'], 'currentTime' => time() * 1000, 'startTime' => strtotime($tomorrowContest['contest_date'] . '00:00:00') * 1000, 'isReg' => $isNextReg);
+                $return[$walks]['next'] = array('periods' => $tomorrowContest['contest_periods'], 'totalAward' => $tomorrowContest['total_count'] * $awardConfig[$walks], 'regCount' => $tomorrowContest['total_count'], 'currentTime' => time() * 1000, 'startTime' => strtotime($tomorrowContest['contest_date'] . '00:00:00') * 1000, 'isReg' => $isNextReg, 'id' => $tomorrowContest['contest_id']);
             }
         }
 
@@ -71,6 +65,45 @@ Class Activity3Controller extends Activity2Controller {
         // type  无弹窗 弹窗未达标 弹窗可领取
         $return['award'] = array('type' => $type, 'awardList' => $receiveInfo);
         return new ApiReturn($return);
+    }
+
+    /**
+     * 用户报名步数挑战赛
+     * @return ApiReturn
+     */
+    public function regContestAction () {
+        $sql = 'SELECT * FROM t_walk_contest WHERE contest_id = ? AND contest_date = ?';
+        $contestInfo = $this->db->getRow($sql, $this->inputData['id'] ?? 0, date('Y-m-d', strtotime('+1 day')));
+        if (!$contestInfo) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+
+        $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE contest_id = ? AND user_id = ?';
+        $regInfo = $this->db->getOne($sql, $contestInfo['contest_id'], $this->userId);
+        if ($regInfo) {
+            return new ApiReturn('', 601, '不能重复报名');
+        }
+        $regFee = array(5000 => 500, 10000 => 1000);
+        if (in_array($contestInfo['contest_level'], array_keys($regFee))) {
+            $goldInfo = $this->model->user3->getGold($this->userId);
+            if ($goldInfo['currentGold'] < $regFee[$contestInfo['contest_level']]) {
+                return new ApiReturn('', 602, '抱歉，您当前金币不足！');
+            }
+            $sql = 'INSERT INTO t_walk_contest_user SET contest_id = ?, user_id = ?';
+            $this->db->exec($sql, $contestInfo['contest_id'], $this->userId);
+
+            $sql = "INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
+            $this->db->exec($sql, array( 'user_id' => $this->userId, 'change_gold' => $regFee[$contestInfo['contest_level']], 'gold_source' => 'walk_contest_regfee', 'change_type' => 'out', 'relation_id' => $this->db->lastInsertId(), 'change_date' => date('Y-m-d')));
+            return new ApiReturn(array('periods' => $contestInfo['contest_periods']));
+        }
+        $sql = 'INSERT INTO t_walk_contest_user SET contest_id = ?, user_id = ?';
+        $this->db->exec($sql, $contestInfo['contest_id'], $this->userId);
+
+        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
+        // 20 是报名3000档位 步数挑战赛的奖励
+        $this->db->exec($sql, $this->userId, date('Y-m-d'), 'walkcontest_regaward', 20);
+        return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $this->db->lastInsertId(), 'num' => 20, 'type' => 'walkcontest_regaward'));
+
     }
 }
 
