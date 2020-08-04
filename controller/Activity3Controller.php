@@ -118,7 +118,7 @@ Class Activity3Controller extends Activity2Controller {
         $sql = 'SELECT IFNULL(MAX(w.total_walk), 0) FROM t_walk_contest_user wu LEFT JOIN t_walk_contest wc ON wu.contest_id = wc.contest_id LEFT JOIN t_walk w ON wu.user_id = w.user_id AND wc.contest_date = w.walk_date WHERE wu.user_id = ?';
         $maxWalk = $this->db->getOne($sql, $this->userId);
         // 最近7天活动参与记录
-        $sql = 'SELECT contest_periods, contest_level, complete_count, total_count FROM t_walk_contest_user wu LEFT JOIN t_walk_contest wc ON wu.contest_id = wc.contest_id WHERE wc.contest_date >= ? AND wu.user_id = ?';
+        $sql = 'SELECT contest_periods, contest_level, complete_count, total_count, contest_date, is_complete FROM t_walk_contest_user wu LEFT JOIN t_walk_contest wc ON wu.contest_id = wc.contest_id WHERE wc.contest_date >= ? AND wu.user_id = ?';
         $contestList = $this->db->getAll($sql, date('Y-m-d', strtotime('-7 days')), $this->userId);
         $list = array();
         foreach ($contestList as $contestInfo) {
