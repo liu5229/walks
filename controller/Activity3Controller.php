@@ -105,5 +105,39 @@ Class Activity3Controller extends Activity2Controller {
         return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $this->db->lastInsertId(), 'num' => 20, 'type' => 'walkcontest_regaward'));
 
     }
+
+    public function contestRecordAction () {
+        $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
+        // 获取的总金币 最大的奖励
+        $sql = 'SELECT IFNULL(SUM(change_gold), 0) total, IFNULL(MAX(change_gold), 0) max FROM t_gold WHERE user_id = ? AND change_type = ?';
+        $award = $this->db->getOne($sql, $this->userId, 'walk_contest');
+        // 参与次数
+        $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE user_id = ?';
+        $totalReg = $this->db->getOne($sql, $this->userId);
+        // 最大步数
+        $sql = 'SELECT IFNULL(MAX(w.total_walk), 0) FROM t_walk_contest_user wu LEFT JOIN t_walk_contest wc ON wu.contest_id = wc.contest_id LEFT JOIN t_walk w ON wu.user_id = w.user_id AND wc.contest_date = w.walk_date WHERE user_id = ?';
+        $maxWalk = $this->db->getOne($sql, $this->userId);
+        // 最近7天活动参与记录
+        $sql = 'SELECT contest_periods, contest_level, complete_count, total_count FROM t_walk_contest_user wu LEFT JOIN t_walk_contest wc ON wu.contest_id = wc.contest_id WHERE wc.contest_date >= ? AND wu.user_id = ?';
+        $contestList = $this->db->getAll($sql, date('Y-m-d', strtotime('-7 days')), $this->userId);
+        $list = array();
+        foreach ($contestList as $contestInfo) {
+            $temp = array();
+            $temp['periods'] = $contestInfo['contest_periods'];
+            $temp['level'] = $contestInfo['contest_level'];
+            if (strtotime($contestInfo['contest_date']) > time()) {
+                // 0未开始
+                $temp['status'] = 0;
+            } else {
+                // 1未达标 2已达标
+                $temp['status'] = $contestInfo['is_complete'] ? 2 : 1;
+            }
+            $temp['completeCount'] = $contestInfo['complete_count'];
+            $temp['totalAward'] = $contestInfo['total_count'] * $awardConfig[$contestInfo['contest_level']];
+            $temp['award'] = ceil($temp['totalAward'] / $contestInfo['complete_count']);
+            $list[] = $temp;
+        }
+        return array('totalAward' => $award['total'], 'maxAward' => $award['max'], 'totalReg' => $totalReg, 'maxWalk' => $maxWalk, 'contestList' => $list);
+    }
 }
 
