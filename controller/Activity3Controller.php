@@ -102,8 +102,8 @@ Class Activity3Controller extends Activity2Controller {
         $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
         // 20 是报名3000档位 步数挑战赛的奖励
         $this->db->exec($sql, $this->userId, date('Y-m-d'), 'walkcontest_regaward', 20);
-        return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $this->db->lastInsertId(), 'num' => 20, 'type' => 'walkcontest_regaward'));
-
+        $goldInfo = $this->model->user3->getGold($this->userId);
+        return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $this->db->lastInsertId(), 'num' => 20, 'type' => 'walkcontest_regaward', 'currentGold' => $goldInfo['currentGold']));
     }
 
     public function contestRecordAction () {
