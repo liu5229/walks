@@ -27,18 +27,19 @@ if (!$execCount) {
     foreach ($contestList as $contestInfo) {
         $sql = 'SELECT user_id FROM t_walk_contest_user WHERE is_complete = 1 AND contest_id = ?';
         $realCompleteUser = $db->getColumn($sql, $contestInfo['contest_id']);
-        // 参与的用户+参与的虚拟用户 total
-        // 完成的用户+完成的虚拟用户 complete
-        // 计算每个完成的用户奖励 total * 档位的奖励 / complete 向上取整
-        $award = $contestInfo['complete_count'] ? ceil($contestInfo['total_count'] * $awardConfig[$contestInfo['contest_level']] / $contestInfo['complete_count']) : 0;
-        //发放奖励
-        $sql = "INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date) VALUES";
-        foreach ($realCompleteUser as $userId) {
-            $sql .= '(' . $userId . ', ' . $award . ', ' . $contestInfo['contest_level'] . ', "walk_contest", ' . '"' . date('Y-m-d') . '"),';
+        if ($realCompleteUser) {
+            // 参与的用户+参与的虚拟用户 total
+            // 完成的用户+完成的虚拟用户 complete
+            // 计算每个完成的用户奖励 total * 档位的奖励 / complete 向上取整
+            $award = $contestInfo['complete_count'] ? ceil($contestInfo['total_count'] * $awardConfig[$contestInfo['contest_level']] / $contestInfo['complete_count']) : 0;
+            //发放奖励
+            $sql = "INSERT INTO t_gold2receive (user_id, receive_gold, receive_walk, receive_type, receive_date) VALUES";
+            foreach ($realCompleteUser as $userId) {
+                $sql .= '(' . $userId . ', ' . $award . ', ' . $contestInfo['contest_level'] . ', "walk_contest", ' . '"' . date('Y-m-d') . '"),';
+            }
+            $sql = rtrim($sql,',');
+            $db->exec($sql);
         }
-        $sql = rtrim($sql,',');
-        echo $sql;
-        $db->exec($sql);
     }
 }
 
