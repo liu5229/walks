@@ -20,7 +20,7 @@ $execCount = $db->getOne($sql, $variableName) ?: 0;
 
 // 没有参数的时候需要执行 前一天的数据
 if (!$execCount) {
-    updateData(date('Y-m-d', strtotime('-1 day')), 25);
+    updateData(date('Y-m-d', strtotime('-1 day')), 24);
     $sql = 'SELECT * FROM t_walk_contest WHERE contest_date = ?';
     $contestList = $db->getAll($sql, date('Y-m-d', strtotime('-1 day')));
     //执行前一天的奖励发放工作
@@ -37,6 +37,7 @@ if (!$execCount) {
             $sql .= '(' . $userId . ', ' . $award . ', ' . $contestInfo['contest_level'] . ', "walk_contest", ' . '"' . date('Y-m-d') . '"),';
         }
         $sql = rtrim($sql,',');
+        echo $sql;
         $db->exec($sql);
     }
 }
