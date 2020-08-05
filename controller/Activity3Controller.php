@@ -138,7 +138,7 @@ Class Activity3Controller extends Activity2Controller {
             $temp['award'] = $contestInfo['complete_count'] ? ceil($temp['totalAward'] / $contestInfo['complete_count']) : 0;
             $list[] = $temp;
         }
-        return array('totalAward' => $award['total'], 'maxAward' => $award['max'], 'totalReg' => $totalReg, 'maxWalk' => $maxWalk, 'contestList' => $list);
+        return new ApiReturn(array('totalAward' => $award['total'], 'maxAward' => $award['max'], 'totalReg' => $totalReg, 'maxWalk' => $maxWalk, 'contestList' => $list));
     }
 }
 
