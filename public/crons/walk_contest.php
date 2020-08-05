@@ -61,7 +61,6 @@ $db->exec($sql, $variableName, $execCount + 1);
 echo 'done';
 
 function updateData($date, $count) {
-    // todo
     global $db, $virtualConfig;
     $sql = 'SELECT * FROM t_walk_contest WHERE contest_date = ?';
     $contestList = $db->getAll($sql, $date);
@@ -80,21 +79,35 @@ function updateData($date, $count) {
                 $db->exec($sql, $userInfo['id']);
             }
         }
-        // 添加 明天 虚拟用户
         $addUser = $virtualConfig[$contestInfo['contest_level']][$count];
-        $virtualUser = $contestInfo['virtual_count'] + rand($addUser['min'], $addUser['max']);
-
         // 添加 当前 虚拟完成用户
         $virtualComplete = 0;
         if ($count >= 5) {
             // 虚拟用户完成比例
+            $virtualUser = 0;
+            for ($i=0;$i<=$count;$i++) {
+                $virtualUser += rand($addUser['min'], $addUser['max']);
+            }
             $sql = 'SELECT rate FROM t_walk_contest_config WHERE contest_date <= ? AND contest_level = ? ORDER BY contest_date DESC';
             $rate = $db->getOne($sql, $date, $contestInfo['contest_level']);
             $virtualComplete = round($virtualUser * $rate /100);
         }
 
-        $sql = 'UPDATE t_walk_contest SET virtual_count = ?, virtual_complete_count = ?, complete_count = ?, total_count = ? WHERE contest_id = ?';
-        $db->exec($sql, $virtualUser, $virtualComplete, $completeUserCount + $virtualComplete, $virtualUser + count($userList), $contestInfo['contest_id']);
+        $sql = 'UPDATE t_walk_contest SET virtual_complete_count = ?, complete_count = ? WHERE contest_id = ?';
+        $db->exec($sql, $virtualComplete, $completeUserCount + $virtualComplete, $contestInfo['contest_id']);
+
+        $sql = 'SELECT * FROM t_walk_contest WHERE contest_level = ? AND contest_date = ?';
+        $tomorrowInfo = $db->getRow($sql, $contestInfo['contest_level'], date('Y-m-d', strtotime('+1 day')));
+        if ($tomorrowInfo) {
+            // 添加 明天 虚拟用户
+            $virtualUser = $tomorrowInfo['virtual_count'] + rand($addUser['min'], $addUser['max']);
+            $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE contest_id = ?';
+            $totalUser = $db->getOne($sql, $tomorrowInfo['contest_id']);
+
+            $sql = 'UPDATE t_walk_contest SET virtual_count = ?, total_count = ? WHERE contest_id = ?';
+            $db->exec($sql, $virtualUser, $virtualUser + $totalUser, $tomorrowInfo['contest_id']);
+        }
+
     }
 
 }
