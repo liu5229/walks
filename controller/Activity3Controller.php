@@ -150,13 +150,16 @@ Class Activity3Controller extends Activity2Controller {
         if (!isset($this->inputData['type']) || !isset($this->inputData['duration']) || !in_array($this->inputData['type'], array('baidu_news', 'kuaitu_video'))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
-        $today = array();
         $return = array();
-        if ($this->inputData['duration'] > 10 * 60) {
-            $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-            $this->db->exec($sql, $this->userId, $today, $type, date('Y-m-d H:i:s'), $gold);;
-        } elseif ($this->inputData['duration'] > 60) {
-
+        if ($this->inputData['duration'] > 60) {
+            $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
+            $todayCount = $this->db->getOne($sql, $this->userId, date('Y-m-d'), $this->inputData['type']);
+            if ($todayCount < 3) {
+                $gold = $this->inputData['duration'] > 600 ? 200 : 100;
+                $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
+                $this->db->exec($sql, $this->userId, date('Y-m-d'), $this->inputData['type'], $gold);
+                $return = array('id' => $this->db->lastInsertId(), 'num' => $gold, 'type' => $this->inputData['type']);
+            }
         }
         return new ApiReturn($return);
     }
