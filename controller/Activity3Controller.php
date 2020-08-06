@@ -57,7 +57,7 @@ Class Activity3Controller extends Activity2Controller {
         $receiveInfo = array();
         foreach ($yesterdayList as $info) {
             if ($info['is_complete']) {
-                $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceive FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
+                $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
                 $receiveInfo[$info['contest_level']] = $this->db->getRow($sql, $this->userId, $info['contest_level'], 'walk_contest', $yesterdayDate);
                 $type = 2;
             }
@@ -147,8 +147,18 @@ Class Activity3Controller extends Activity2Controller {
     }
 
     public function threeAwardAction() {
+        if (!isset($this->inputData['type']) || !isset($this->inputData['duration']) || !in_array($this->inputData['type'], array('baidu_news', 'kuaitu_video'))) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $today = array();
+        $return = array();
+        if ($this->inputData['duration'] > 10 * 60) {
+            $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
+            $this->db->exec($sql, $this->userId, $today, $type, date('Y-m-d H:i:s'), $gold);;
+        } elseif ($this->inputData['duration'] > 60) {
 
-        return new ApiReturn();
+        }
+        return new ApiReturn($return);
     }
 }
 
