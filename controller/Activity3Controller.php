@@ -147,7 +147,7 @@ Class Activity3Controller extends Activity2Controller {
     }
 
     public function threeAwardAction() {
-        if (!isset($this->inputData['type']) || !isset($this->inputData['duration']) || !in_array($this->inputData['type'], array('baidu_news', 'kuaitu_video'))) {
+        if (!isset($this->inputData['type']) || !isset($this->inputData['duration']) || !in_array($this->inputData['type'], array('baidu_news', 'haotu_video'))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $return = array();
