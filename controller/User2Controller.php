@@ -384,7 +384,6 @@ Class User2Controller extends UserController {
         return new ApiReturn();
     }
 
-
     /**
      * 绑定支付宝信息
      * @return array|int

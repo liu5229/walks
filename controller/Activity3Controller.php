@@ -103,10 +103,15 @@ Class Activity3Controller extends Activity2Controller {
         $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
         // 20 是报名3000档位 步数挑战赛的奖励
         $this->db->exec($sql, $this->userId, date('Y-m-d'), 'walkcontest_regaward', 20);
+        $goldId = $this->db->lastInsertId();
         $goldInfo = $this->model->user3->getGold($this->userId);
-        return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $this->db->lastInsertId(), 'num' => 20, 'type' => 'walkcontest_regaward', 'currentGold' => $goldInfo['currentGold']));
+        return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $goldId, 'num' => 20, 'type' => 'walkcontest_regaward', 'currentGold' => $goldInfo['currentGold']));
     }
 
+    /**
+     * 步数挑战赛参赛记录
+     * @return ApiReturn
+     */
     public function contestRecordAction () {
         $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
         // 获取的总金币 最大的奖励
@@ -139,6 +144,11 @@ Class Activity3Controller extends Activity2Controller {
             $list[] = $temp;
         }
         return new ApiReturn(array('totalAward' => $award['total'], 'maxAward' => $award['max'], 'totalReg' => $totalReg, 'maxWalk' => $maxWalk, 'contestList' => $list));
+    }
+
+    public function threeAwardAction() {
+
+        return new ApiReturn();
     }
 }
 
