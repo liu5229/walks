@@ -58,7 +58,7 @@ Class Activity3Controller extends Activity2Controller {
         foreach ($yesterdayList as $info) {
             if ($info['is_complete']) {
                 $sql = 'SELECT receive_id id, receive_gold num, receive_type type, receive_status isReceived FROM t_gold2receive WHERE user_id = ? AND receive_walk = ? AND receive_type = ? AND receive_date = ?';
-                $receiveInfo[$info['contest_level']] = $this->db->getRow($sql, $this->userId, $info['contest_level'], 'walk_contest', $yesterdayDate);
+                $receiveInfo[$info['contest_level']] = $this->db->getRow($sql, $this->userId, $info['contest_level'], 'walk_contest', date('Y-m-d'));
                 $type = 2;
             }
         }
