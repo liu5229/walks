@@ -52,7 +52,8 @@ class User2Model extends UserModel {
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
-                'appSource' => $userInfo['app_name'],
+                'appSource' => $userInfo['app_name'],//todo 渠道号 来源热云
+                'compaignId' => '',//todo 子渠道号 来源热云
             );
         } else {
             $invitedClass = new Invited();
@@ -95,7 +96,8 @@ class User2Model extends UserModel {
                 'nickname' => $nickName,
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
-                'appSource' => $deviceInfo['source'] ?? ''
+                'appSource' => $reyunAppName ?: ($deviceInfo['source'] ?? ''),
+                'compaignId' => '',//todo 子渠道号 来源热云
             );
         }
     }
@@ -183,7 +185,7 @@ class User2Model extends UserModel {
         $this->db->exec($sql, date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'] ?? '', $userId);
     }
 
-    protected function reyunAppName ($imie, $oaid, $androidid) {
+    public function reyunAppName ($imie, $oaid, $androidid) {
         $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
         $appName = $this->db->getOne($sql, $imie);
         if ($appName) {

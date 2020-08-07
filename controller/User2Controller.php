@@ -428,9 +428,9 @@ Class User2Controller extends UserController {
         if ($userId instanceof apiReturn) {
             return $userId;
         }
-        $sql = 'SELECT IF(reyun_app_name = "", app_name, reyun_app_name) FROM t_user WHERE user_id = ?';
-        $appSource = $this->db->getOne($sql, $userId);
-        return new ApiReturn(array('appSource' => $appSource));
+        $sql = 'SELECT IF(reyun_app_name = "", app_name, reyun_app_name) source, compaign_id FROM t_user WHERE user_id = ?';
+        $userInfo = $this->db->getRow($sql, $userId);
+        return new ApiReturn(array('appSource' => $userInfo ? $userInfo['source'] : '', 'compaignId' => $userInfo ? $userInfo['compaign_id'] : ''));
     }
 
     /**

@@ -262,10 +262,17 @@ Class ApiController extends AbstractController {
 //                return json_encode($return);
 //            }
 
-            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?';
-            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET));
-//            $sql = 'UPDATE t_user SET reyun_app_name = ? WHERE user_id = ?';
-//            $this->db->exec($sql, $_GET['spreadname'], $userId);
+            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?, compaign_id = ?';
+            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET), $_GET['_ry_adplan_id'] ?? 0);
+            $logId = $this->db->lastInsertId();
+            $sql = 'SELECT user_id FROM t_user WHERE imei = ? AND oaid = ? AND androidid = ?';
+            $userId = $this->db->getOne($sql, $_GET['spreadname'], $_GET['spreadname'], $_GET['spreadname']);
+            if ($userId) {
+                $sql = 'UPDATE t_user SET reyun_app_name = ?, compaign_id = ? WHERE user_id = ?';
+                $this->db->exec($sql, $_GET['spreadname'], $_GET['_ry_adplan_id'] ?? 0, $userId);
+                $sql = 'UPDATE t_reyun_log SET user_id = ? WHERE log_id = ?';
+                $this->db->exec($sql, $userId, $logId);
+            }
             $return = array('code' => '200', 'msg' => '保存成功');
             return json_encode($return);
         } else {
@@ -307,6 +314,5 @@ Class ApiController extends AbstractController {
         }
 
     }
-
 
 }

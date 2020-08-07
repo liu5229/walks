@@ -54,7 +54,8 @@ class User3Model extends User2Model {
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
-                'appSource' => $userInfo['app_name'],
+                'appSource' => $userInfo['app_name'],//todo 渠道号 来源热云
+                'compaignId' => '',//todo 子渠道号 来源热云
                 'newerGold' => $goldInfo['currentGold'] ? 0 : $newInfo['activity_award_min'],
             );
         } else {
@@ -88,7 +89,8 @@ class User3Model extends User2Model {
                 'nickname' => $nickName,
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
-                'appSource' => $deviceInfo['source'] ?? '',
+                'appSource' => $reyunAppName ?: ($deviceInfo['source'] ?? ''),
+                'compaignId' => '',//todo 子渠道号 来源热云
                 'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
             );
         }
