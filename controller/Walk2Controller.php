@@ -434,9 +434,9 @@ Class Walk2Controller extends WalkController {
     }
 
     public function toponErrorAction () {
-        if (isset($this->inputData['code']) && isset($this->inputData['desc']) && isset($this->inputData['platformCode']) && isset($this->inputData['platformMsg']) && isset($this->inputData['itemsErrorInfo'])) {
-            $sql = 'INSERT INTO t_error_topon SET code = ?, desc = ?, platform_code = ?, platform_msg = ?, items_error_info = ?';
-            $this->db->exec($sql, $this->userId, $this->inputData['code'], $this->inputData['desc'], $this->inputData['platformCode'], $this->inputData['platformMsg'], $this->inputData['itemsErrorInfo']);
+        if (isset($this->inputData['code']) && isset($this->inputData['desc']) && isset($this->inputData['platformCode']) && isset($this->inputData['platformMsg']) && isset($this->inputData['itemsErrorInfo']) && isset($this->inputData['versionCode'])) {
+            $sql = 'INSERT INTO t_error_topon SET user_id = ?, version_id = ?, code = ?, desc = ?, platform_code = ?, platform_msg = ?, items_error_info = ?';
+            $this->db->exec($sql, $this->userId, $this->inputData['versionCode'], $this->inputData['code'], $this->inputData['desc'], $this->inputData['platformCode'], $this->inputData['platformMsg'], $this->inputData['itemsErrorInfo']);
             return new ApiReturn();
         } else {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
