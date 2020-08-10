@@ -345,20 +345,8 @@ Class Walk2Controller extends WalkController {
 //                        withdraw_status = "pending",
 //                        withdraw_method = "wechat",
 //                        wechat_openid = :wechat_openid';
-                $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid FROM DUAL WHERE NOT EXISTS (SELECT COUNT(withdraw_id) FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
-                echo $sql;
-                var_dump(array('user_id' => $this->userId,
-                    'withdraw_amount' => $withdrawalAmount,
-                    'withdraw_gold' => $withdrawalGold,
-                    'withdraw_method' => 'wechat',
-                    'withdraw_status' => 'pending',
-                    'wechat_openid' => $payInfo['openid']));
-                $this->db->exec($sql, array('user_id' => $this->userId,
-                    'withdraw_amount' => $withdrawalAmount,
-                    'withdraw_gold' => $withdrawalGold,
-                    'withdraw_method' => 'wechat',
-                    'withdraw_status' => 'pending',
-                    'wechat_openid' => $payInfo['openid']));
+                $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid FROM DUAL WHERE NOT EXISTS (SELECT withdraw_id FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
+                $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid']));
                 return new ApiReturn('');
             } else {
                 return new ApiReturn('', 407, '请先绑定微信账户');
