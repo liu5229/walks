@@ -70,7 +70,7 @@ Class AdminUserController extends AbstractController {
                 'source' => 'system',
                 'type' => $_POST['change_type'],
                 'relation_id' => $relationId));
-            return $relationId;
+            return array();
         }
         throw new \Exception("Error");
     }

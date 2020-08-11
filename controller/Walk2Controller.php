@@ -266,8 +266,8 @@ Class Walk2Controller extends WalkController {
             if (isset($alipayInfo['alipay_account']) && $alipayInfo['alipay_account'] && isset($alipayInfo['alipay_name']) && $alipayInfo['alipay_name']) {
                 //1元提现只能一次 to do
                 if (in_array($withdrawalAmount, array(1, 5))) {
-                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = 1 AND (withdraw_status = "pending" OR withdraw_status = "success")';
-                    if ($this->db->getOne($sql, $this->userId)) {
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $this->userId, $withdrawalAmount)) {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
