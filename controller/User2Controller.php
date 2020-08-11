@@ -463,7 +463,7 @@ Class User2Controller extends UserController {
             if ($size > 1024 * 1024) {
                 return new ApiReturn('', 316,'上传图片大小不能超过1M');
             }
-            $saveFile = substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
+            $saveFile = (ENV_PRODUCTION ? '' : 'test-') . substr(md5(substr($code, 20)), 10) . time() . '.' . strtolower($ext);
 
             file_put_contents('/tmp/' . $saveFile, base64_decode(str_replace($result[1], '', $code)));
 
