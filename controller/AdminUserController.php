@@ -2,7 +2,7 @@
 
 Class AdminUserController extends AbstractController {
     public function listAction () {
-        $whereArr = array('1 = 1');
+        $whereArr = array();
         $dataArr = array();
         
         if (isset($_POST['user_id']) && $_POST['user_id']) {
@@ -12,6 +12,10 @@ Class AdminUserController extends AbstractController {
         if (isset($_POST['invited_code']) && $_POST['invited_code']) {
             $whereArr[] = 'invited_code = :invited_code';
             $dataArr['invited_code'] = $_POST['invited_code'];
+        }
+        if (!$whereArr) {
+            $whereArr[] = 'create_time > :create_time';
+            $dataArr['create_time'] = date('Y-m-d', strtotime('-7 days'));
         }
         $where = 'WHERE ' . implode(' AND ', $whereArr);
         
