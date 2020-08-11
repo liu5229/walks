@@ -347,7 +347,16 @@ Class WalkController extends AbstractController {
                     $v['gSource'] = $activeTypeList[$v['source']] ?? $v['source'];
                     break;
                 case 'out':
-                    $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
+                    switch ($v['source']) {
+                        case 'withdraw':
+                            $v['gSource'] = '提现';
+                            break;
+                        case 'walk_contest_regfee':
+                            $v['gSource'] = '步数挑战赛报名费';
+                            break;
+                        default :
+                            $v['gSource'] = $v['source'];
+                    }
                     $v['value'] = 0 - $v['value'];
                     break;
             }
