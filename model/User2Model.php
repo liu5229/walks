@@ -52,8 +52,7 @@ class User2Model extends UserModel {
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
-                'appSource' => $userInfo['app_name'],//todo 渠道号 来源热云
-                'compaignId' => '',//todo 子渠道号 来源热云
+                'appSource' => $userInfo['reyun_app_name'] ?: $userInfo['app_name'],// 渠道号 来源热云
             );
         } else {
             $invitedClass = new Invited();
@@ -97,7 +96,6 @@ class User2Model extends UserModel {
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
                 'appSource' => $reyunAppName ?: ($deviceInfo['source'] ?? ''),
-                'compaignId' => '',//todo 子渠道号 来源热云
             );
         }
     }

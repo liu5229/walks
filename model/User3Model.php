@@ -54,15 +54,15 @@ class User3Model extends User2Model {
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
-                'appSource' => $userInfo['app_name'],//todo 渠道号 来源热云
-                'compaignId' => '',//todo 子渠道号 来源热云
+                'appSource' => $userInfo['reyun_app_name'] ?: $userInfo['app_name'],// 渠道号 来源热云
+                'compaignId' => $userInfo['compaign_id'],// 子渠道号 来源热云
                 'newerGold' => $goldInfo['currentGold'] ? 0 : $newInfo['activity_award_min'],
             );
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
             $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '');
-            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
+            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?, compaign_id = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
                 $umengClass = new Umeng();
@@ -72,7 +72,7 @@ class User3Model extends User2Model {
                 }
             }
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName, $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score);
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $reyunAppName['compaign_id'] ?? '');
             $userId = $this->db->lastInsertId();
 
             $gold = 0;
@@ -89,11 +89,29 @@ class User3Model extends User2Model {
                 'nickname' => $nickName,
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
-                'appSource' => $reyunAppName ?: ($deviceInfo['source'] ?? ''),
-                'compaignId' => '',//todo 子渠道号 来源热云
+                'appSource' => $reyunAppName['app_name'] ?? ($deviceInfo['source'] ?? ''),
+                'compaignId' => $reyunAppName['compaign_id'] ?? '',// 子渠道号 来源热云
                 'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
             );
         }
+    }
+
+    public function reyunAppName ($imie, $oaid, $androidid) {
+        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
+        $appName = $this->db->getRow($sql, $imie);
+        if ($appName) {
+            return $appName;
+        }
+        $appName = $this->db->getRow($sql, $oaid);
+        if ($appName) {
+            return $appName;
+        }
+        $appName = $this->db->getRow($sql, $androidid);
+        if ($appName) {
+            return $appName;
+        }
+        return array();
+
     }
 
 }
