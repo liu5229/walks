@@ -431,6 +431,10 @@ Class Walk2Controller extends WalkController {
         return new ApiReturn($return);
     }
 
+    /**
+     * 上传topon错误
+     * @return ApiReturn
+     */
     public function toponErrorAction () {
         if (isset($this->inputData['code']) && isset($this->inputData['desc']) && isset($this->inputData['platformCode']) && isset($this->inputData['platformMSG']) && isset($this->inputData['itemsErrorInfo'])) {
             $sql = 'INSERT INTO t_error_topon SET user_id = ?, `code` = ?, `desc` = ?, platform_code = ?, platform_msg = ?, items_error_info = ?';

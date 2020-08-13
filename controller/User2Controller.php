@@ -430,7 +430,7 @@ Class User2Controller extends UserController {
         }
         $sql = 'SELECT IF(reyun_app_name = "", app_name, reyun_app_name) source, compaign_id FROM t_user WHERE user_id = ?';
         $userInfo = $this->db->getRow($sql, $userId);
-        return new ApiReturn(array('appSource' => $userInfo ? $userInfo['source'] : '', 'compaignId' => $userInfo ? ($userInfo['compaign_id'] ?: '') : ''));
+        return new ApiReturn(array('appSource' => ($userInfo ? $userInfo['source'] : '') . '_' . ($userInfo ? ($userInfo['compaign_id'] ?: '') : ''), 'compaignId' => $userInfo ? ($userInfo['compaign_id'] ?: '') : ''));
     }
 
     /**

@@ -54,7 +54,7 @@ class User3Model extends User2Model {
                 'phone' => $userInfo['phone_number'],
                 'isOneCashed' => $isOneCashed ? 1 : 0,
                 'invitedCode' => $userInfo['invited_code'],
-                'appSource' => $userInfo['reyun_app_name'] ?: $userInfo['app_name'],// 渠道号 来源热云
+                'appSource' => ($userInfo['reyun_app_name'] ?: $userInfo['app_name']) . '_' . ($userInfo['compaign_id'] ?? ''),// 渠道号 来源热云
                 'compaignId' => $userInfo['compaign_id'],// 子渠道号 来源热云
                 'newerGold' => $goldInfo['currentGold'] ? 0 : $newInfo['activity_award_min'],
             );
@@ -89,7 +89,7 @@ class User3Model extends User2Model {
                 'nickname' => $nickName,
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
-                'appSource' => $reyunAppName['app_name'] ?? ($deviceInfo['source'] ?? ''),
+                'appSource' => ($reyunAppName['app_name'] ?? ($deviceInfo['source'] ?? '')) . '_' . ($reyunAppName['compaign_id'] ?? ''),
                 'compaignId' => $reyunAppName['compaign_id'] ?? '',// 子渠道号 来源热云
                 'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
             );
