@@ -18,7 +18,7 @@ Class AdminUserController extends AbstractController {
             $dataArr['create_time'] = date('Y-m-d', strtotime('-7 days'));
         }
         $where = 'WHERE ' . implode(' AND ', $whereArr);
-        
+
         $sql = "SELECT COUNT(*) FROM t_user " . $where;
         $totalCount = $this->db->getOne($sql, $dataArr);
         $list = array();
