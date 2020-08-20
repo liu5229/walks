@@ -15,16 +15,22 @@ while (true) {
     $withdrawList = $db->getAll($sql);
 
     foreach ($withdrawList as $withdrawInfo) {
-        $returnStatus = $wechatPay->transfer($withdrawInfo['withdraw_amount'], $withdrawInfo['wechat_openid']);
-        if (TRUE === $returnStatus) {
-            $sql = "INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
-            $db->exec($sql, array('user_id' => $withdrawInfo['user_id'], 'change_gold' => $withdrawInfo['withdraw_gold'], 'gold_source' => 'withdraw', 'change_type' => 'out', 'relation_id' => $withdrawInfo['withdraw_id'], 'change_date' => date('Y-m-d')));
-            $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
-            $return = $db->exec($sql, $withdrawInfo['withdraw_id']);
-        } else {
-            //to do failure reason from api return
+        $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = 1 AND withdraw_status = "success"';
+        if ($db->getOne($sql, $withdrawInfo['user_id'])) { //to do failure reason from api return
             $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
-            $return = $db->exec($sql, $returnStatus, $withdrawInfo['withdraw_id']);
+            $return = $db->exec($sql, '新用户专享', $withdrawInfo['withdraw_id']);
+        } else {
+            $returnStatus = $wechatPay->transfer($withdrawInfo['withdraw_amount'], $withdrawInfo['wechat_openid']);
+            if (TRUE === $returnStatus) {
+                $sql = "INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
+                $db->exec($sql, array('user_id' => $withdrawInfo['user_id'], 'change_gold' => $withdrawInfo['withdraw_gold'], 'gold_source' => 'withdraw', 'change_type' => 'out', 'relation_id' => $withdrawInfo['withdraw_id'], 'change_date' => date('Y-m-d')));
+                $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
+                $return = $db->exec($sql, $withdrawInfo['withdraw_id']);
+            } else {
+                //to do failure reason from api return
+                $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
+                $return = $db->exec($sql, $returnStatus, $withdrawInfo['withdraw_id']);
+            }
         }
     }
 
