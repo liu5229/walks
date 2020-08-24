@@ -47,6 +47,15 @@ Class AdminWithdrawController extends AbstractController {
 //                        'name' => $userInfo['alipay_name']));
                     $sql = 'SELECT * FROM t_withdraw WHERE withdraw_id = ?';
                     $payInfo = $this->db->getRow($sql, $_POST['withdraw_id']);
+                    if (in_array($payInfo['withdraw_amount'], array(1, 5))) {
+                        $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND withdraw_status = ?';
+                        if ($this->db->getOne($sql, $payInfo['user_id'], $payInfo['withdraw_amount'], 'success')) {
+                            //to do failure reason from api return
+                            $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
+                            $return = $this->db->exec($sql, '新用户专享', $_POST['withdraw_id']);
+                            break;
+                        }
+                    }
                     switch ($payInfo['withdraw_method']) {
                         case 'alipay':
                             $returnStatus = TRUE;
