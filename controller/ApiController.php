@@ -262,11 +262,16 @@ Class ApiController extends AbstractController {
 //                return json_encode($return);
 //            }
 
-            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?, compaign_id = ?';
-            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET), $_GET['_ry_adplan_id'] ?? 0);
+            $sql = 'INSERT INTO t_reyun_log SET imei = ?, app_name = ?, params = ?, compaign_id = ?, mac = ?';
+            $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET), $_GET['_ry_adplan_id'] ?? 0, $_GET['mac'] ?? 0);
             $logId = $this->db->lastInsertId();
             $sql = 'SELECT user_id FROM t_user WHERE imei = ? OR oaid = ? OR androidid = ?';
-            $userId = $this->db->getOne($sql, $_GET['imei'], $_GET['imei'], $_GET['imei']);
+            if (isset($_GET['mac'])) {
+                $sql .= ' OR mac = ?';
+                $userId = $this->db->getOne($sql, $_GET['imei'], $_GET['imei'], $_GET['imei'], $_GET['mac']);
+            } else {
+                $userId = $this->db->getOne($sql, $_GET['imei'], $_GET['imei'], $_GET['imei']);
+            }
             if ($userId) {
                 $sql = 'UPDATE t_user SET reyun_app_name = ?, compaign_id = ? WHERE user_id = ?';
                 $this->db->exec($sql, $_GET['spreadname'], $_GET['_ry_adplan_id'] ?? 0, $userId);

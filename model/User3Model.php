@@ -61,7 +61,7 @@ class User3Model extends User2Model {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '');
+            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?, compaign_id = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
@@ -101,7 +101,7 @@ class User3Model extends User2Model {
         }
     }
 
-    public function reyunAppName ($imie, $oaid, $androidid) {
+    public function reyunAppName ($imie, $oaid, $androidid, $mac) {
         $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
         $appName = $this->db->getRow($sql, $imie);
         if ($appName) {
@@ -115,8 +115,12 @@ class User3Model extends User2Model {
         if ($appName) {
             return $appName;
         }
+        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
+        $appName = $this->db->getRow($sql, $mac);
+        if ($appName) {
+            return $appName;
+        }
         return array();
-
     }
 
 }

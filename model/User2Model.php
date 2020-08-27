@@ -57,8 +57,8 @@ class User2Model extends UserModel {
         } else {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
-            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '');
-            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?';
+            $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
+            $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?, compaign_id = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
                 $umengClass = new Umeng();
@@ -68,8 +68,13 @@ class User2Model extends UserModel {
                 }
             }
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName, $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score);
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $reyunAppName['compaign_id'] ?? '');
             $userId = $this->db->lastInsertId();
+
+            if (isset($reyunAppName['log_id'])) {
+                $sql = 'UPDATE t_reyun_log SET user_id = ? WHERE log_id = ?';
+                $this->db->exec($sql, $userId, $reyunAppName['log_id']);
+            }
             
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
             $goldInfo = $this->db->getRow($sql);
@@ -95,7 +100,7 @@ class User2Model extends UserModel {
                 'nickname' => $nickName,
                 'award' =>$gold,
                 'invitedCode' => $invitedCode,
-                'appSource' => $reyunAppName ?: ($deviceInfo['source'] ?? ''),
+                'appSource' => ($reyunAppName['app_name'] ?? ($deviceInfo['source'] ?? '')) . '_' . ($reyunAppName['compaign_id'] ?? ''),
             );
         }
     }
@@ -183,22 +188,26 @@ class User2Model extends UserModel {
         $this->db->exec($sql, date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'] ?? '', $userId);
     }
 
-    public function reyunAppName ($imie, $oaid, $androidid) {
-        $sql = 'SELECT app_name FROM t_reyun_log WHERE imei = ?';
-        $appName = $this->db->getOne($sql, $imie);
+    public function reyunAppName ($imie, $oaid, $androidid, $mac) {
+        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
+        $appName = $this->db->getRow($sql, $imie);
         if ($appName) {
             return $appName;
         }
-        $appName = $this->db->getOne($sql, $oaid);
+        $appName = $this->db->getRow($sql, $oaid);
         if ($appName) {
             return $appName;
         }
-        $appName = $this->db->getOne($sql, $androidid);
+        $appName = $this->db->getRow($sql, $androidid);
         if ($appName) {
             return $appName;
         }
-        return '';
-
+        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
+        $appName = $this->db->getRow($sql, $mac);
+        if ($appName) {
+            return $appName;
+        }
+        return array();
     }
             
             
