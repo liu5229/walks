@@ -101,26 +101,26 @@ class User3Model extends User2Model {
         }
     }
 
-    public function reyunAppName ($imie, $oaid, $androidid, $mac) {
-        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
-        $appName = $this->db->getRow($sql, $imie);
-        if ($appName) {
-            return $appName;
-        }
-        $appName = $this->db->getRow($sql, $oaid);
-        if ($appName) {
-            return $appName;
-        }
-        $appName = $this->db->getRow($sql, $androidid);
-        if ($appName) {
-            return $appName;
-        }
-        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
-        $appName = $this->db->getRow($sql, $mac);
-        if ($appName) {
-            return $appName;
-        }
-        return array();
-    }
+//    public function reyunAppName ($imie, $oaid, $androidid, $mac) {
+//        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
+//        $appName = $this->db->getRow($sql, $imie);
+//        if ($appName) {
+//            return $appName;
+//        }
+//        $appName = $this->db->getRow($sql, $oaid);
+//        if ($appName) {
+//            return $appName;
+//        }
+//        $appName = $this->db->getRow($sql, $androidid);
+//        if ($appName) {
+//            return $appName;
+//        }
+//        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
+//        $appName = $this->db->getRow($sql, $mac);
+//        if ($appName) {
+//            return $appName;
+//        }
+//        return array();
+//    }
 
 }

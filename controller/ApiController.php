@@ -266,7 +266,7 @@ Class ApiController extends AbstractController {
             $this->db->exec($sql, $_GET['imei'], $_GET['spreadname'], json_encode($_GET), $_GET['_ry_adplan_id'] ?? 0, $_GET['mac'] ?? 0);
             $logId = $this->db->lastInsertId();
             $sql = 'SELECT user_id FROM t_user WHERE imei = ? OR oaid = ? OR androidid = ?';
-            if (isset($_GET['mac'])) {
+            if (isset($_GET['mac']) && $_GET['mac']) {
                 $sql .= ' OR mac = ?';
                 $userId = $this->db->getOne($sql, $_GET['imei'], $_GET['imei'], $_GET['imei'], $_GET['mac']);
             } else {

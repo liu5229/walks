@@ -202,10 +202,12 @@ class User2Model extends UserModel {
         if ($appName) {
             return $appName;
         }
-        $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
-        $appName = $this->db->getRow($sql, $mac);
-        if ($appName) {
-            return $appName;
+        if ($mac) {
+            $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE mac = ?';
+            $appName = $this->db->getRow($sql, $mac);
+            if ($appName) {
+                return $appName;
+            }
         }
         return array();
     }
