@@ -321,8 +321,10 @@ Class ApiController extends AbstractController {
     }
 
     public function oceanAction () {
-        $sql = 'INSERT INTO t_ocean_click_log SET imei_md5 = ?, oaid = ?, androidid_md5 = ?, mac_md5 = ?, ad_id = ?, params = ?';
-        $this->db->exec($sql, $_GET['imei'] ?? '', $_GET['oaid'] ?? '', $_GET['androidid'] ?? '', $_GET['mac'] ?? '', $_GET['adid'] ?? '', json_encode($_GET));
+        if ($_GET) {
+            $sql = 'INSERT INTO t_ocean_click_log SET imei_md5 = ?, oaid = ?, androidid_md5 = ?, mac_md5 = ?, ad_id = ?, params = ?';
+            $this->db->exec($sql, $_GET['imei'] ?? '', $_GET['oaid'] ?? '', $_GET['androidid'] ?? '', $_GET['mac'] ?? '', $_GET['adid'] ?? '', json_encode($_GET));
+        }
         $return = array('code' => '200', 'msg' => '保存成功');
         return json_encode($return);
     }
