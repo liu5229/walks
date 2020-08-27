@@ -19,7 +19,7 @@ Class AdminAdController extends AbstractController {
         if (isset($_POST['action']) && isset($_POST['id'])) {
             $uploadImg = '';
             if (isset($_POST['advertise_image']['file']['response']['data'][0]['file']['name'])) {
-                $uploadImg = 'img/' . (ENV_PRODUCTION ? '' : 'test-') . date('Ymd') . '-' . time() . $_POST['advertise_image']['file']['response']['data'][0]['file']['name'];
+                $uploadImg = 'img/' . (ENV_PRODUCTION ? '' : 'test-') . time() . $_POST['advertise_image']['file']['response']['data'][0]['file']['name'];
 
                 $oss = new Oss();
                 $uploadReturn = $oss->upload($uploadImg, IMG_DIR . $_POST['advertise_image']['file']['response']['data'][0]['file']['name']);
