@@ -62,6 +62,7 @@ class User3Model extends User2Model {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
             $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
+            $oceanAdId = $this->adId($deviceInfo['IMEI'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?, compaign_id = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
@@ -72,12 +73,16 @@ class User3Model extends User2Model {
                 }
             }
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $reyunAppName['compaign_id'] ?? '');
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $oceanAdId['ad_id'] ?? ($reyunAppName['compaign_id'] ?? ''));
             $userId = $this->db->lastInsertId();
 
             if (isset($reyunAppName['log_id'])) {
                 $sql = 'UPDATE t_reyun_log SET user_id = ? WHERE log_id = ?';
                 $this->db->exec($sql, $userId, $reyunAppName['log_id']);
+            }
+            if (isset($oceanAdId['log_id'])) {
+                $sql = 'UPDATE t_ocean_click_log SET user_id = ? WHERE log_id = ?';
+                $this->db->exec($sql, $userId, $oceanAdId['log_id']);
             }
 
             $gold = 0;

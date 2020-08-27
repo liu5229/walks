@@ -58,6 +58,7 @@ class User2Model extends UserModel {
             $invitedClass = new Invited();
             $invitedCode = $invitedClass->createCode();
             $reyunAppName = $this->reyunAppName($deviceInfo['IMEI'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
+            $oceanAdId = $this->adId($deviceInfo['IMEI'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['mac'] ?? '');
             $sql = 'INSERT INTO t_user SET device_id = ?, nickname = ?, app_name = ?, reyun_app_name = ?,  VAID = ?, AAID = ?, OAID = ?, brand = ?, model = ?, SDKVersion = ?, AndroidId = ?, IMEI = ?, MAC = ?, invited_code = ?, umeng_token = ?, umeng_score = ?, compaign_id = ?';
             $score = 0;
             if (isset($deviceInfo['umengToken']) && $deviceInfo['umengToken']) {
@@ -68,12 +69,16 @@ class User2Model extends UserModel {
                 }
             }
             $nickName = '游客' . substr($deviceId, -2) . date('Ymd');//游客+设备号后2位+用户激活日期
-            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $reyunAppName['compaign_id'] ?? '');
+            $this->db->exec($sql, $deviceId, $nickName, $deviceInfo['source'] ?? '', $reyunAppName['app_name'] ?? '', $deviceInfo['VAID'] ?? '', $deviceInfo['AAID'] ?? '', $deviceInfo['OAID'] ?? '', $deviceInfo['brand'] ?? '', $deviceInfo['model'] ?? '', $deviceInfo['SDKVersion'] ?? '', $deviceInfo['AndroidId'] ?? '', $deviceInfo['IMEI'] ?? '', $deviceInfo['MAC'] ?? '', $invitedCode, $deviceInfo['umengToken'] ?? '', $score, $oceanAdId['ad_id'] ?? ($reyunAppName['compaign_id'] ?? ''));
             $userId = $this->db->lastInsertId();
 
             if (isset($reyunAppName['log_id'])) {
                 $sql = 'UPDATE t_reyun_log SET user_id = ? WHERE log_id = ?';
                 $this->db->exec($sql, $userId, $reyunAppName['log_id']);
+            }
+            if (isset($oceanAdId['log_id'])) {
+                $sql = 'UPDATE t_ocean_click_log SET user_id = ? WHERE log_id = ?';
+                $this->db->exec($sql, $userId, $oceanAdId['log_id']);
             }
             
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
@@ -188,9 +193,9 @@ class User2Model extends UserModel {
         $this->db->exec($sql, date('Y-m-d H:i:s'), $_SERVER['REMOTE_ADDR'] ?? '', $userId);
     }
 
-    public function reyunAppName ($imie, $oaid, $androidid, $mac) {
+    public function reyunAppName ($imei, $oaid, $androidid, $mac) {
         $sql = 'SELECT log_id, app_name, compaign_id FROM t_reyun_log WHERE imei = ?';
-        $appName = $this->db->getRow($sql, $imie);
+        $appName = $this->db->getRow($sql, $imei);
         if ($appName) {
             return $appName;
         }
@@ -208,6 +213,32 @@ class User2Model extends UserModel {
             if ($appName) {
                 return $appName;
             }
+        }
+        return array();
+    }
+
+    public function adId ($imei, $androidid, $mac) {
+        $adId = array();
+        if ($imei) {
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE imei_md5 = ?';
+            $adId = $this->db->getRow($sql, md5($imei));
+        }
+        if ($adId) {
+            return $adId;
+        }
+        if ($androidid) {
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE androidid_md5 = ?';
+            $adId = $this->db->getRow($sql, md5($androidid));
+        }
+        if ($adId) {
+            return $adId;
+        }
+        if ($mac) {
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE mac_md5 = ?';
+            $adId = $this->db->getRow($sql, md5(str_replace(':', '', $mac)));
+        }
+        if ($adId) {
+            return $adId;
         }
         return array();
     }
