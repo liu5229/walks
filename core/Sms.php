@@ -13,7 +13,7 @@ class Sms {
     
     public function doLogin() {
         // Create Client
-        AlibabaCloud::accessKeyClient('LTAI4FuDqEj8teeueuLN89tN', 'cLeEMurpR2xE7rjMPkdvBhQMbSvkjr')->regionId('cn-hangzhou')->asDefaultClient();
+        AlibabaCloud::accessKeyClient(ALI_KEYID, ALI_KEYSECRET)->regionId(SMS_REGIONID)->asDefaultClient();
     }
     
     public function sendMessage ($phone, $code) {
