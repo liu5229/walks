@@ -19,6 +19,7 @@ abstract class AbstractModel {
                     break;
                 case 'model' :
                     $this->temp['model'] = new Model();
+                    break;
                 default :
                     throw new \Exception("Can't find model plugin " . $name);
             }
