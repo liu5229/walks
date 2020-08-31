@@ -33,8 +33,8 @@ Class Wxpay {
 //            'amount' => $amount , //单位是分
             'check_name' => 'NO_CHECK',//NO_CHECK：不校验真实姓名 FORCE_CHECK：强校验真实姓名
             'desc' => '计步宝提现',//企业付款备注，必填。注意：备注中的敏感词会被转成字符*
-            'mch_appid' => 'wx3557b6d57ab8062d',//申请商户号的appid或商户号绑定的appid
-            'mchid' => '1578766581',//微信支付分配的商户号
+            'mch_appid' => WECHAT_APPID,//申请商户号的appid或商户号绑定的appid
+            'mchid' => WECHAT_ID,//微信支付分配的商户号
             'nonce_str' => $nonceStr,//随机字符串，不长于32位
             'openid' => $openId,//商户appid下，某用户的openid
             'partner_trade_no' => $partnerTradeNo,//商户订单号，需保持唯一性(只能是字母或者数字，不能包含有其它字符)
@@ -45,7 +45,7 @@ Class Wxpay {
         foreach ($data as $key => $value) {
             $strArr[] = $key . '=' . $value;
         }
-        $strArr[] = 'key=23a365d18f89691ad645049f67d8064e';
+        $strArr[] = 'key=' . WECHAT_KEY;
         $data['sign'] = strtoupper(md5(implode('&', $strArr)));
 //        $data['sign'] = '1EDB89804A9897531CFF314CEB14052A';
         $xml = '<xml>';

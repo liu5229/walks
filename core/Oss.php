@@ -10,12 +10,12 @@ Class Oss {
 
     public function __construct () {
 // 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录RAM控制台创建RAM账号。
-        $this->accessKeyId = 'LTAI4FuDqEj8teeueuLN89tN';
-        $this->accessKeySecret = 'cLeEMurpR2xE7rjMPkdvBhQMbSvkjr';
+        $this->accessKeyId = ALI_KEYID;
+        $this->accessKeySecret = ALI_KEYSECRET;
 // Endpoint以杭州为例，其它Region请按实际情况填写。
-        $this->endpoint = 'oss-cn-hangzhou.aliyuncs.com';
+        $this->endpoint = OSS_ENDPOINT;
 // 设置存储空间名称。
-        $this->bucket = 'stepcounter';
+        $this->bucket = OSS_BUCKET;
     }
 
     public function upload ($uploadPos, $file) {
