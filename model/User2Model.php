@@ -121,19 +121,19 @@ class User2Model extends UserModel {
         if (!$userState) {
             return new ApiReturn('', 203, '抱歉您的账户已被冻结');
         }
-        if ('in' == $params['type']) {
-            $notInEveryTotal = array("newer", "wechat", "system", "invited_count", 'invited', 'do_invite');
-            $sql = 'SELECT SUM(change_gold)
-                    FROM t_gold
-                    WHERE user_id = ?
-                    AND change_type = "in"
-                    AND change_date = ?
-                    AND gold_source NOT IN ("' . implode('", "', $notInEveryTotal) .'")';
-            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
-            if ($goldToday > $this->maxGoldEveryDay) {
-                return new ApiReturn('', 202, '抱歉您已达到今日金币获取上限');
-            }
-        }
+//        if ('in' == $params['type']) {
+//            $notInEveryTotal = array("newer", "wechat", "system", "invited_count", 'invited', 'do_invite');
+//            $sql = 'SELECT SUM(change_gold)
+//                    FROM t_gold
+//                    WHERE user_id = ?
+//                    AND change_type = "in"
+//                    AND change_date = ?
+//                    AND gold_source NOT IN ("' . implode('", "', $notInEveryTotal) .'")';
+//            $goldToday = $this->db->getOne($sql, $params['user_id'], $todayDate);
+//            if ($goldToday > $this->maxGoldEveryDay) {
+//                return new ApiReturn('', 202, '抱歉您已达到今日金币获取上限');
+//            }
+//        }
         if ('sign' == $params['type']) {
             $sql = "INSERT INTO t_gold SET
                     user_id = :user_id,

@@ -77,12 +77,10 @@ Class AdminUserController extends AbstractController {
     
     public function goldAction () {
         if (isset($_POST['id'])) {
-            $sql = "SELECT COUNT(*) FROM t_gold WHERE user_id = ? ORDER BY user_id";
-            $totalCount = $this->db->getOne($sql, $_POST['id']);
+            $totalCount = $this->model->gold->goldTotal($_POST['id']);
             $configInfo = array();
             if ($totalCount) {
-                $sql = "SELECT * FROM t_gold WHERE user_id = ? ORDER BY gold_id DESC LIMIT " . $this->page;
-                $configInfo = $this->db->getAll($sql, $_POST['id']);
+                $configInfo = $this->model->gold->goldDetails($_POST['id'], $this->page);
                 $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
                 $activeTypeList = $this->db->getPairs($sql);
                 array_walk($configInfo, function (&$v) use($activeTypeList) {

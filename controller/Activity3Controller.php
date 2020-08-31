@@ -92,8 +92,13 @@ Class Activity3Controller extends Activity2Controller {
             $sql = 'INSERT INTO t_walk_contest_user SET contest_id = ?, user_id = ?';
             $this->db->exec($sql, $contestInfo['contest_id'], $this->userId);
 
-            $sql = "INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
-            $this->db->exec($sql, array( 'user_id' => $this->userId, 'change_gold' => $regFee[$contestInfo['contest_level']], 'gold_source' => 'walk_contest_regfee', 'change_type' => 'out', 'relation_id' => $this->db->lastInsertId(), 'change_date' => date('Y-m-d')));
+            $this->model->user2->updateGold(array(
+                'user_id' => $this->userId,
+                'gold' => $regFee[$contestInfo['contest_level']],
+                'source' => 'walk_contest_regfee',
+                'type' => 'out',
+                'relation_id' => $this->db->lastInsertId()));
+
             $goldInfo = $this->model->user3->getGold($this->userId);
             return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'currentGold' => $goldInfo['currentGold']));
         }
@@ -115,8 +120,7 @@ Class Activity3Controller extends Activity2Controller {
     public function contestRecordAction () {
         $awardConfig = array(3000 => 20, 5000 => 500, 10000 => 1000);
         // 获取的总金币 最大的奖励
-        $sql = 'SELECT IFNULL(SUM(change_gold), 0) total, IFNULL(MAX(change_gold), 0) max FROM t_gold WHERE user_id = ? AND change_type = ?';
-        $award = $this->db->getRow($sql, $this->userId, 'walk_contest');
+        $award = $this->model->gold->walkContestTotal($this->userId);
         // 参与次数
         $sql = 'SELECT COUNT(id) FROM t_walk_contest_user WHERE user_id = ?';
         $totalReg = $this->db->getOne($sql, $this->userId);

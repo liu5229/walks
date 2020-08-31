@@ -111,8 +111,7 @@ Class Walk2Controller extends WalkController {
                 return new ApiReturn('', 205, '访问失败，请稍后再试');
             //新手红包 单次领取
             case 'newer'://user2model/get-userInfo
-                $sql = 'SELECT gold_id FROM t_gold WHERE user_id = ? AND gold_source = ?';
-                $newInfo = $this->db->getOne($sql, $this->userId, 'newer');
+                $newInfo = $this->model->gold->news($this->userId);
                 if ($newInfo) {
                     return new ApiReturn('', 401, '您已领取过该奖励');
                 }
@@ -354,30 +353,29 @@ Class Walk2Controller extends WalkController {
      * 金币明细列表
      * @return \ApiReturn
      */
-    public function goldDetailAction () {
-        $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? AND create_time >= ? ORDER BY gold_id DESC';
-        $goldDetail = $this->db->getAll($sql, $this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
-        $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
-        $activeTypeList = $this->db->getPairs($sql);
-        array_walk($goldDetail, function (&$v) use($activeTypeList) {
-            switch ($v['type']) {
-                case 'in':
-                    $v['gSource'] = $activeTypeList[$v['source']] ?? $v['source'];
-                    break;
-                case 'out':
-                    $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
-                    $v['value'] = 0 - $v['value'];
-                    break;
-            }
-            if ('system' == $v['source']) {
-                $v['gSource'] = '官方操作';
-            } elseif ('newer_invalid' == $v['source']) {
-                $v['gSource'] = '新手红包过期';
-            }
-            $v['gTime'] = strtotime($v['gTime']) * 1000;
-        });
-        return new ApiReturn($goldDetail);    
-    }
+//    public function goldDetailAction () {
+//        $goldDetail = $this->model->gold->goldDetail($this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
+//        $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
+//        $activeTypeList = $this->db->getPairs($sql);
+//        array_walk($goldDetail, function (&$v) use($activeTypeList) {
+//            switch ($v['type']) {
+//                case 'in':
+//                    $v['gSource'] = $activeTypeList[$v['source']] ?? $v['source'];
+//                    break;
+//                case 'out':
+//                    $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
+//                    $v['value'] = 0 - $v['value'];
+//                    break;
+//            }
+//            if ('system' == $v['source']) {
+//                $v['gSource'] = '官方操作';
+//            } elseif ('newer_invalid' == $v['source']) {
+//                $v['gSource'] = '新手红包过期';
+//            }
+//            $v['gTime'] = strtotime($v['gTime']) * 1000;
+//        });
+//        return new ApiReturn($goldDetail);
+//    }
     
     /**
      * 提现明细列表
