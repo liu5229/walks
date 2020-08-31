@@ -171,6 +171,8 @@ class User2Model extends UserModel {
                 'change_date' => $todayDate
             ));
         }
+        var_dump($params);
+        echo $sql;
         
         return TRUE;
     }
