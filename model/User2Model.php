@@ -134,7 +134,7 @@ class User2Model extends UserModel {
                 return new ApiReturn('', 202, '抱歉您已达到今日金币获取上限');
             }
         }
-        if ('sign' == $params['type']) {
+        if ('sign' == $params['source']) {
             $sql = "INSERT INTO t_gold SET
                     user_id = :user_id,
                     change_gold = :change_gold,
@@ -171,8 +171,6 @@ class User2Model extends UserModel {
                 'change_date' => $todayDate
             ));
         }
-        var_dump($params);
-        echo $sql;
         
         return TRUE;
     }
