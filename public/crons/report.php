@@ -8,6 +8,8 @@ $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' .
 $db->exec("SET time_zone = '+8:00'");
 $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
+$model = new Model();
+
 $variableName = 'report_daily';
 $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
 $reportDaily = $db->getOne($sql, $variableName);
@@ -29,15 +31,13 @@ while (true) {
     $sql = 'SELECT COUNT(*) FROM t_user WHERE create_time >= ? AND create_time < ?';
     $newUser = $db->getOne($sql, $start, $end);
     
-    $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE change_date = ? AND change_type = "in"';
-    $newGold = $db->getOne($sql, $reportDaily) ?: 0;
+    $newGold = $model->gold->totalGoldByDate($reportDaily);
     
     $sql = 'SELECT COUNT(user_id) FROM t_user_first_login WHERE date = ?';
     $loginUser = $db->getOne($sql, $reportDaily);
-    
-    $sql = 'SELECT COUNT(DISTINCT user_id) FROM t_gold WHERE change_date = ? AND gold_source = "share"';
-    $shareCount = $db->getOne($sql, $reportDaily);
-    
+
+    $shareCount = $model->gold->shareCountByDate($reportDaily);
+
     $sql = 'REPLACE INTO t_report SET withdraw_value = :withdraw_value, 
         withdraw_count = :withdraw_count, 
         new_user = :new_user, 

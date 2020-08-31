@@ -296,13 +296,9 @@ Class WalkController extends AbstractController {
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
             //获取当前用户可用金币
-            $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ?';
-            $totalGold = $this->db->getOne($sql, $this->userId);
-            $sql = 'SELECT SUM(withdraw_gold) FROM t_withdraw WHERE user_id = ? AND withdraw_status = "pending"';
-            $bolckedGold = $this->db->getOne($sql, $this->userId);
-            $currentGold = $totalGold - $bolckedGold;
-            
-            if ($withdrawalGold > $currentGold) {
+            $goldInfo = $this->model->user->getGold($this->userId);
+
+            if ($withdrawalGold > $goldInfo['currentGold']) {
                 return new ApiReturn('', 502, '提现所需金币不足');
             }
             //是否绑定支付宝
@@ -337,8 +333,7 @@ Class WalkController extends AbstractController {
     }
     
     public function goldDetailAction () {
-        $sql = 'SELECT gold_source source,change_gold value, change_type type, create_time gTime FROM t_gold WHERE user_id = ? AND create_time >= ? ORDER BY gold_id DESC';
-        $goldDetail = $this->db->getAll($sql, $this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
+        $goldDetail = $this->model->gold->goldDetail($this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
         $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
         $activeTypeList = $this->db->getPairs($sql);
         array_walk($goldDetail, function (&$v) use($activeTypeList) {
@@ -362,6 +357,8 @@ Class WalkController extends AbstractController {
             }
             if ('system' == $v['source']) {
                 $v['gSource'] = '官方操作';
+            } elseif ('newer_invalid' == $v['source']) {
+                $v['gSource'] = '新手红包过期';
             }
             $v['gTime'] = strtotime($v['gTime']) * 1000;
         });

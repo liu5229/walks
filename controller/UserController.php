@@ -69,17 +69,6 @@ Class UserController extends AbstractController {
             $sql = 'UPDATE t_user SET phone_number = ?, nickname = ? WHERE user_id = ?';
             $this->db->exec($sql, $this->inputData['phone'], substr_replace($this->inputData['phone'], '****', 3, 4), $userId);
             $return = array();
-//            $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-//            $awardInfo = $this->db->getOne($sql, $userId, 'phone');
-//            if (!$awardInfo) {
-//                $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "phone"';
-//                $gold = $this->db->getOne($sql);
-//                $this->model->user->updateGold(array('user_id' => $userId,
-//                    'gold' => $gold,
-//                    'source' => 'phone',
-//                    'type' => 'in'));
-//                $return['award'] = $gold;
-//            }
             $sql = 'DELETE FROM t_sms_code WHERE user_id = ?';
             $this->db->exec($sql, $userId);
             return new ApiReturn($return);
@@ -164,8 +153,8 @@ Class UserController extends AbstractController {
         $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
         $this->db->exec($sql, $this->inputData['openid'] ?? '', $this->inputData['nickname'] ?? '', $this->inputData['language'] ?? '', $this->inputData['sex'] ?? 0, $this->inputData['province'] ?? '', $this->inputData['city'] ?? '', $this->inputData['country'] ?? '', $this->inputData['headimgurl'] ?? '', $this->inputData['unionid'], $userId);
         $return = array();
-        $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-        $awardInfo = $this->db->getOne($sql, $userId, 'wechat');
+        $awardInfo = $this->model->user2->existSource($userId, 'wechat');
+
         if (!$awardInfo) {
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
             $gold = $this->db->getOne($sql);

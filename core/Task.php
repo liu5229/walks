@@ -44,8 +44,7 @@ Class Task extends AbstractController {
                 $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayInfo = $this->db->getRow($sql, $userId, $today, $type);
                 if(!$todayInfo) {
-                    $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ? AND change_date = ? AND gold_source = ?';
-                    $isSignLastDay = $this->db->getOne($sql, $userId, date('Y-m-d', strtotime("-1 day")), $type);
+                    $isSignLastDay = $this->model->gold->existSourceDate($userId, date('Y-m-d', strtotime("-1 day")), $type);
                     if (!$isSignLastDay) {
                         $checkInDays = 0;
                         $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
@@ -65,14 +64,7 @@ Class Task extends AbstractController {
                     $checkInDays -= ($todayInfo['isReceive'] ?? 0);
                     $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
                 }
-                $sql = 'SELECT gold_id id , change_gold num, 1 isReceive, 0 isDouble, 0 isToday 
-                        FROM t_gold 
-                        WHERE user_id = ? 
-                        AND change_date >= ? 
-                        AND change_date < ?
-                        AND gold_source = ? 
-                        ORDER BY gold_id';
-                $checkInInfo = $this->db->getAll($sql, $userId, $fromDate, $today, $type);
+                $checkInInfo = $this->model->gold->singGoldList($userId, $fromDate, $today, $type);
                 $checkInInfo[] = array_merge(array('isToday' => 1), $todayInfo);
                 
                 $i = 0;

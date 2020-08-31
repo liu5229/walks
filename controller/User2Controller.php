@@ -261,8 +261,7 @@ Class User2Controller extends UserController {
         $sql = 'UPDATE t_user SET openid = ?, nickname = ?, language = ?, sex = ?, province = ?, city = ?, country = ?, headimgurl = ?, unionid = ? WHERE user_id = ?';
         $this->db->exec($sql, $this->inputData['openid'] ?? '', $this->inputData['nickname'] ?? '', $this->inputData['language'] ?? '', $this->inputData['sex'] ?? 0, $this->inputData['province'] ?? '', $this->inputData['city'] ?? '', $this->inputData['country'] ?? '', $this->inputData['headimgurl'] ?? '', $this->inputData['unionid'], $userId);
         $return = array();
-        $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-        $awardInfo = $this->db->getOne($sql, $userId, 'wechat');
+        $awardInfo = $this->model->gold->existSource($userId, 'wechat');
         if (!$awardInfo) {
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "wechat"';
             $goldInfo = $this->db->getRow($sql);
@@ -315,8 +314,7 @@ Class User2Controller extends UserController {
         $relationId = $this->db->lastInsertId();
         
         $return = array();
-        $sql = 'SELECT COUNT(*) FROM t_gold WHERE user_id = ?  AND gold_source = ?';
-        $awardInfo = $this->db->getOne($sql, $userInfo['user_id'], 'invited');
+        $awardInfo = $this->model->gold->existSource($userInfo['user_id'], 'invited');
         if (!$awardInfo) {
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "invited"';
             $goldInfo = $this->db->getRow($sql);

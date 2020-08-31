@@ -33,15 +33,7 @@ class WalkCounter2 extends WalkCounter
     public function getReturnInfo ($type) {
         switch ($type) {
             case 'walk':
-                $sql = 'SELECT COUNT(gr.receive_id) count, MIN(g.create_time) min
-                    FROM t_gold2receive gr
-                    LEFT JOIN t_gold g ON gr.receive_id = g.relation_id AND g.gold_source = gr.receive_type
-                    WHERE gr.user_id = ? 
-                    AND gr.receive_date = ? 
-                    AND gr.receive_type = "walk" 
-                    AND gr.receive_status = 1
-                    AND g.create_time >= ?';
-                $receivedInfo = $this->db->getRow($sql, $this->userId, $this->todayDate, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
+                $receivedInfo = $this->model->gold->walkReceive($this->userId, $this->todayDate, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
                 if ($this->walkAwardLimitCount <= $receivedInfo['count']) {
                     $return['list'] = array();
                     $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', strtotime($receivedInfo['min'])) * 1000;

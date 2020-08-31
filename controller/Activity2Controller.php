@@ -41,12 +41,7 @@ Class Activity2Controller extends AbstractController {
      */
     public function getInvitedAction() {
         $return = array();
-        $sql = 'SELECT c.counter_min, c.award_min, g.gold_id 
-                FROM t_award_config c
-                LEFT JOIN t_gold g ON g.relation_id = c.config_id AND g.gold_source = c.config_type AND g.user_id = ?
-                WHERE c.config_type = ? 
-                ORDER BY c.counter_min ASC';
-        $invitedList = $this->db->getAll($sql, $this->userId, 'invited_count');
+        $invitedList = $this->model->gold->invitedList($this->userId);
         
         $invitedArr = array();
         foreach ($invitedList as $invitedInfo) {
@@ -56,8 +51,7 @@ Class Activity2Controller extends AbstractController {
         $return['invitedList'] = $invitedArr;
         
         //invited
-        $sql = 'SELECT SUM(change_gold) FROM t_gold WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
-        $return['invitedTotal'] = $this->db->getOne($sql, $this->userId) ?: 0;
+        $return['invitedTotal'] = $this->model->gold->invitedSum($this->userId);
         
         $sql = 'SELECT COUNT(id) FROM t_user_invited WHERE user_id = ?';
         $return['invitedCount'] = $this->db->getOne($sql, $this->userId);
@@ -68,13 +62,7 @@ Class Activity2Controller extends AbstractController {
      * @return \ApiReturn
      */
     public function getInvitedDetailAction() {
-        $sql = 'SELECT u.nickname, g.change_gold gold, unix_timestamp(i.create_time) * 1000 cTime
-                FROM t_user_invited i
-                LEFT JOIN t_user u ON i.invited_id = u.user_id
-                LEFT JOIN t_gold g ON g.gold_source = "do_invite" AND g.relation_id = i.id
-                WHERE i.user_id = ?
-                ORDER BY i.id DESC';
-        $returnList = $this->db->getAll($sql, $this->userId);
+        $returnList = $this->model->gold->invitedDetails($this->userId);
         return new ApiReturn($returnList);
     }
     
@@ -523,8 +511,7 @@ Class Activity2Controller extends AbstractController {
         }
         $startTime = date('Y-m-d H:i:s', floor($this->inputData['time'] / 1000));
 
-        $sql = 'SELECT SUM(change_gold) gold FROM t_gold WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
-        $info['award'] = $this->db->getOne($sql, $this->userId, 'yuwan_box', $startTime) ?: 0;
+        $info['award'] = $this->model->gold->thirdAward($this->userId, 'yuwan_box', $startTime);
 
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
@@ -538,8 +525,7 @@ Class Activity2Controller extends AbstractController {
         }
         $startTime = date('Y-m-d H:i:s', floor($this->inputData['time'] / 1000));
 
-        $sql = 'SELECT SUM(change_gold) gold FROM t_gold WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
-        $info['award'] = $this->db->getOne($sql, $this->userId, 'tuia_farm', $startTime) ?: 0;
+        $info['award'] = $this->model->gold->thirdAward($this->userId, 'tuia_farm', $startTime);
 
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
@@ -553,8 +539,7 @@ Class Activity2Controller extends AbstractController {
         }
         $startTime = date('Y-m-d H:i:s', floor($this->inputData['time'] / 1000));
 
-        $sql = 'SELECT SUM(change_gold) gold FROM t_gold WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
-        $info['award'] = $this->db->getOne($sql, $this->userId, 'yuwan_cpa', $startTime) ?: 0;
+        $info['award'] = $this->model->gold->thirdAward($this->userId, 'yuwan_cpa', $startTime);
 
         $goldInfo = $this->model->user2->getGold($this->userId);
         $info['currentGold'] = $goldInfo['currentGold'];
