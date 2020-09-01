@@ -15,7 +15,7 @@ Class AdminUserController extends AbstractController {
         }
         if (!$whereArr) {
             $whereArr[] = 'create_time > :create_time';
-            $dataArr['create_time'] = date('Y-m-d', strtotime('-7 days'));
+            $dataArr['create_time'] = date('Y-m-d', strtotime('-3 days'));
         }
         $where = 'WHERE ' . implode(' AND ', $whereArr);
 
