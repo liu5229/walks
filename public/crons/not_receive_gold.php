@@ -18,11 +18,12 @@ $return = $db->exec($sql, $lastDayTime);
 
  if ($return) {
     $sql = 'DELETE FROM t_gold2receive WHERE create_time <= ?';
-    $db->exec($sql, $lastDayTime); 
+    $db->exec($sql, $lastDayTime);
  } else {
      echo '转移数据失败';
  }
 
-
+$sql = 'DELETE FROM t_sdk_error WHERE create_time < ?';
+$db->exec($sql, date('Y-m-d', strtotime('-15 days')));
 
 echo 'done';
