@@ -41,7 +41,7 @@ class GoldModel extends AbstractModel
      }
 
      public function existSource ($userId, $source) {
-         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' WHERE user_id = ?  AND gold_source = ?';
+         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' FORCE INDEX(user_id) WHERE user_id = ?  AND gold_source = ?';
          return $this->db->getOne($sql, $userId, $source);
      }
 
