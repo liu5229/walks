@@ -157,11 +157,11 @@ Class ApiController extends AbstractController {
             return json_encode($return);
         }
     }
+
     /**
      * 鱼玩盒子 活动
      * @return false|string
      */
-
     public function yuwanCpaAction () {
         //yuwan
 //        参数名	必选	类型	说明
@@ -332,6 +332,10 @@ Class ApiController extends AbstractController {
 
     }
 
+    /**
+     * 巨量引擎推广展现回调
+     * @return false|string
+     */
     public function oceanAction () {
         if ($_GET) {
             $sql = 'INSERT INTO t_ocean_click_log SET imei_md5 = ?, oaid = ?, androidid_md5 = ?, mac_md5 = ?, ad_id = ?, params = ?';

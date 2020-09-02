@@ -189,21 +189,21 @@ class User2Model extends UserModel {
     public function adId ($imei, $androidid, $mac) {
         $adId = array();
         if ($imei) {
-            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE imei_md5 = ?';
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE imei_md5 = ? ORDER BY log_id DESC';
             $adId = $this->db->getRow($sql, md5($imei));
         }
         if ($adId) {
             return $adId;
         }
         if ($androidid) {
-            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE androidid_md5 = ?';
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE androidid_md5 = ? ORDER BY log_id DESC';
             $adId = $this->db->getRow($sql, md5($androidid));
         }
         if ($adId) {
             return $adId;
         }
         if ($mac) {
-            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE mac_md5 = ?';
+            $sql = 'SELECT ad_id, log_id FROM t_ocean_click_log WHERE mac_md5 = ? ORDER BY log_id DESC';
             $adId = $this->db->getRow($sql, md5(str_replace(':', '', $mac)));
         }
         if ($adId) {
