@@ -33,11 +33,20 @@ Class AdminWithdrawController extends AbstractController {
     }
     
     public function actionAction () {
-        if (isset($_POST['action']) && isset($_POST['withdraw_id'])) {
+        if (isset($_POST['action']) && (isset($_POST['withdraw_id']) || isset($_POST['ids']))) {
             switch ($_POST['action']) {
                 case 'failed' :
-                    $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
-                    $return = $this->db->exec($sql, $_POST['withdraw_remark'] ?? '', $_POST['withdraw_id']);
+                    if (isset($_POST['ids'])) {
+                        $return = '';
+                        if (($_POST['ids']) && is_array($_POST['ids'])) {
+//                            echo implode(', ', $_POST['ids']);
+                            $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = "" WHERE withdraw_id IN (' . implode(', ', $_POST['ids']) . ') AND withdraw_status = "pending"';
+                            $return = $this->db->exec($sql);
+                        }
+                    } else {
+                        $sql = 'UPDATE t_withdraw SET withdraw_status = "failure", withdraw_remark = ? WHERE withdraw_id = ?';
+                        $return = $this->db->exec($sql, $_POST['withdraw_remark'] ?? '', $_POST['withdraw_id']);
+                    }
                     break;
                 case 'success':
 //                    $alipay = new Alipay();
