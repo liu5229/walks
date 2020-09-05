@@ -46,12 +46,12 @@ class GoldModel extends AbstractModel
      }
 
      public function goldTotal ($userId) {
-         $sql = "SELECT COUNT(*) FROM ' . $this->goldTable . ' WHERE user_id = ?";
+         $sql = "SELECT COUNT(*) FROM " . $this->goldTable . " WHERE user_id = ?";
          return $this->db->getOne($sql, $userId);
      }
 
      public function goldDetails ($userId, $limit) {
-         $sql = "SELECT * FROM ' . $this->goldTable . ' WHERE user_id = ? ORDER BY gold_id DESC LIMIT " . $limit;
+         $sql = "SELECT * FROM " . $this->goldTable . " WHERE user_id = ? ORDER BY gold_id DESC LIMIT " . $limit;
          return $this->db->getAll($sql, $userId);
      }
 
@@ -65,10 +65,10 @@ class GoldModel extends AbstractModel
          return $this->db->getAll($sql, $userId, $fromDate, $today, $type);
      }
 
-     public function noWithdrawUser ($userIdStart, $createTime) {
-         $sql = 'SELECT u.user_id, g.change_gold, g.gold_id FROM t_user u LEFT JOIN t_withdraw w ON w.user_id = u.user_id LEFT JOIN ' . $this->goldTable . ' g ON g.user_id = u.user_id AND g.gold_source = "newer" WHERE w.withdraw_id IS NULL AND u.user_id > ? AND u.create_time <= ?';
-         return $this->db->getAll($sql, $userIdStart, $createTime);
-     }
+    public function noWithdrawUser ($userIdStart, $createTime) {
+        $sql = 'SELECT user_id FROM t_user WHERE user_id > ? AND create_time <= ?';
+        return $this->db->getAll($sql, $userIdStart, $createTime);
+    }
 
      public function totalGoldByDate($date) {
          $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' WHERE change_date = ? AND change_type = "in"';
