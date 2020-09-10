@@ -338,6 +338,20 @@ Class Walk2Controller extends WalkController {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
+                if (REDIS_ENABLED) {
+                    $redis = new \Redis();
+                    $redis->pconnect(REDIS_NAME, 6379);
+                    $redis->select(1);
+                    $key = 'wd:' . $this->userId . ':' . $withdrawalAmount;//提现key
+                    if ($redis->setnx($key, '1')) {
+                        $redis->expire($key, 10);
+                    } else {
+                        if (-1 == $redis->ttl($key)) {
+                            $redis->expire($key, 50);
+                        }
+                        return new ApiReturn('', 206, '重复提交');
+                    }
+                }
                 $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid FROM DUAL WHERE NOT EXISTS (SELECT withdraw_id FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
                 $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid']));
                 return new ApiReturn('');
