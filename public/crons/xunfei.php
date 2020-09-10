@@ -28,8 +28,8 @@ try {
                 throw new \Exception("未获取到子项目信息");
             }
             foreach ($subList->data as $subInfo) {
-                $sql = 'INSERT INTO t_xunfei_video_sub (id, name, url, song) SELECT ?, ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT sub_id FROM t_xunfei_video_sub WHERE id = ?)';
-                $db->exec($sql, $subInfo->id, $subInfo->nm, $subInfo->url, isset($subInfo->song) ? json_encode($subInfo->song) : '', $subInfo->id);
+                $sql = 'INSERT INTO t_xunfei_video_sub (id, name, url, song, cover_url, targetid) SELECT ?, ?, ?, ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT sub_id FROM t_xunfei_video_sub WHERE id = ?)';
+                $db->exec($sql, $subInfo->id, $subInfo->nm, $subInfo->url, isset($subInfo->song) ? json_encode($subInfo->song) : '', $subInfo->pvurl, $treeInfo->id, $subInfo->id);
 //                var_dump($subInfo);exit;
             }
             if (!$subList->more) {

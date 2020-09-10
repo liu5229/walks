@@ -63,6 +63,8 @@ if (file_exists(CONFIG_DIR . 'config.private.php')) {
 !defined('WECHAT_ID') && define('WECHAT_ID', '');//微信支付分配的商户号
 !defined('WECHAT_KEY') && define('WECHAT_KEY', '');
 //wechat config end
+!defined('REDIS_ENABLE') && define('REDIS_ENABLE', FALSE);
+!defined('REDIS_NAME') && define('REDIS_NAME', 'redis');
 /**
  * register autoload
  */
