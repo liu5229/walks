@@ -236,7 +236,7 @@ Class User2Controller extends UserController {
 
         $sql = 'SELECT withdraw_id id, withdraw_status status, withdraw_amount amount, unix_timestamp(create_time) * 1000 createTime, unix_timestamp(change_time) * 1000 changeTime, withdraw_user_read FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success") ORDER BY withdraw_id DESC';
         $withdrawInfo = $this->db->getRow($sql, $userId);
-        $userInfo['withdrawInfo'] = array();
+        $userInfo['withdrawInfo'] = (object) array();
         if ($withdrawInfo && (($withdrawInfo['status'] == 'pending') || ($withdrawInfo['status'] == 'success' && !$withdrawInfo['withdraw_user_read']))) {
             unset($withdrawInfo['withdraw_user_read']);
             $userInfo['withdrawInfo'] = $withdrawInfo;

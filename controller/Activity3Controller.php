@@ -100,10 +100,9 @@ Class Activity3Controller extends Activity2Controller {
         $sql = 'INSERT INTO t_walk_contest_user SET contest_id = ?, user_id = ?';
         $this->db->exec($sql, $contestInfo['contest_id'], $this->userId);
 
-        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
         // 20 是报名3000档位 步数挑战赛的奖励
-        $this->db->exec($sql, $this->userId, date('Y-m-d'), 'walkcontest_regaward', 20);
-        $goldId = $this->db->lastInsertId();
+        $goldId = $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => 20, 'type' => 'walkcontest_regaward'));
+
         $goldInfo = $this->model->user3->getGold($this->userId);
         return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'id' => $goldId, 'num' => 20, 'type' => 'walkcontest_regaward', 'currentGold' => $goldInfo['currentGold']));
     }
@@ -155,9 +154,8 @@ Class Activity3Controller extends Activity2Controller {
             $todayCount = $this->db->getOne($sql, $this->userId, date('Y-m-d'), $this->inputData['type']);
             if ($todayCount < 3) {
                 $gold = $this->inputData['duration'] > 600 ? 200 : 100;
-                $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
-                $this->db->exec($sql, $this->userId, date('Y-m-d'), $this->inputData['type'], $gold);
-                $return = array('id' => $this->db->lastInsertId(), 'num' => $gold, 'type' => $this->inputData['type']);
+                $goldId = $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $gold, 'type' => $this->inputData['type']));
+                $return = array('id' => $goldId, 'num' => $gold, 'type' => $this->inputData['type']);
             }
         }
         return new ApiReturn($return);

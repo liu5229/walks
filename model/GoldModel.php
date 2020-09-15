@@ -25,11 +25,6 @@ class GoldModel extends AbstractModel
          return $this->db->getAll($sql, $userId);
      }
 
-     public function news ($userId) {
-         $sql = 'SELECT gold_id FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ?';
-         return $this->db->getOne($sql, $userId, 'newer');
-     }
-
      public function thirdAward ($userId, $source, $startTime) {
          $sql = 'SELECT IFNULL(SUM(change_gold), 0) gold FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ? AND create_time > ? ORDER BY gold_id DESC';
          return $this->db->getOne($sql, $userId, $source, $startTime);
@@ -107,10 +102,10 @@ class GoldModel extends AbstractModel
             return new ApiReturn('', 203, '抱歉您的账户已被冻结');
         }
         if ('sign' == $params['source']) {
-            $sql = "INSERT INTO t_gold SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
+            $sql = "INSERT INTO " . $this->goldTable . " SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date";
             $this->db->exec($sql, array( 'user_id' => $params['user_id'], 'change_gold' => $params['gold'], 'gold_source' => $params['source'], 'change_type' => $params['type'], 'relation_id' => $params['relation_id'] ?? 0, 'change_date' => $todayDate));
         } else {
-            $sql = "INSERT INTO t_gold (user_id, change_gold, gold_source, change_type, relation_id, change_date) SELECT :user_id, :change_gold, :gold_source, :change_type, :relation_id, :change_date WHERE NOT EXISTS( SELECT * FROM t_gold WHERE user_id = :user_id AND change_gold = :change_gold AND gold_source = :gold_source AND change_type = :change_type AND relation_id = :relation_id AND change_date = :change_date)";
+            $sql = "INSERT INTO " . $this->goldTable . " (user_id, change_gold, gold_source, change_type, relation_id, change_date) SELECT :user_id, :change_gold, :gold_source, :change_type, :relation_id, :change_date WHERE NOT EXISTS( SELECT * FROM t_gold WHERE user_id = :user_id AND change_gold = :change_gold AND gold_source = :gold_source AND change_type = :change_type AND relation_id = :relation_id AND change_date = :change_date)";
             $this->db->exec($sql, array( 'user_id' => $params['user_id'], 'change_gold' => $params['gold'], 'gold_source' => $params['source'], 'change_type' => $params['type'], 'relation_id' => $params['relation_id'] ?? 0, 'change_date' => $todayDate ));
         }
         return TRUE;

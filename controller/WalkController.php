@@ -77,9 +77,8 @@ Class WalkController extends AbstractController {
                     //获取奖励金币范围
                     $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
                     $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => (($checkInDays + 1) % 7) ?? 7));
-                    
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
-                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $awardRow['award_min']);
+
+                    $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $awardRow['award_min'], 'type' => $this->inputData['type']));
                 }
                 $fromDate = $today;
                 $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
@@ -111,13 +110,11 @@ Class WalkController extends AbstractController {
                     } else {
                         $endTime = date('Y-m-d H:i:s');
                     }
-                    $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                    $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], date('Y-m-d H:i:s'), $gold);
+                    $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']), 'type' => $this->inputData['type'], 'end_time' => $endTime));
                 }
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $this->userId, $today, $this->inputData['type']);
-                $return = array();
+
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
                 $receiveCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                 $return = array('receiveCount' => $receiveCount, 
@@ -263,10 +260,7 @@ Class WalkController extends AbstractController {
                     $activityCount = $this->db->getOne($sql, $this->userId, $today, $this->inputData['type']);
                     
                     if (!$activityInfo['activity_max'] || $activityCount < $activityInfo['activity_max']) {
-                        $endDate = date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'));
-                        $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
-                        $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                        $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
+                        $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']), 'type' => $this->inputData['type'], 'end_time' => date('Y-m-d H:i:s', strtotime('+' . $activityInfo['activity_duration'] . 'minute'))));
                     }
                     $goldInfo = $this->model->user->getGold($this->userId);
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));

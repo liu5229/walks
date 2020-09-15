@@ -101,17 +101,7 @@ class walkCounter extends AbstractModel
             $count++;
             $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = "walk" AND counter_min <= ? ORDER BY counter_min DESC';
             $awardRange = $this->db->getRow($sql, $count);
-            $sql = "INSERT INTO t_gold2receive SET 
-                user_id = :user_id,
-                receive_date = :receive_date,
-                receive_gold = :receive_gold,
-                receive_walk = :receive_walk,
-                receive_type = 'walk'";
-            $this->db->exec($sql, array(
-                'user_id' => $this->userId,
-                'receive_walk' => $this->rewardCounter, 
-                'receive_date' => $this->todayDate, 
-                'receive_gold' => rand($awardRange['award_min'], $awardRange['award_max'])));
+            $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => rand($awardRange['award_min'], $awardRange['award_max']), 'type' => 'walk', 'walk' => $this->rewardCounter));
             $residualStep -= $this->rewardCounter;
         }
         
@@ -125,17 +115,7 @@ class walkCounter extends AbstractModel
             if ($step <= $stageStep) {
                 continue;
             }
-            $sql = "INSERT INTO t_gold2receive SET 
-                user_id = :user_id,
-                receive_date = :receive_date,
-                receive_gold = :receive_gold,
-                receive_walk = :receive_walk,
-                receive_type = 'walk_stage'";
-            $this->db->exec($sql, array(
-                'user_id' => $this->userId,
-                'receive_walk' => $step, 
-                'receive_date' => $this->todayDate, 
-                'receive_gold' => $gold));
+            $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $gold, 'type' => 'walk_stage', 'walk' => $step));
         }
     }
     

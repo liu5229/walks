@@ -106,7 +106,7 @@ Class Walk2Controller extends WalkController {
                 return new ApiReturn('', 205, '访问失败，请稍后再试');
             //新手红包 单次领取
             case 'newer'://user2model/get-userInfo
-                $newInfo = $this->model->gold->news($this->userId);
+                $newInfo = $this->model->gold->existSource($this->userId, 'newer');
                 if ($newInfo) {
                     return new ApiReturn('', 401, '您已领取过该奖励');
                 }
@@ -212,9 +212,7 @@ Class Walk2Controller extends WalkController {
                                     $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                                 }
                             }
-                            
-                            $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                            $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
+                            $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $gold, 'type' => $this->inputData['type'], 'end_time' => $endDate));
                         }
                     }
 

@@ -53,10 +53,9 @@ Class Task extends AbstractController {
                     //获取奖励金币范围
                     $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
                     $awardRow = $this->db->getRow($sql, array('type' => 'sign', 'counter' => (($checkInDays + 1) % 7) ?? 7));
-                    
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, receive_gold = ?';
-                    $this->db->exec($sql, $userId, $today, $type, $awardRow['award_min']);
-                    $todayInfo = array('id' => $this->db->lastInsertId(), 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
+
+                    $goldId = $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $awardRow['award_min'], 'type' => $type));
+                    $todayInfo = array('id' => $goldId, 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
                 }
                 $fromDate = $today;
                 $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
@@ -108,13 +107,11 @@ Class Task extends AbstractController {
                             $gold = rand($activityInfo['activity_award_min'], $activityInfo['activity_award_max']);
                         }
                     }
-                    
-                    $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_date = ?, receive_type = ?, end_time = ?, receive_gold = ?';
-                    $this->db->exec($sql, $userId, $today, $type, date('Y-m-d H:i:s'), $gold);
+                    $this->model->goldReceive->insert(array('user_id' => $this->userId, 'gold' => $gold, 'type' => $type, 'end_time' => date('Y-m-d H:i:s')));
                 }
                 $sql = 'SELECT * FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? ORDER BY receive_id DESC LIMIT 1';
                 $historyInfo = $this->db->getRow($sql, $userId, $today, $type);
-                $taskInfo = array();
+
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ? AND receive_status = 1';
                 $receiveCount = $this->db->getOne($sql, $userId, $today, $type);
                 $taskInfo = array('receiveCount' => $receiveCount, 
