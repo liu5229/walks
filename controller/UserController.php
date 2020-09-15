@@ -158,10 +158,7 @@ Class UserController extends AbstractController {
         if (!$awardInfo) {
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "wechat"';
             $gold = $this->db->getOne($sql);
-            $this->model->user->updateGold(array('user_id' => $userId,
-                'gold' => $gold,
-                'source' => 'wechat',
-                'type' => 'in'));
+            $this->model->gold->updateGold(array('user_id' => $userId, 'gold' => $gold, 'source' => 'wechat', 'type' => 'in'));
             $return['award'] = $gold;
         }
         return new ApiReturn($return);

@@ -233,6 +233,14 @@ Class User2Controller extends UserController {
             }
             $userInfo['gearList'][] = array('values' => $withdraw, 'nums' => $withdraw * 10000);
         }
+
+        $sql = 'SELECT withdraw_id id, withdraw_status status, withdraw_amount amount, unix_timestamp(create_time) * 1000 createTime, unix_timestamp(change_time) * 1000 changeTime, withdraw_user_read FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success") ORDER BY withdraw_id DESC';
+        $withdrawInfo = $this->db->getRow($sql, $userId);
+        $userInfo['withdrawInfo'] = array();
+        if ($withdrawInfo && (($withdrawInfo['status'] == 'pending') || ($withdrawInfo['status'] == 'success' && !$withdrawInfo['withdraw_user_read']))) {
+            unset($withdrawInfo['withdraw_user_read']);
+            $userInfo['withdrawInfo'] = $withdrawInfo;
+        }
         return new ApiReturn($userInfo);
     }
     
@@ -268,10 +276,7 @@ Class User2Controller extends UserController {
             if (!$goldInfo['activity_status']) {
                 $return['award'] = 0;
             } else {
-                $this->model->user2->updateGold(array('user_id' => $userId,
-                    'gold' => $goldInfo['activity_award_min'],
-                    'source' => 'wechat',
-                    'type' => 'in'));
+                $this->model->gold->updateGold(array('user_id' => $userId, 'gold' => $goldInfo['activity_award_min'], 'source' => 'wechat', 'type' => 'in'));
                 $return['award'] = $goldInfo['activity_award_min'];
             }
         }
@@ -321,22 +326,14 @@ Class User2Controller extends UserController {
             if (!$goldInfo['activity_status']) {
                 $return['award'] = 0;
             } else {
-                $this->model->user2->updateGold(array('user_id' => $invitedId,
-                    'gold' => $goldInfo['activity_award_min'],
-                    'source' => 'invited',
-                    'type' => 'in',
-                    'relation_id' => $relationId));
+                $this->model->gold->updateGold(array('user_id' => $invitedId, 'gold' => $goldInfo['activity_award_min'], 'source' => 'invited', 'type' => 'in', 'relation_id' => $relationId));
                 $return['award'] = $goldInfo['activity_award_min'];
             }
             
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "do_invite"';
             $gold = $this->db->getRow($sql);
             if ($gold['activity_status']) {
-                $this->model->user2->updateGold(array('user_id' => $userInfo['user_id'],
-                    'gold' => $gold['activity_award_min'],
-                    'source' => 'do_invite',
-                    'type' => 'in',
-                    'relation_id' => $relationId));
+                $this->model->gold->updateGold(array('user_id' => $userInfo['user_id'], 'gold' => $gold['activity_award_min'], 'source' => 'do_invite', 'type' => 'in', 'relation_id' => $relationId));
             }
         }
         return new ApiReturn($return);
@@ -442,6 +439,22 @@ Class User2Controller extends UserController {
         $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
         $tabType = $this->db->getOne($sql, 'tab_type');
         return new ApiReturn(array('tab' => $tabType));
+    }
+
+    /**
+     * 用户读取提现信息
+     */
+    public function readWithdrawAction () {
+        $userId = $this->model->user2->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (isset($this->inputData['id']) && $this->inputData['id']) {
+            $sql = 'UPDATE t_withdraw SET withdraw_user_read = 1 WHERE withdraw_id = ? AND user_id = ?';
+            $this->db->exec($sql, $this->inputData['id'], $userId);
+            return new ApiReturn();
+        }
+        return new ApiReturn('', 205, '访问失败，请稍后再试');
     }
 
     /**

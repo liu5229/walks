@@ -77,7 +77,7 @@ Class AdminWithdrawController extends AbstractController {
                             throw new \Exception("Operation failure");
                     }
                     if (TRUE === $returnStatus) {
-                        $this->model->user2->updateGold(array('user_id' => $payInfo['user_id'], 'gold' => $payInfo['withdraw_gold'], 'source' => "withdraw", 'type' => "out", 'relation_id' => $_POST['withdraw_id']));
+                        $this->model->gold->updateGold(array('user_id' => $payInfo['user_id'], 'gold' => $payInfo['withdraw_gold'], 'source' => "withdraw", 'type' => "out", 'relation_id' => $_POST['withdraw_id']));
                         $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
                         $return = $this->db->exec($sql, $_POST['withdraw_id']);
                     } else {

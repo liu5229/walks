@@ -87,12 +87,7 @@ Class Walk2Controller extends WalkController {
                         return new ApiReturn('', 401, '您已领取过该奖励');
                     } else {
                         $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                        $updateStatus = $this->model->user2->updateGold(array(
-                            'user_id' => $this->userId,
-                            'gold' => $this->inputData['num'] * ($doubleStatus + 1),
-                            'source' => $this->inputData['type'],
-                            'type' => 'in',
-                            'relation_id' => $this->inputData['id']));
+                        $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $this->inputData['num'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $this->inputData['id']));
                         if (TRUE === $updateStatus) {
                             $walkReward->receiveSuccess($this->inputData['id'], $doubleStatus);
                             $goldInfo = $this->model->user2->getGold($this->userId);
@@ -117,12 +112,7 @@ Class Walk2Controller extends WalkController {
                 }
 
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                $updateStatus = $this->model->user2->updateGold(array(
-                    'user_id' => $this->userId,
-                    'gold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1),
-                    'source' => $this->inputData['type'],
-                    'type' => 'in',
-                    'relation_id' => 0));
+                $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => 0));
                 if (TRUE === $updateStatus) {
                     $goldInfo = $this->model->user2->getGold($this->userId);
                     return new ApiReturn(array('awardGold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
@@ -158,12 +148,7 @@ Class Walk2Controller extends WalkController {
                     $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
                     $this->db->exec($sql, $this->userId);
                 }
-                $updateStatus = $this->model->user2->updateGold(array(
-                        'user_id' => $this->userId,
-                        'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1),
-                        'source' => $this->inputData['type'],
-                        'type' => 'in',
-                        'relation_id' => $historyInfo['receive_id']));
+                $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
                 if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
@@ -197,12 +182,7 @@ Class Walk2Controller extends WalkController {
                     return new ApiReturn('', 403, '时间未到，请稍后再来领取');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                $updateStatus = $this->model->user2->updateGold(array(
-                        'user_id' => $this->userId,
-                        'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1),
-                        'source' => $this->inputData['type'],
-                        'type' => 'in',
-                        'relation_id' => $historyInfo['receive_id']));
+                $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
                 if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
@@ -237,8 +217,14 @@ Class Walk2Controller extends WalkController {
                             $this->db->exec($sql, $this->userId, $today, $this->inputData['type'], $endDate, $gold);
                         }
                     }
-                    
+
                     $goldInfo = $this->model->user2->getGold($this->userId);
+                    // 领取 观看讯飞视屏奖励（两种/三种  单次奖励，额外首次奖励，每5次额外奖励）
+                    if (in_array($this->inputData['type'], array('xunfei', 'xunfei_bonus'))) {
+                        $task = new Task ();
+                        $awardInfo = $task->getTask($this->inputData['type'], $this->userId);
+                        return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold'], 'id' => $awardInfo['id'], 'type' => $this->inputData['type'], 'num' => $awardInfo['num'], 'isReceive' => $awardInfo['isReceive']));
+                    }
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
                 }
                 return $updateStatus;
@@ -362,35 +348,7 @@ Class Walk2Controller extends WalkController {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
     }
-    
-    /**
-     * 金币明细列表
-     * @return \ApiReturn
-     */
-//    public function goldDetailAction () {
-//        $goldDetail = $this->model->gold->goldDetail($this->userId, date('Y-m-d 00:00:00', strtotime('-3 days')));
-//        $sql = 'SELECT activity_type, activity_name FROM t_activity ORDER BY activity_id DESC';
-//        $activeTypeList = $this->db->getPairs($sql);
-//        array_walk($goldDetail, function (&$v) use($activeTypeList) {
-//            switch ($v['type']) {
-//                case 'in':
-//                    $v['gSource'] = $activeTypeList[$v['source']] ?? $v['source'];
-//                    break;
-//                case 'out':
-//                    $v['gSource'] = 'withdraw' == $v['source'] ? '提现' : $v['source'];
-//                    $v['value'] = 0 - $v['value'];
-//                    break;
-//            }
-//            if ('system' == $v['source']) {
-//                $v['gSource'] = '官方操作';
-//            } elseif ('newer_invalid' == $v['source']) {
-//                $v['gSource'] = '新手红包过期';
-//            }
-//            $v['gTime'] = strtotime($v['gTime']) * 1000;
-//        });
-//        return new ApiReturn($goldDetail);
-//    }
-    
+
     /**
      * 提现明细列表
      * @return \ApiReturn

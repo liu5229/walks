@@ -25,7 +25,7 @@ while (true) {
         }
         $returnStatus = $wechatPay->transfer($withdrawInfo['withdraw_amount'], $withdrawInfo['wechat_openid']);
         if (TRUE === $returnStatus) {
-            $model->user2->updateGold(array('user_id' => $withdrawInfo['user_id'], 'gold' => $withdrawInfo['withdraw_gold'], 'source' => "withdraw", 'type' => "out", 'relation_id' => $withdrawInfo['withdraw_id']));
+            $model->gold->updateGold(array('user_id' => $withdrawInfo['user_id'], 'gold' => $withdrawInfo['withdraw_gold'], 'source' => "withdraw", 'type' => "out", 'relation_id' => $withdrawInfo['withdraw_id']));
             $sql = 'UPDATE t_withdraw SET withdraw_status = "success" WHERE withdraw_id = ?';
             $return = $db->exec($sql, $withdrawInfo['withdraw_id']);
             $count++;

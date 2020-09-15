@@ -168,12 +168,7 @@ Class WalkController extends AbstractController {
                         return new ApiReturn('', 403, '重复领取');
                     } else {
                         $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                        $updateStatus = $this->model->user->updateGold(array(
-                            'user_id' => $this->userId,
-                            'gold' => $this->inputData['num'] * ($doubleStatus + 1),
-                            'source' => $this->inputData['type'],
-                            'type' => 'in',
-                            'relation_id' => $this->inputData['id']));
+                        $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $this->inputData['num'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $this->inputData['id']));
                         if (TRUE === $updateStatus) {
                             $walkReward->receiveSuccess($this->inputData['id'], $doubleStatus);
                             $goldInfo = $this->model->user->getGold($this->userId);
@@ -222,12 +217,7 @@ Class WalkController extends AbstractController {
                     $sql = 'UPDATE t_user SET check_in_days = check_in_days + 1 WHERE user_id = ?';
                     $this->db->exec($sql, $this->userId);
                 }
-                $updateStatus = $this->model->user->updateGold(array(
-                        'user_id' => $this->userId,
-                        'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1),
-                        'source' => $this->inputData['type'],
-                        'type' => 'in',
-                        'relation_id' => $historyInfo['receive_id']));
+                $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
                 if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
@@ -263,12 +253,7 @@ Class WalkController extends AbstractController {
                     return new ApiReturn('', 405, '领取时间未到');
                 }
                 $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                $updateStatus = $this->model->user->updateGold(array(
-                        'user_id' => $this->userId,
-                        'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1),
-                        'source' => $this->inputData['type'],
-                        'type' => 'in',
-                        'relation_id' => $historyInfo['receive_id']));
+                $updateStatus = $this->model->gold->updateGold(array('user_id' => $this->userId, 'gold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => $historyInfo['receive_id']));
                 //奖励金币成功
                 if (TRUE === $updateStatus) {
                     $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';

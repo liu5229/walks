@@ -92,12 +92,7 @@ Class Activity3Controller extends Activity2Controller {
             $sql = 'INSERT INTO t_walk_contest_user SET contest_id = ?, user_id = ?';
             $this->db->exec($sql, $contestInfo['contest_id'], $this->userId);
 
-            $this->model->user2->updateGold(array(
-                'user_id' => $this->userId,
-                'gold' => $regFee[$contestInfo['contest_level']],
-                'source' => 'walk_contest_regfee',
-                'type' => 'out',
-                'relation_id' => $this->db->lastInsertId()));
+            $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $regFee[$contestInfo['contest_level']], 'source' => 'walk_contest_regfee', 'type' => 'out', 'relation_id' => $this->db->lastInsertId()));
 
             $goldInfo = $this->model->user3->getGold($this->userId);
             return new ApiReturn(array('periods' => $contestInfo['contest_periods'], 'currentGold' => $goldInfo['currentGold']));

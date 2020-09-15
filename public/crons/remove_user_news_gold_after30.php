@@ -30,7 +30,7 @@ foreach ($userList as $userInfo) {
             'type' => "out",
             'relation_id' => $newerGold['gold_id'] ?: 0
         );
-        $model->user2->updateGold($params);
+        $model->gold->updateGold($params);
     }
     $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
     $db->exec($sql, $variableName, $userInfo['user_id']);

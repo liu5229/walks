@@ -42,10 +42,7 @@ class UserModel extends AbstractModel {
             $userId = $this->db->lastInsertId();
             $sql = 'SELECT activity_award_min FROM t_activity WHERE activity_type = "newer"';
             $gold = $this->db->getOne($sql);
-            $this->updateGold(array('user_id' => $userId,
-                'gold' => $gold,
-                'source' => 'newer',
-                'type' => 'in'));
+            $this->model->gold->updateGold(array('user_id' => $userId, 'gold' => $gold, 'source' => 'newer', 'type' => 'in'));
             $accessToken = md5($userId . time());
             $sql = 'UPDATE t_user SET
                     access_token = ?
@@ -59,36 +56,6 @@ class UserModel extends AbstractModel {
                 'award' =>$gold
             );
         }
-    }
-    /**
-     * 
-     * @param type $params
-     * $params user_id
-     * $params gold
-     * $params source
-     * $params type
-     * $params relation_id if has
-     * @return \ApiReturn
-     */
-    
-    public function updateGold($params = array()) {
-        $todayDate = date('Y-m-d');
-        $sql = "INSERT INTO t_gold SET
-                user_id = :user_id,
-                change_gold = :change_gold,
-                gold_source = :gold_source,
-                change_type = :change_type,
-                relation_id = :relation_id,
-                change_date = :change_date";
-        $this->db->exec($sql, array(
-            'user_id' => $params['user_id'],
-            'change_gold' => $params['gold'],
-            'gold_source' => $params['source'],
-            'change_type' => $params['type'],
-            'relation_id' => $params['relation_id'] ?? 0,
-            'change_date' => $todayDate
-        ));
-        return TRUE;
     }
     
     public function verifyToken() {
@@ -113,8 +80,12 @@ class UserModel extends AbstractModel {
     }
     
     public function userInfo ($userId, $filed='') {
-        $sql = 'SELECT * FROM t_user WHERE user_id = ?';
-        $userInfo = $this->db->getRow($sql, $userId);
-        return $userInfo[$filed] ?? $userInfo;
+        if ($filed) {
+            $sql = "SELECT $filed FROM t_user WHERE user_id = ?";
+            return $this->db->getOne($sql, $userId);
+        } else {
+            $sql = "SELECT * FROM t_user WHERE user_id = ?";
+            return $this->db->getRow($sql, $userId);
+        }
     }
 }

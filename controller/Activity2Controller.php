@@ -208,12 +208,7 @@ Class Activity2Controller extends AbstractController {
                 return new ApiReturn('', 401, '您已领取过该奖励');
             }
             $doubleStatus = $this->inputData['isDouble'] ?? 0;
-            $updateStatus = $this->model->user2->updateGold(array(
-                'user_id' => $this->userId,
-                'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1),
-                'source' => $awardInfo['receive_type'],
-                'type' => 'in',
-                'relation_id' => $awardInfo['receive_id']));
+            $updateStatus = $this->model->gold->updateGold(array('user_id' => $this->userId, 'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1), 'source' => $awardInfo['receive_type'], 'type' => 'in', 'relation_id' => $awardInfo['receive_id']));
             if (TRUE === $updateStatus) {
                 $sql = 'UPDATE t_gold2receive SET receive_status = 1, is_double = ? WHERE receive_id = ?';
                 $this->db->exec($sql, $doubleStatus, $awardInfo['receive_id']);
@@ -490,7 +485,7 @@ Class Activity2Controller extends AbstractController {
                 return new ApiReturn('', 401, '您已领取过该奖励');
             }
             $doubleStatus = $this->inputData['isDouble'] ?? 0;
-            $updateStatus = $this->model->user2->updateGold(array('user_id' => $this->userId, 'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1), 'source' => 'scratch', 'type' => 'in', 'relation_id' => $awardInfo['id']));
+            $updateStatus = $this->model->gold->updateGold(array('user_id' => $this->userId, 'gold' => $awardInfo['receive_gold'] * ($doubleStatus + 1), 'source' => 'scratch', 'type' => 'in', 'relation_id' => $awardInfo['id']));
             if (TRUE === $updateStatus) {
                 $sql = 'UPDATE t_activity_scratch SET receive_status = 1, is_double = ? WHERE id = ?';
                 $this->db->exec($sql, $doubleStatus, $awardInfo['id']);

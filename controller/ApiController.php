@@ -56,12 +56,7 @@ Class ApiController extends AbstractController {
             $result = $this->db->exec($sql, array('source' => 'tuia', 'type' => 'tuia_farm', 'order_id' => $_POST['orderId'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
             if ($result) {
                 //添加金币
-                $this->model->user2->updateGold(array(
-                    'user_id' => $userInfo['user_id'],
-                    'gold' => $_POST['score'],
-                    'source' => 'tuia_farm',
-                    'type' => 'in',
-                    'relation_id' => $this->db->lastInsertId()));
+                $this->model->gold->updateGold(array( 'user_id' => $userInfo['user_id'], 'gold' => $_POST['score'], 'source' => 'tuia_farm', 'type' => 'in', 'relation_id' => $this->db->lastInsertId()));
                 //返回数据
                 $return = array('code' => '0', 'msg' => '', 'orderId' => $_POST['orderId'], 'extParam' => array('deviceId' => $userInfo['imei'], 'userId' => $_POST['userId']));
                 return json_encode($return);
@@ -132,12 +127,7 @@ Class ApiController extends AbstractController {
             $result = $this->db->exec($sql, array('source' => 'yuwan', 'type' => 'yuwan_box', 'order_id' => $_POST['orderNo'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
             if ($result) {
                 //添加金币
-                $this->model->user2->updateGold(array(
-                    'user_id' => $userInfo['user_id'],
-                    'gold' => $rewardData['userCurrency'] ?? 0,
-                    'source' => 'yuwan_box',
-                    'type' => 'in',
-                    'relation_id' => $this->db->lastInsertId()));
+                $this->model->gold->updateGold(array('user_id' => $userInfo['user_id'], 'gold' => $rewardData['userCurrency'] ?? 0, 'source' => 'yuwan_box', 'type' => 'in', 'relation_id' => $this->db->lastInsertId()));
                 //返回数据
                 $return = array('code' => '0', 'msg' => '');
                 return json_encode($return);
@@ -208,12 +198,7 @@ Class ApiController extends AbstractController {
             $result = $this->db->exec($sql, array('source' => 'yuwan', 'type' => 'yuwan_cpa', 'order_id' => $_POST['orderNo'], 'user_id' => $userInfo['user_id'], 'params' => json_encode($_POST)));
             if ($result) {
                 //添加金币
-                $this->model->user2->updateGold(array(
-                    'user_id' => $userInfo['user_id'],
-                    'gold' => $rewardData['userCurrency'] ?? 0,
-                    'source' => 'yuwan_cpa',
-                    'type' => 'in',
-                    'relation_id' => $this->db->lastInsertId()));
+                $this->model->gold->updateGold(array( 'user_id' => $userInfo['user_id'], 'gold' => $rewardData['userCurrency'] ?? 0, 'source' => 'yuwan_cpa', 'type' => 'in', 'relation_id' => $this->db->lastInsertId()));
                 //返回数据
                 $return = array('code' => '0', 'msg' => '');
                 return json_encode($return);

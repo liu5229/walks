@@ -36,8 +36,17 @@ Class User3Controller extends User2Controller {
             return $userId;
         }
         //start 首页底部  top 任务页 头部  new 任务页新手任务  daily 任务页日常任务  my 我的页面 右上角  dogs 我的页面狗狗世界导流
-        $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'task_h' => 0, 'start_bottom' => 0, 'start_roll' => 0);
-        if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount)) || !isset($this->inputData['versionCode'])) {
+        if (!isset($this->inputData['versionCode'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        //230 版本去除高额奖励
+        if ($this->inputData['versionCode'] >= 230) {
+            $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'start_bottom' => 0, 'start_roll' => 0);
+        } else {
+            $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'task_h' => 0, 'start_bottom' => 0, 'start_roll' => 0);
+        }
+
+        if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $sql = 'SELECT advertise_id, advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
