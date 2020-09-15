@@ -322,7 +322,7 @@ Class Walk2Controller extends WalkController {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
-                if (REDIS_ENABLED) {
+                if (REDIS_ENABLE) {
                     $redis = new \Redis();
                     $redis->pconnect(REDIS_NAME, 6379);
                     $redis->select(1);
