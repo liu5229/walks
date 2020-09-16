@@ -16,7 +16,7 @@ class GoldModel extends AbstractModel
      }
 
      public function invitedSum ($userId) {
-         $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
+         $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' FORCE INDEX (user_id) WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
          return $this->db->getOne($sql, $userId);
      }
 

@@ -5,7 +5,7 @@ class GoldReceiveModel extends AbstractModel
 {
     public function insert ($params) {
         $sql = 'INSERT INTO t_gold2receive SET user_id = ?, receive_gold = ?, receive_walk = ?, receive_type = ?, receive_status = ?, end_time = ?, is_double = ?, receive_date = ?';
-        $this->db->exec($sql, $params['user_id'], $params['gold'], $params['walk'] ?: 0, $params['type'], $params['status'] ?? 0, $params['end_time'] ?? '0000-00-00 00:00:00', $params['is_double'] ?? 0, $params['date'] ?: date('Y-m-d'));
+        $this->db->exec($sql, $params['user_id'], $params['gold'], $params['walk'] ?? 0, $params['type'], $params['status'] ?? 0, $params['end_time'] ?? '0000-00-00 00:00:00', $params['is_double'] ?? 0, $params['date'] ?? date('Y-m-d'));
         return $this->db->lastInsertId();
     }
 

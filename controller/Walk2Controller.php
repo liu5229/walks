@@ -43,7 +43,7 @@ Class Walk2Controller extends WalkController {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
         $taskClass = new Task();
-        $return = $taskClass->getTask($this->inputData['type'], $this->userId);
+        $return = $taskClass->getTask($this->inputData['type'], $this->userId, $this->inputData['versionCode'] ?? 0);
         if ($return instanceof ApiReturn) {
             return $return;
         }
@@ -111,7 +111,13 @@ Class Walk2Controller extends WalkController {
                     return new ApiReturn('', 401, '您已领取过该奖励');
                 }
 
-                $doubleStatus = $this->inputData['isDouble'] ?? 0;
+                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 320) {
+                    $doubleStatus = 0;
+                    $activityInfo['activity_award_min'] = 5000;
+                } else {
+                    $doubleStatus = $this->inputData['isDouble'] ?? 0;
+                }
+
                 $updateStatus = $this->model->gold->updateGold(array( 'user_id' => $this->userId, 'gold' => $activityInfo['activity_award_min'] * ($doubleStatus + 1), 'source' => $this->inputData['type'], 'type' => 'in', 'relation_id' => 0));
                 if (TRUE === $updateStatus) {
                     $goldInfo = $this->model->user2->getGold($this->userId);
@@ -136,8 +142,14 @@ Class Walk2Controller extends WalkController {
                 if (!$historyInfo) {
                     return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
-                $doubleStatus = $this->inputData['isDouble'] ?? 0;
-                $secondDoubleStatus = $this->inputData['secondDou'] ?? 0;
+                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 320) {
+                    $doubleStatus = 0;
+                    $secondDoubleStatus = 0;
+                } else {
+                    $doubleStatus = $this->inputData['isDouble'] ?? 0;
+                    $secondDoubleStatus = $this->inputData['secondDou'] ?? 0;
+                }
+
                 if ($historyInfo['receive_status']) {
                     if (!$secondDoubleStatus) {  
                         return new ApiReturn('', 402, '今日已签到');
