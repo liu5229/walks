@@ -38,8 +38,7 @@ while (TRUE) {
             $goldInfo['change_gold'] = 0 - $goldInfo['change_gold'];
         }
         unset($goldInfo['gold_id']);
-        unset($goldInfo['change_type']);
-        $sql = 'INSERT INTO ' . breakTableName($goldInfo['user_id']) . ' SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, relation_id = :relation_id, change_date = :change_date, create_time = :create_time';
+        $sql = 'INSERT INTO ' . breakTableName($goldInfo['user_id']) . ' SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date, create_time = :create_time';
         $db->exec($sql, $goldInfo);
         $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
         $db->exec($sql, $variableName, $goldId);

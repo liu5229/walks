@@ -41,11 +41,6 @@ Class Task extends AbstractController {
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $userId);
-                if ($versionCode >= 230) {
-                    $type = 'sign_230';
-                } else {
-                    $type = 'sign';
-                }
                 $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayInfo = $this->db->getRow($sql, $userId, $today, $type);
                 if(!$todayInfo) {
@@ -55,9 +50,14 @@ Class Task extends AbstractController {
                         $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
                         $this->db->exec($sql, 0, $userId);
                     }
+                    if ($versionCode >= 230) {
+                        $receiveType = 'sign_230';
+                    } else {
+                        $receiveType = 'sign';
+                    }
                     //获取奖励金币范围
                     $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
-                    $awardRow = $this->db->getRow($sql, array('type' => $type, 'counter' => (($checkInDays + 1) % 7) ?? 7));
+                    $awardRow = $this->db->getRow($sql, array('type' => $receiveType, 'counter' => (($checkInDays + 1) % 7) ?? 7));
 
                     $goldId = $this->model->goldReceive->insert(array('user_id' => $userId, 'gold' => $awardRow['award_min'], 'type' => $type));
                     $todayInfo = array('id' => $goldId, 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
