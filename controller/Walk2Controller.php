@@ -111,7 +111,7 @@ Class Walk2Controller extends WalkController {
                     return new ApiReturn('', 401, '您已领取过该奖励');
                 }
 
-                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 320) {
+                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 230) {
                     $doubleStatus = 0;
                     $activityInfo['activity_award_min'] = 5000;
                 } else {
@@ -142,7 +142,7 @@ Class Walk2Controller extends WalkController {
                 if (!$historyInfo) {
                     return new ApiReturn('', 205, '访问失败，请稍后再试');
                 }
-                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 320) {
+                if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 230) {
                     $doubleStatus = 0;
                     $secondDoubleStatus = 0;
                 } else {

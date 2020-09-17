@@ -31,7 +31,7 @@ class GoldModel extends AbstractModel
      }
 
      public function walkContestTotal ($userId) {
-         $sql = 'SELECT IFNULL(SUM(change_gold), 0) total, IFNULL(MAX(change_gold), 0) max FROM ' . $this->goldTable . ' WHERE user_id = ? AND change_type = ?';
+         $sql = 'SELECT IFNULL(SUM(change_gold), 0) total, IFNULL(MAX(change_gold), 0) max FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ?';
          return $this->db->getRow($sql, $userId, 'walk_contest');
      }
 

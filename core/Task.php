@@ -41,8 +41,8 @@ Class Task extends AbstractController {
             case 'sign':
                 $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
                 $checkInDays = $this->db->getOne($sql, $userId);
-                if ($versionCode >= 320) {
-                    $type = 'sign_320';
+                if ($versionCode >= 230) {
+                    $type = 'sign_230';
                 } else {
                     $type = 'sign';
                 }

@@ -25,7 +25,7 @@ class User3Model extends User2Model {
         $sql = 'SELECT * FROM t_user WHERE ' . $where;
         $userInfo = $this->db->getRow($sql, $data);
 
-        if (isset($deviceInfo['versionCode']) && $deviceInfo['versionCode'] >= 320) {
+        if (isset($deviceInfo['versionCode']) && $deviceInfo['versionCode'] >= 230) {
             $newInfo = array('activity_award_min' => 5000, 'activity_status' => 1);
         } else {
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
