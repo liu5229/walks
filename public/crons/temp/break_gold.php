@@ -11,11 +11,15 @@ $variableName = 'break_gold_id';
 
 if (isset($_GET['count'])) {
     $count = 0;
+    $total = 0;
     for ($i=1;$i<=10;$i++) {
         $sql = 'SELECT COUNT(gold_id) FROM t_gold_' . $i;
         $count += $db->getOne($sql);
+        $sql = 'SELECT SUM(change_gold) FROM t_gold_' . $i;
+        $total += $db->getOne($sql);
     }
-    echo $count;
+    echo $count . PHP_EOL;
+    echo $total . PHP_EOL;
     exit;
 }
 

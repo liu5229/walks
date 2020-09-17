@@ -20,25 +20,26 @@ Class VideoController extends AbstractController {
             if (!$this->db->getOne($sql, $this->inputData['targetid'])) {
                 return new ApiReturn('', 205, '访问失败，请稍后再试');
             }
+            $maxCount = 8;
             //传入类型id
             $sql = 'SELECT IFNULL(id, 0) FROM t_xunfei_user_record WHERE user_id = ? AND targetid = ?';
             $startId = $this->db->getOne($sql, $this->userId, $this->inputData['targetid']);
 
             //like_count likeCount
-            $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > ? ORDER BY id LIMIT 10';
+            $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > ? ORDER BY id LIMIT ' . $maxCount;
             $videoList = $this->db->getAll($sql, $this->inputData['targetid'], $startId);
 
             $videoCount = count($videoList);
             if ($videoCount) {
-                if ($videoCount < 10) {
-                    $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > 0 ORDER BY id LIMIT ' . (10 - $videoCount);
+                if ($videoCount < $maxCount) {
+                    $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > 0 ORDER BY id LIMIT ' . ($maxCount - $videoCount);
                     $videoList = array_merge($videoList, $this->db->getAll($sql, $this->inputData['targetid']));
                 }
             } else {
                 $sql = 'UPDATE t_xunfei_user_record SET id = 0 WHERE user_id = ? AND targetid = ?';
                 $this->db->exec($sql, $this->userId, $this->inputData['targetid']);
 
-                $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > 0 ORDER BY id LIMIT 10';
+                $sql = 'SELECT id, name, url, cover_url coverUrl, targetid FROM t_xunfei_video_sub WHERE targetid = ? AND id > 0 ORDER BY id LIMIT ' . $maxCount;
                 $videoList = array_merge($videoList, $this->db->getAll($sql, $this->inputData['targetid']));
             }
             return new ApiReturn($videoList);
