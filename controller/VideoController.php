@@ -50,8 +50,12 @@ Class VideoController extends AbstractController {
     //观看视频接口
     public function watchAction () {
         if (isset($this->inputData['targetid']) && $this->inputData['targetid'] && isset($this->inputData['id']) && $this->inputData['id']) {
-            $sql = 'REPLACE INTO t_xunfei_user_record SET user_id = ?, id = ?, targetid = ?';
-            $this->db->exec($sql, $this->userId, $this->inputData['id'], $this->inputData['targetid']);
+            $sql = 'SELECT id FROM t_xunfei_user_record WHERE user_id = ? AND id = ? AND targetid = ?';
+            $watchInfo = $this->db->exec($sql, $this->userId, $this->inputData['id'], $this->inputData['targetid']);
+            if (($watchInfo && $this->inputData['id'] > $watchInfo['id']) || !$watchInfo) {
+                $sql = 'REPLACE INTO t_xunfei_user_record SET user_id = ?, id = ?, targetid = ?';
+                $this->db->exec($sql, $this->userId, $this->inputData['id'], $this->inputData['targetid']);
+            }
             return new ApiReturn();
         }
         return new ApiReturn('', 205, '访问失败，请稍后再试');
