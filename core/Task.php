@@ -73,7 +73,7 @@ Class Task extends AbstractController {
                 
                 $i = 0;
                 $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = ? ORDER BY config_id ASC';
-                $checkInConfigList = $this->db->getAll($sql, $type);
+                $checkInConfigList = $this->db->getAll($sql, $receiveType);
                 foreach ($checkInConfigList as $config) {
                     $checkInReturn['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
                     $i++;
