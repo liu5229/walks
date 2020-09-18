@@ -43,17 +43,18 @@ Class Task extends AbstractController {
                 $checkInDays = $this->db->getOne($sql, $userId);
                 $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayInfo = $this->db->getRow($sql, $userId, $today, $type);
+
+                if ($versionCode >= 230) {
+                    $receiveType = 'sign_230';
+                } else {
+                    $receiveType = 'sign';
+                }
                 if(!$todayInfo) {
                     $isSignLastDay = $this->model->gold->existSourceDate($userId, date('Y-m-d', strtotime("-1 day")), $type);
                     if (!$isSignLastDay) {
                         $checkInDays = 0;
                         $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
                         $this->db->exec($sql, 0, $userId);
-                    }
-                    if ($versionCode >= 230) {
-                        $receiveType = 'sign_230';
-                    } else {
-                        $receiveType = 'sign';
                     }
                     //获取奖励金币范围
                     $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
