@@ -41,7 +41,7 @@ Class User3Controller extends User2Controller {
         }
         //230 版本去除高额奖励
         if ($this->inputData['versionCode'] >= 230) {
-            $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'start_bottom' => 0, 'start_roll' => 0);
+            $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'start_bottom' => 0, 'start_roll' => 0, 'ad_user' => 0, 'ad_gold' => 0, 'ad_withdraw' => 0);
         } else {
             $adCount = array('start' => 3, 'top' => 4, 'new' => 0, 'daily' => 0, 'my' => 1, 'dogs' => 0, 'start_2' => 3, 'start_left' => 1, 'task_h' => 0, 'start_bottom' => 0, 'start_roll' => 0);
         }
@@ -49,12 +49,7 @@ Class User3Controller extends User2Controller {
         if (!isset($this->inputData['location']) || !in_array($this->inputData['location'], array_keys($adCount))) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
-        $sql = 'SELECT advertise_id, advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length
-                FROM t_advertise
-                WHERE advertise_location = ?
-                AND advertise_status = 1
-                AND advertise_version <= ?
-                ORDER BY advertise_sort DESC, advertise_version DESC';
+        $sql = 'SELECT advertise_id, advertise_type, advertise_name, advertise_subtitle, CONCAT(?, advertise_image) img, advertise_url, advertise_validity_type, advertise_validity_type, advertise_validity_start, advertise_validity_end, advertise_validity_length FROM t_advertise WHERE advertise_location = ? AND advertise_status = 1 AND advertise_version <= ? ORDER BY advertise_version DESC, advertise_sort DESC';
         $advertiseList = $this->db->getAll($sql, HOST_OSS, $this->inputData['location'], $this->inputData['versionCode']);
         $returnList = $tempArr = array();
         $adLimitCount = $adCount[$this->inputData['location']];
