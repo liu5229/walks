@@ -5,9 +5,9 @@ class GoldModel extends AbstractModel
 {
     protected $goldTable = 't_gold';
 
-     public function walkReceive ($userId, $date, $startTime) {
-         $sql = 'SELECT COUNT(gr.receive_id) count, MIN(g.create_time) min FROM t_gold2receive gr LEFT JOIN ' . $this->goldTable . ' g ON gr.receive_id = g.relation_id AND g.gold_source = gr.receive_type WHERE gr.user_id = ? AND gr.receive_date = ? AND gr.receive_type = "walk" AND gr.receive_status = 1 AND g.create_time >= ?';
-         return $this->db->getRow($sql, $userId, $date, $startTime);
+     public function walkReceive ($userId, $startTime) {
+         $sql = 'SELECT COUNT(gold_id) count, MIN(create_time) min FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = "walk" AND create_time >= ?';
+         return $this->db->getRow($sql, $userId, $startTime);
      }
 
      public function invitedList ($userId) {

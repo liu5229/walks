@@ -24,13 +24,7 @@ foreach ($userList as $userInfo) {
         $sql = 'SELECT change_gold, gold_id FROM t_gold WHERE user_id = ? AND g.gold_source = "newer"';
         $newerGold = $db->getRow($sql, $userInfo['user_id']);
 
-        $params = array('user_id' => $userInfo['user_id'],
-            'gold' => $newerGold['change_gold'] ?: 0,
-            'source' => "newer_invalid",
-            'type' => "out",
-            'relation_id' => $newerGold['gold_id'] ?: 0
-        );
-        $model->gold->updateGold($params);
+        $model->gold->updateGold(array('user_id' => $userInfo['user_id'], 'gold' => $newerGold['change_gold'] ?: 0, 'source' => "newer_invalid", 'type' => "out", 'relation_id' => $newerGold['gold_id'] ?: 0));
     }
     $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
     $db->exec($sql, $variableName, $userInfo['user_id']);

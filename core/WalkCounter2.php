@@ -33,7 +33,7 @@ class WalkCounter2 extends WalkCounter
     public function getReturnInfo ($type) {
         switch ($type) {
             case 'walk':
-                $receivedInfo = $this->model->gold->walkReceive($this->userId, $this->todayDate, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
+                $receivedInfo = $this->model->gold->walkReceive($this->userId, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
                 if ($this->walkAwardLimitCount <= $receivedInfo['count']) {
                     $return['list'] = array();
                     $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', strtotime($receivedInfo['min'])) * 1000;
