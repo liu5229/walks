@@ -232,7 +232,7 @@ Class Walk2Controller extends WalkController {
                     // 领取 观看讯飞视屏奖励（两种/三种  单次奖励，额外首次奖励，每5次额外奖励）
                     if (in_array($this->inputData['type'], array('xunfei', 'xunfei_bonus'))) {
                         $task = new Task ();
-                        $awardInfo = $task->getTask($this->inputData['type'], $this->userId);
+                        $awardInfo = $task->getTask($this->inputData['type'], $this->userId, $this->inputData['versionCode'] ?? 0);
                         return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold'], 'id' => $awardInfo['id'], 'type' => $this->inputData['type'], 'num' => $awardInfo['num'], 'isReceive' => $awardInfo['isReceive']));
                     }
                     return new ApiReturn(array('awardGold' => $historyInfo['receive_gold'] * ($doubleStatus + 1), 'currentGold' => $goldInfo['currentGold']));
