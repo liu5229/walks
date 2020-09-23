@@ -7,9 +7,8 @@ $db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' .
 $db->exec("SET time_zone = '+8:00'");
 $db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 
-$variableName = 'break_gold_id';
 
-if (isset($argv[1]) && '&' != $argv[1]) {
+if (isset($argv[1])) {
     switch ($argv[1]) {
         case 'count':
             $count = 0;
@@ -43,7 +42,7 @@ if (isset($argv[1]) && '&' != $argv[1]) {
                     ) COMMENT='用户金币流水表'";
                 $db->exec($sql);
             }
-            echo 'done';
+            echo 'done' . PHP_EOL;
             break;
         case 'drop':
             for ($i=1;$i<=100;$i++) {
@@ -51,7 +50,7 @@ if (isset($argv[1]) && '&' != $argv[1]) {
                 $sql = 'DROP TABLE '. $tableName;
                 $db->exec($sql);
             }
-            echo 'done';
+            echo 'done' . PHP_EOL;
             break;
         case 'delete':
             for ($i=1;$i<=100;$i++) {
@@ -59,45 +58,49 @@ if (isset($argv[1]) && '&' != $argv[1]) {
                 $sql = 'TRUNCATE '. $tableName;
                 $db->exec($sql);
             }
-            $sql = 'DELETE FROM t_variable WHERE variable_name = ?';
-            $db->exec($sql, $variableName);
-            echo 'done';
+            $sql = 'DELETE FROM t_variable WHERE variable_name LIKE "break_gold_id%"';
+            $db->exec($sql);
+            echo 'done' . PHP_EOL;
+            break;
+        case 'sync':
+            $stepCount = 1000000;
+            if (isset($argv[2])) {
+                $variableName = 'break_gold_id_' . $argv[2];
+                $maxGoldId = $argv[2] * $stepCount;
+            } else {
+                echo '缺少参数' . PHP_EOL;
+                exit;
+            }
+            while (TRUE) {
+                $sql = 'SELECT variable_value FROM t_variable WHERE variable_name = ?';
+                $goldIdStart = $db->getOne($sql, $variableName) ?: (($argv[2] - 1) * $stepCount);
+
+                $sql = 'SELECT * FROM t_gold WHERE gold_id > ? AND gold_id <= ? ORDER BY gold_id LIMIT 1000';
+                $goldList = $db->getAll($sql, $goldIdStart, $maxGoldId);
+                if (!$goldList) {
+                    break;
+                }
+                foreach ($goldList as $goldInfo) {
+                    $goldId = $goldInfo['gold_id'];
+                    if ('out' == $goldInfo['change_type']) {
+                        $goldInfo['change_gold'] = 0 - $goldInfo['change_gold'];
+                    }
+                    unset($goldInfo['gold_id']);
+                    $sql = 'INSERT INTO ' . breakTableName($goldInfo['user_id']) . ' SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date, create_time = :create_time';
+                    $db->exec($sql, $goldInfo);
+                    $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
+                    $db->exec($sql, $variableName, $goldId);
+                }
+            }
+            echo 'done' . PHP_EOL;
             break;
     }
-    exit;
+} else {
+    echo '缺少参数' . PHP_EOL;
 }
 
-$sql = 'SELECT MAX(gold_id) FROM t_gold';
-$maxGoldId = $db->getOne($sql);
-
-while (TRUE) {
-    $sql = 'SELECT IFNULL(variable_value, 0) FROM t_variable WHERE variable_name = ?';
-    $goldIdStart = $db->getOne($sql, $variableName);
-    if ($goldIdStart >= $maxGoldId) {
-        break;
-    }
-
-    $sql = 'SELECT * FROM t_gold WHERE gold_id > ? ORDER BY gold_id LIMIT 1000';
-    $goldList = $db->getAll($sql, $goldIdStart);
-    if (!$goldList) {
-        break;
-    }
-    foreach ($goldList as $goldInfo) {
-        $goldId = $goldInfo['gold_id'];
-        if ('out' == $goldInfo['change_type']) {
-            $goldInfo['change_gold'] = 0 - $goldInfo['change_gold'];
-        }
-        unset($goldInfo['gold_id']);
-        $sql = 'INSERT INTO ' . breakTableName($goldInfo['user_id']) . ' SET user_id = :user_id, change_gold = :change_gold, gold_source = :gold_source, change_type = :change_type, relation_id = :relation_id, change_date = :change_date, create_time = :create_time';
-        $db->exec($sql, $goldInfo);
-        $sql = 'REPLACE INTO t_variable SET variable_name = ?, variable_value = ?';
-        $db->exec($sql, $variableName, $goldId);
-    }
-}
 
 function breakTableName($userId) {
     $userId = (int) $userId;
     return 't_gold_' . ($userId % 100 + 1);
 }
-
-echo 'done';
