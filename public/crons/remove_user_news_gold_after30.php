@@ -17,12 +17,12 @@ $userIdStart = $db->getOne($sql, $variableName) ?: 0;
 
 $createTime = date('Y-m-d 23:59:59', strtotime('-30 day'));
 
-$userList = $model->gold->noWithdrawUser($userIdStart, $createTime);
+$sql = 'SELECT user_id FROM t_user WHERE user_id > ? AND create_time <= ?';
+$userList =  $db->getAll($sql, $userIdStart, $createTime);
 foreach ($userList as $userInfo) {
     $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE user_id = ?';
     if ($db->getOne($sql, $userInfo['user_id'])) {
-        $sql = 'SELECT change_gold, gold_id FROM t_gold WHERE user_id = ? AND g.gold_source = "newer"';
-        $newerGold = $db->getRow($sql, $userInfo['user_id']);
+        $newerGold = $model->gold->getDetailBysource($userInfo['user_id'], 'newer');
 
         $model->gold->updateGold(array('user_id' => $userInfo['user_id'], 'gold' => $newerGold['change_gold'] ?: 0, 'source' => "newer_invalid", 'type' => "out", 'relation_id' => $newerGold['gold_id'] ?: 0));
     }

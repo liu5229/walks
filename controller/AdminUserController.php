@@ -82,13 +82,12 @@ Class AdminUserController extends AbstractController {
                     switch ($v['change_type']) {
                         case 'in':
                             $v['gSource'] = $activeTypeList[$v['gold_source']] ?? $v['gold_source'];
-                            $v['value'] = $v['change_gold'];
                             break;
                         case 'out':
                             $v['gSource'] = 'withdraw' == $v['gold_source'] ? '提现' : $v['gold_source'];
-                            $v['value'] = 0 - $v['change_gold'];
                             break;
                     }
+                    $v['value'] = $v['change_gold'];
                     if ('system' == $v['gold_source']) {
                         $v['gSource'] = '官方操作';
                     } elseif ('newer_invalid' == $v['gold_source']) {

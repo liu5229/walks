@@ -331,7 +331,6 @@ Class WalkController extends AbstractController {
                         default :
                             $v['gSource'] = $v['source'];
                     }
-                    $v['value'] = 0 - $v['value'];
                     break;
             }
             if ('system' == $v['source']) {
