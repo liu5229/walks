@@ -19,7 +19,7 @@ class GoldModel extends AbstractModel
 
      public function invitedSum ($userId) {
          $this->setTableByuserId($userId);
-         $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' FORCE INDEX (user_id) WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
+         $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
          return $this->db->getOne($sql, $userId);
      }
 
@@ -43,7 +43,7 @@ class GoldModel extends AbstractModel
 
      public function existSource ($userId, $source) {
          $this->setTableByuserId($userId);
-         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' FORCE INDEX(user_id) WHERE user_id = ?  AND gold_source = ?';
+         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' WHERE user_id = ?  AND gold_source = ?';
          return $this->db->getOne($sql, $userId, $source);
      }
 
@@ -61,7 +61,7 @@ class GoldModel extends AbstractModel
 
      public function existSourceDate ($userId, $date, $type) {
          $this->setTableByuserId($userId);
-         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' FORCE INDEX(user_id) WHERE user_id = ? AND change_date = ? AND gold_source = ?';
+         $sql = 'SELECT COUNT(*) FROM ' . $this->goldTable . ' WHERE user_id = ? AND change_date = ? AND gold_source = ?';
          return $this->db->getOne($sql, $userId, $date, $type);
      }
 
