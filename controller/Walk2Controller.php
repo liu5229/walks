@@ -302,7 +302,7 @@ Class Walk2Controller extends WalkController {
             $umengReturn = $umengApi->verify($payInfo['umeng_token']);
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
-            if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc && is_int($umengReturn->score) && $umengReturn->score < 90) {
+            if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc && is_numeric($umengReturn->score) && $umengReturn->score < 90) {
                 //update user invild && insert request failed
                 $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
                 $this->db->exec($sql, $this->userId);
