@@ -34,7 +34,7 @@ if (!$execCount) {
             $award = $contestInfo['complete_count'] ? ceil($contestInfo['total_count'] * $awardConfig[$contestInfo['contest_level']] / $contestInfo['complete_count']) : 0;
             //发放奖励
             foreach ($realCompleteUser as $userId) {
-                $data[] = array($userId, $award, $contestInfo['contest_level'], '\'walk_contest\'', date('Y-m-d'));
+                $data[] = array($userId, $award, $contestInfo['contest_level'], '\'walk_contest\'', '\'' . date('Y-m-d') . '\'');
             }
             $model->goldReceive->batchInsert($data);
         }
