@@ -33,27 +33,16 @@ class WalkCounter2 extends WalkCounter
     public function getReturnInfo ($type) {
         switch ($type) {
             case 'walk':
-                $receivedInfo = $this->model->gold->walkReceive($this->userId, date('Y-m-d H:i:s', strtotime('-' . $this->walkAwardLimitTime . ' minutes')));
+                $receivedInfo = $this->model->gold->walkReceive($this->userId, strtotime('-' . $this->walkAwardLimitTime . ' minutes'), $this->walkAwardLimitCount);
                 if ($this->walkAwardLimitCount <= $receivedInfo['count']) {
                     $return['list'] = array();
-                    $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', strtotime($receivedInfo['min'])) * 1000;
+                    $return['getTime'] = strtotime('+' . $this->walkAwardLimitTime . ' minutes', $receivedInfo['min']) * 1000;
                     $return['serverTime'] = time() * 1000;
                 } else {
-                    $sql = 'SELECT receive_id id, receive_gold num, receive_type type 
-                        FROM t_gold2receive 
-                        WHERE user_id = ? 
-                        AND receive_date = ? 
-                        AND receive_type = "walk" 
-                        AND receive_status = 0 
-                        ORDER BY receive_id LIMIT ' . ($this->walkAwardLimitCount - $receivedInfo['count']);
+                    $sql = 'SELECT receive_id id, receive_gold num, receive_type type FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 0 ORDER BY receive_id LIMIT ' . MIN($this->walkAwardLimitCount - $receivedInfo['count'], 5);
                     $return['list'] = $this->db->getAll($sql, $this->userId, $this->todayDate);
                 }
-                $sql = 'SELECT COUNT(*)
-                        FROM t_gold2receive 
-                        WHERE user_id = ? 
-                        AND receive_date = ? 
-                        AND receive_type = "walk"
-                        AND receive_status = 1';
+                $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = "walk" AND receive_status = 1';
                 $return['restCount'] = floor($this->stepCount / $this->rewardCounter) - $this->db->getOne($sql, $this->userId, $this->todayDate);
                 return $return;
             case 'walk_stage':

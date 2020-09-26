@@ -5,19 +5,31 @@ class GoldModel extends AbstractModel
 {
     protected $goldTable = 't_gold';
 
-     public function walkReceive ($userId, $startTime) {
-         $this->setTableByuserId($userId);
-         $sql = 'SELECT COUNT(gold_id) count, MIN(create_time) min FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = "walk" AND create_time >= ?';
-         return $this->db->getRow($sql, $userId, $startTime);
-     }
+    public function walkReceive ($userId, $startTime, $limit) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT create_time FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = "walk" ORDER BY gold_id DESC LIMIT ' . $limit;
+        $walkList = $this->db->getColumn($sql, $userId);
+        $return = array('count' => 0, 'min' => 0);
+        foreach ($walkList as $createTime) {
+            if (strtotime($createTime) > $startTime) {
+                $return['count']++;
+                $return['min'] = strtotime($createTime);
+            } else {
+                break;
+            }
+        }
+        return $return;
+        $sql = 'SELECT COUNT(gold_id) count, MIN(create_time) min FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = "walk" AND create_time >= ?';
+        return $this->db->getRow($sql, $userId, date('Y-m-d H:i:s', $startTime));
+    }
 
-     public function invitedList ($userId) {
-         $this->setTableByuserId($userId);
-         $sql = 'SELECT c.counter_min, c.award_min, g.gold_id FROM t_award_config c LEFT JOIN ' . $this->goldTable . ' g ON g.relation_id = c.config_id AND g.gold_source = c.config_type AND g.user_id = ? WHERE c.config_type = ? ORDER BY c.counter_min ASC';
-         return $this->db->getAll($sql, $userId, 'invited_count');
-     }
+    public function invitedList ($userId) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT c.counter_min, c.award_min, g.gold_id FROM t_award_config c LEFT JOIN ' . $this->goldTable . ' g ON g.relation_id = c.config_id AND g.gold_source = c.config_type AND g.user_id = ? WHERE c.config_type = ? ORDER BY c.counter_min ASC';
+        return $this->db->getAll($sql, $userId, 'invited_count');
+    }
 
-     public function invitedSum ($userId) {
+    public function invitedSum ($userId) {
          $this->setTableByuserId($userId);
          $sql = 'SELECT IFNULL(SUM(change_gold), 0) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source IN ("do_invite", "invited_count")';
          return $this->db->getOne($sql, $userId);

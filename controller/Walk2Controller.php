@@ -298,11 +298,17 @@ Class Walk2Controller extends WalkController {
             if (!$payInfo['user_status']) {
                 return new ApiReturn('', 408, '申请失败');
             }
-            $umengApi = new Umeng();
-            $umengReturn = $umengApi->verify($payInfo['umeng_token']);
             $withdrawalAmount = $this->inputData['amount'];
             $withdrawalGold = $this->inputData['amount'] * $this->withdrawalRate;
-            if (TRUE !== $umengReturn && isset($umengReturn->suc) && TRUE === $umengReturn->suc && is_numeric($umengReturn->score) && $umengReturn->score < 90) {
+            //获取当前用户可用金币
+            $userGoldInfo = $this->model->user2->getGold($this->userId);
+
+            if ($withdrawalGold > $userGoldInfo['currentGold']) {
+                return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
+            }
+            $umengApi = new Umeng();
+            $score = $umengApi->verify($payInfo['umeng_token']);
+            if (FALSE !== $score && $score < 90) {
                 //update user invild && insert request failed
                 $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
                 $this->db->exec($sql, $this->userId);
@@ -319,12 +325,6 @@ Class Walk2Controller extends WalkController {
                     'wechat_openid' => $payInfo['openid'],
                     'withdraw_remark' => '友盟分值低于90分'));
                 return new ApiReturn('', 408, '申请失败');
-            }
-            //获取当前用户可用金币
-            $userGoldInfo = $this->model->user2->getGold($this->userId);
-            
-            if ($withdrawalGold > $userGoldInfo['currentGold']) {
-                return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
             }
             if (isset($payInfo['unionid']) && $payInfo['unionid'] && isset($payInfo['openid']) && $payInfo['openid']) {
                 //1元提现只能一次 to do
