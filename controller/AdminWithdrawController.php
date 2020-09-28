@@ -44,7 +44,7 @@ Class AdminWithdrawController extends AbstractController {
                             $return = $this->db->exec($sql, date('Y-m-d H:i:s'));
                         }
                     } else {
-                        $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => $_POST['withdraw_remark'] ?? '', 'withdraw_id' => $_POST['withdraw_id']));
+                        $return = $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => $_POST['withdraw_remark'] ?? '', 'withdraw_id' => $_POST['withdraw_id']));
                     }
                     break;
                 case 'success':
@@ -59,7 +59,7 @@ Class AdminWithdrawController extends AbstractController {
                         $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND withdraw_status = ?';
                         if ($this->db->getOne($sql, $payInfo['user_id'], $payInfo['withdraw_amount'], 'success')) {
                             //to do failure reason from api return
-                            $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => '新用户专享', 'withdraw_id' => $_POST['withdraw_id']));
+                            $return = $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => '新用户专享', 'withdraw_id' => $_POST['withdraw_id']));
                             break;
                         }
                     }
@@ -76,10 +76,10 @@ Class AdminWithdrawController extends AbstractController {
                     }
                     if (TRUE === $returnStatus) {
                         $this->model->gold->updateGold(array('user_id' => $payInfo['user_id'], 'gold' => $payInfo['withdraw_gold'], 'source' => "withdraw", 'type' => "out", 'relation_id' => $_POST['withdraw_id']));
-                        $this->model->withdraw->updateStatus(array('withdraw_status' => 'success', 'withdraw_id' => $_POST['withdraw_id']));
+                        $return = $this->model->withdraw->updateStatus(array('withdraw_status' => 'success', 'withdraw_id' => $_POST['withdraw_id']));
                     } else {
                         //to do failure reason from api return
-                        $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => $returnStatus, 'withdraw_id' => $_POST['withdraw_id']));
+                        $return = $this->model->withdraw->updateStatus(array('withdraw_status' => 'failure', 'withdraw_remark' => $returnStatus, 'withdraw_id' => $_POST['withdraw_id']));
                     }
                     break;
             }
