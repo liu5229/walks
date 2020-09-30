@@ -14,6 +14,7 @@ Class Task extends AbstractController {
         if (!$activityInfo) {
             return new ApiReturn('', 205, '访问失败，请稍后再试');
         }
+        $versionCode = $_SERVER['HTTP_VERSION_CODE'] ?? $versionCode;
         $today = date('Y-m-d');
         switch ($type) {
             case 'walk':
@@ -177,6 +178,5 @@ Class Task extends AbstractController {
     public function doTask ($type, $userId) {
         
     }
-    
-    
+
 }

@@ -45,6 +45,8 @@ class User3Model extends User2Model {
             }
             $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 1 AND user_id = ? AND withdraw_status = "success"';
             $isOneCashed = $this->db->getOne($sql, $userInfo['user_id']);
+            $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 0.3 AND user_id = ? AND withdraw_status = "success"';
+            $isCashed03 = $this->db->getOne($sql, $userInfo['user_id']);
             $receiveNewer = $this->model->gold->existSource($userInfo['user_id'], 'newer');
             return  array(
                 'userId' => $userInfo['user_id'],
@@ -63,7 +65,8 @@ class User3Model extends User2Model {
                 'compaignId' => $userInfo['compaign_id'],// 子渠道号 来源热云
                 'newerGold' => $receiveNewer ? 0 : $newInfo['activity_award_min'],
                 'withdrawTime' => (strtotime($userInfo['create_time']) + 600) * 1000,
-                'serverTime' => time() * 1000
+                'serverTime' => time() * 1000,
+                'isCashed03' => $isCashed03 ? 1 : 0
             );
         } else {
             $invitedClass = new Invited();
@@ -99,7 +102,8 @@ class User3Model extends User2Model {
                 'compaignId' => $reyunAppName['compaign_id'] ?? '',// 子渠道号 来源热云
                 'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
                 'withdrawTime' => (time() + 600) * 1000,
-                'serverTime' => time() * 1000
+                'serverTime' => time() * 1000,
+                'isCashed03' => 0
             );
         }
     }
