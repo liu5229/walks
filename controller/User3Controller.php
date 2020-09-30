@@ -25,7 +25,6 @@ Class User3Controller extends User2Controller {
         }
     }
 
-
     /**
      * 获取运营位列表
      * @return \ApiReturn|\apiReturn
@@ -96,5 +95,24 @@ Class User3Controller extends User2Controller {
             $returnList = [];
         }
         return new ApiReturn($returnList);
+    }
+
+    /**
+     * 0.3元 插队功能 20200930
+     */
+    public function withdrawQueueAction () {
+        $userId = $this->model->user2->verifyToken();
+        if ($userId instanceof apiReturn) {
+            return $userId;
+        }
+        if (!isset($this->inputData['id'])) {
+            return new ApiReturn('', 205, '访问失败，请稍后再试');
+        }
+        $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_id = ? AND user_id = ? AND can_withdraw = 0';
+        if ($this->db->getOne($sql, $this->inputData['id'], $userId)) {
+            $sql = 'UPDATE t_withdraw SET can_withdraw = 1 WHERE withdraw_id = ?';
+            $this->db->exec($sql, $this->inputData['id']);
+        }
+        return new ApiReturn();
     }
 }

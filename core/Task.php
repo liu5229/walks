@@ -39,47 +39,87 @@ Class Task extends AbstractController {
                 $taskInfo = array('isBuild' => $isInvited ? 1 : 0, 'award' => $activityInfo['activity_award_min']);
                 break;
             case 'sign':
-                $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
-                $checkInDays = $this->db->getOne($sql, $userId);
                 $sql = 'SELECT receive_id id , receive_gold num, receive_status isReceive, is_double isDouble FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';
                 $todayInfo = $this->db->getRow($sql, $userId, $today, $type);
-
-                if ($versionCode >= 230) {
-                    $receiveType = 'sign_230';
-                } else {
-                    $receiveType = 'sign';
-                }
-                if(!$todayInfo) {
-                    $isSignLastDay = $this->model->gold->existSourceDate($userId, date('Y-m-d', strtotime("-1 day")), $type);
-                    if (!$isSignLastDay) {
-                        $checkInDays = 0;
-                        $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
-                        $this->db->exec($sql, 0, $userId);
+                if ($versionCode >= 232) {
+                    $signCount = $this->model->gold->signCount($userId);
+                    $taskInfo = array('checkInDays' => $signCount, 'checkInInfo' => array());
+                    if (!$todayInfo) {
+                        // 计算是否第一轮签到
+                        if ($signCount >= 7) {
+                            // 签到其他轮奖励
+                            $receiveType = 'sign_232_o';
+                        } else {
+                            // 签到第一轮奖励
+                            $receiveType = 'sign_232_f';
+                        }
+                        //获取奖励金币范围
+                        // 计算第几天签到
+                        $currentDay = $signCount % 7 + 1;
+                        $sql = 'SELECT award_min, award_max FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
+                        $awardRow = $this->db->getRow($sql, array('type' => $receiveType, 'counter' => $currentDay));
+                        $award = rand($awardRow['award_min'], $awardRow['award_max']);
+                        if ($currentDay == 7) {
+                            $award = $award * 100;
+                        }
+                        // 生成待领取签到
+                        $goldId = $this->model->goldReceive->insert(array('user_id' => $userId, 'gold' => $award, 'type' => $type));
+                        $todayInfo = array('id' => $goldId, 'num' => $award, 'isReceive' => 0, 'isDouble' => 0);
+                    } else {
+                        $signCount -= $todayInfo['isReceive'];
+                        if ($signCount >= 7) {
+                            // 签到其他轮奖励
+                            $receiveType = 'sign_232_o';
+                        } else {
+                            // 签到第一轮奖励
+                            $receiveType = 'sign_232_f';
+                        }
                     }
-                    //获取奖励金币范围
-                    $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
-                    $awardRow = $this->db->getRow($sql, array('type' => $receiveType, 'counter' => (($checkInDays + 1) % 7) ?? 7));
+                    // 获取前几天签到信息
+                    $checkInInfo = $this->model->gold->signList($userId, $type, $signCount % 7);
+                    $checkInInfo = array_reverse($checkInInfo);
+                } else {
+                    $sql = 'SELECT check_in_days FROM t_user WHERE user_id = ?';
+                    $signCount = $this->db->getOne($sql, $userId);
 
-                    $goldId = $this->model->goldReceive->insert(array('user_id' => $userId, 'gold' => $awardRow['award_min'], 'type' => $type));
-                    $todayInfo = array('id' => $goldId, 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
+                    if ($versionCode >= 230) {
+                        $receiveType = 'sign_230';
+                    } else {
+                        $receiveType = 'sign';
+                    }
+
+                    if(!$todayInfo) {
+                        $isSignLastDay = $this->model->gold->existSourceDate($userId, date('Y-m-d', strtotime("-1 day")), $type);
+                        if (!$isSignLastDay) {
+                            $signCount = 0;
+                            $sql = 'UPDATE t_user SET check_in_days = ? WHERE user_id = ?';
+                            $this->db->exec($sql, 0, $userId);
+                        }
+                        //获取奖励金币范围
+                        $sql = 'SELECT award_min FROM t_award_config WHERE config_type = :type AND counter_min = :counter';
+                        $awardRow = $this->db->getRow($sql, array('type' => $receiveType, 'counter' => $signCount % 7 + 1));
+
+                        $goldId = $this->model->goldReceive->insert(array('user_id' => $userId, 'gold' => $awardRow['award_min'], 'type' => $type));
+                        $todayInfo = array('id' => $goldId, 'num' => $awardRow['award_min'], 'isReceive' => 0, 'isDouble' => 0);
+                    }
+                    $fromDate = $today;
+                    $taskInfo = array('checkInDays' => $signCount, 'checkInInfo' => array());
+                    if ($signCount) {
+                        $signCount -= ($todayInfo['isReceive'] ?: 0);
+                        $fromDate = date('Y-m-d', strtotime('-' . $signCount . 'days'));
+                    }
+                    $checkInInfo = $this->model->gold->singGoldList($userId, $fromDate, $today, $type);
                 }
-                $fromDate = $today;
-                $checkInReturn = array('checkInDays' => $checkInDays, 'checkInInfo' => array());
-                if ($checkInDays) {
-                    $checkInDays -= ($todayInfo['isReceive'] ?? 0);
-                    $fromDate = date('Y-m-d', strtotime('-' . $checkInDays . 'days'));
-                }
-                $checkInInfo = $this->model->gold->singGoldList($userId, $fromDate, $today, $type);
-                $checkInInfo[] = array_merge(array('isToday' => 1), $todayInfo);
-                
+                $todayInfo['isToday'] = 1;
+                $checkInInfo[] = $todayInfo;
+
                 $i = 0;
                 $sql = 'SELECT counter_min, award_min FROM t_award_config WHERE config_type = ? ORDER BY config_id ASC';
                 $checkInConfigList = $this->db->getAll($sql, $receiveType);
                 foreach ($checkInConfigList as $config) {
-                    $checkInReturn['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
+                    $taskInfo['checkInInfo'][] = array_merge(array('day' => $config['counter_min'], 'award' => $config['award_min']), $checkInInfo[$i] ?? array());
                     $i++;
                 }
-                $taskInfo = $checkInReturn;
                 break;
             default :
                 $sql = 'SELECT COUNT(*) FROM t_gold2receive WHERE user_id = ? AND receive_date = ? AND receive_type = ?';

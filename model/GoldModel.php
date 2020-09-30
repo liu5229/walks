@@ -83,6 +83,13 @@ class GoldModel extends AbstractModel
          return $this->db->getAll($sql, $userId, $fromDate, $today, $type);
      }
 
+    public function signList ($userId, $type, $limit) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT gold_id id , change_gold num, 1 isReceive, 0 isDouble, 0 isToday FROM ' . $this->goldTable . ' WHERE user_id = ? AND change_date < ? AND gold_source = ? ORDER BY gold_id DESC LIMIT ' . $limit;
+        return $this->db->getAll($sql, $userId, date('Y-m-d'), $type);
+
+    }
+
     public function getDetailBysource ($userId, $source) {
         $this->setTableByuserId($userId);
         $sql = 'SELECT change_gold, gold_id FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ?';
@@ -149,6 +156,18 @@ class GoldModel extends AbstractModel
             $this->db->exec($sql, array( 'user_id' => $params['user_id'], 'change_gold' => $params['gold'], 'gold_source' => $params['source'], 'change_type' => $params['type'], 'relation_id' => $params['relation_id'] ?? 0, 'change_date' => $todayDate ));
         }
         return TRUE;
+    }
+
+    public function signCount ($userId) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT COUNT(gold_id) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ?';
+        return $this->db->getOne($sql, $userId, 'sign');
+    }
+
+    public function withdrawVideoCount ($userId) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT COUNT(gold_id) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source IN ("newer", "sign")';
+        return $this->db->getOne($sql, $userId);
     }
 
     protected function setTableByuserId ($userId) {

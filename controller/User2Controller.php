@@ -223,24 +223,39 @@ Class User2Controller extends UserController {
             $userInfo['phone'] = substr_replace($userInfo['phone'], '****', 3, 4);
         }
         $userInfo['gearList'] = array();
-        
-        foreach (array(1, 5, 15, 30, 50, 100) as $withdraw) {
-            if (in_array($withdraw, array(1, 5))) {
-                $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
-                if ($this->db->getOne($sql, $withdraw, $userId)) {
-                    continue;
+
+        $versionCode = $_SERVER['HTTP_VERSION_CODE'] ?? 0;
+        if ($versionCode >= 232) {
+            foreach (array(0.3, 20, 30, 50, 80, 100) as $withdraw) {
+                if (in_array($withdraw, array(0.3, 20))) {
+                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $withdraw, $userId)) {
+                        continue;
+                    }
                 }
+                $temp = array('values' => $withdraw, 'nums' => $withdraw * 10000);
+                $userInfo['gearList'][] = $temp;
             }
-            $userInfo['gearList'][] = array('values' => $withdraw, 'nums' => $withdraw * 10000);
+        } else {
+            foreach (array(1, 5, 15, 30, 50, 100) as $withdraw) {
+                if (in_array($withdraw, array(1, 5))) {
+                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $withdraw, $userId)) {
+                        continue;
+                    }
+                }
+                $userInfo['gearList'][] = array('values' => $withdraw, 'nums' => $withdraw * 10000);
+            }
         }
 
-        $sql = 'SELECT withdraw_id id, withdraw_status status, withdraw_amount amount, unix_timestamp(create_time) * 1000 createTime, unix_timestamp(change_time) * 1000 changeTime, withdraw_user_read FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success") ORDER BY withdraw_id DESC';
+        $sql = 'SELECT withdraw_id id, withdraw_status status, withdraw_amount amount, unix_timestamp(create_time) * 1000 createTime, unix_timestamp(change_time) * 1000 changeTime, withdraw_user_read, can_withdraw canWithdraw FROM t_withdraw WHERE user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success") ORDER BY withdraw_id DESC';
         $withdrawInfo = $this->db->getRow($sql, $userId);
         $userInfo['withdrawInfo'] = (object) array();
         if ($withdrawInfo && (($withdrawInfo['status'] == 'pending') || ($withdrawInfo['status'] == 'success' && !$withdrawInfo['withdraw_user_read']))) {
             unset($withdrawInfo['withdraw_user_read']);
             $userInfo['withdrawInfo'] = $withdrawInfo;
         }
+        $userInfo['serverTime'] = time() * 1000;
         return new ApiReturn($userInfo);
     }
     

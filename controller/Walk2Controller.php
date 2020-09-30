@@ -113,7 +113,11 @@ Class Walk2Controller extends WalkController {
 
                 if (isset($this->inputData['versionCode']) && $this->inputData['versionCode'] >= 230) {
                     $doubleStatus = 0;
-                    $activityInfo['activity_award_min'] = 5000;
+                    if ($this->inputData['versionCode'] >= 232) {
+                        $activityInfo['activity_award_min'] = 88000;
+                    } else {
+                        $activityInfo['activity_award_min'] = 5000;
+                    }
                 } else {
                     $doubleStatus = $this->inputData['isDouble'] ?? 0;
                 }
@@ -151,7 +155,7 @@ Class Walk2Controller extends WalkController {
                 }
 
                 if ($historyInfo['receive_status']) {
-                    if (!$secondDoubleStatus) {  
+                    if (!$secondDoubleStatus) {
                         return new ApiReturn('', 402, '今日已签到');
                     } elseif ($historyInfo['is_double']) {
                         return new ApiReturn('', 402, '今日已签到');
@@ -266,17 +270,8 @@ Class Walk2Controller extends WalkController {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
-                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
-                        withdraw_amount = :withdraw_amount, 
-                        withdraw_gold = :withdraw_gold, 
-                        withdraw_status = "pending", 
-                        alipay_account = :alipay_account, 
-                        alipay_name = :alipay_name';
-                $this->db->exec($sql, array('user_id' => $this->userId,
-                    'withdraw_amount' => $withdrawalAmount,
-                    'withdraw_gold' => $withdrawalGold, 
-                    'alipay_account' => $alipayInfo['alipay_account'],
-                    'alipay_name' => $alipayInfo['alipay_name']));
+                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, withdraw_amount = :withdraw_amount, withdraw_gold = :withdraw_gold, withdraw_status = "pending", alipay_account = :alipay_account, alipay_name = :alipay_name';
+                $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'alipay_account' => $alipayInfo['alipay_account'], 'alipay_name' => $alipayInfo['alipay_name']));
                 return new ApiReturn('');
             } else {
                 return new ApiReturn('', 406, '请先绑定支付宝账户');
@@ -306,53 +301,50 @@ Class Walk2Controller extends WalkController {
             if ($withdrawalGold > $userGoldInfo['currentGold']) {
                 return new ApiReturn('', 404, '抱歉，您的金币数暂未达到提现门槛');
             }
+            $versionCode = $_SERVER['HTTP_VERSION_CODE'] ?? 0;
+            if ($versionCode >= 232) {
+                $withdrawList = array(0.3, 20, 30, 50, 80, 100);
+            } else {
+                $withdrawList =  array(1, 5, 15, 30, 50, 100);
+            }
+            if (!in_array($withdrawalAmount, $withdrawList)) {
+                return new ApiReturn('', 408, '申请失败');
+            }
             $umengApi = new Umeng();
             $score = $umengApi->verify($payInfo['umeng_token']);
             if (FALSE !== $score && $score < 90) {
                 //update user invild && insert request failed
                 $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
                 $this->db->exec($sql, $this->userId);
-                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, 
-                        withdraw_amount = :withdraw_amount, 
-                        withdraw_gold = :withdraw_gold, 
-                        withdraw_status = "failure", 
-                        withdraw_method = "wechat",
-                        wechat_openid = :wechat_openid,
-                        withdraw_remark = :withdraw_remark';
-                $this->db->exec($sql, array('user_id' => $this->userId,
-                    'withdraw_amount' => $withdrawalAmount,
-                    'withdraw_gold' => $withdrawalGold,
-                    'wechat_openid' => $payInfo['openid'],
-                    'withdraw_remark' => '友盟分值低于90分'));
+                $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, withdraw_amount = :withdraw_amount, withdraw_gold = :withdraw_gold, withdraw_status = "failure", withdraw_method = "wechat", wechat_openid = :wechat_openid,withdraw_remark = :withdraw_remark';
+                $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'wechat_openid' => $payInfo['openid'], 'withdraw_remark' => '友盟分值低于90分'));
                 return new ApiReturn('', 408, '申请失败');
             }
             if (isset($payInfo['unionid']) && $payInfo['unionid'] && isset($payInfo['openid']) && $payInfo['openid']) {
                 //1元提现只能一次 to do
-                if (in_array($withdrawalAmount, array(1, 5))) {
+                if (in_array($withdrawalAmount, array(0.3, 1, 5, 20))) {
                     $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $this->userId, $withdrawalAmount)) {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
-//                if (REDIS_ENABLE) {
-//                    $redis = new \Redis();
-//                    $redis->pconnect(REDIS_NAME, 6379);
-//                    $redis->select(1);
-//                    $key = 'wd:' . $this->userId . ':' . $withdrawalAmount;//提现key
-//                    if ($redis->setnx($key, '1')) {
-//                        $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, withdraw_amount = :withdraw_amount, withdraw_gold = :withdraw_gold, withdraw_status = :withdraw_status, withdraw_method = :withdraw_method, wechat_openid = :wechat_openid';
-//                        $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid']));
-//                        $redis->expire($key, 10);
-//                        return new ApiReturn('');
-//                    } else {
-//                        if (-1 == $redis->ttl($key)) {
-//                            $redis->expire($key, 50);
-//                        }
-//                        return new ApiReturn('', 206, '重复提交');
-//                    }
-//                }
-                $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid FROM DUAL WHERE NOT EXISTS (SELECT withdraw_id FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
-                $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid']));
+                if (0.3 == $withdrawalAmount) {
+                    // 判断是否领取新手红包和签到奖励，个数为0 拉黑，个数为1 进入排队，个数为2以上可提现。
+                    $withdrawVideoCount = $this->model->gold->withdrawVideoCount($this->userId);
+                    if ($withdrawVideoCount) {
+                        $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid, can_withdraw) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid, :can_withdraw FROM DUAL WHERE NOT EXISTS (SELECT withdraw_id FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
+                        $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid'], 'can_withdraw' => ($withdrawVideoCount >= 2) ? 1 : 0));
+                    } else {
+                        $sql = 'UPDATE t_user SET user_status = 0 WHERE user_id = ?';
+                        $this->db->exec($sql, $this->userId);
+                        $sql = 'INSERT INTO t_withdraw SET user_id = :user_id, withdraw_amount = :withdraw_amount, withdraw_gold = :withdraw_gold, withdraw_status = "failure", withdraw_method = "wechat", wechat_openid = :wechat_openid,withdraw_remark = :withdraw_remark';
+                        $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'wechat_openid' => $payInfo['openid'], 'withdraw_remark' => '新手红包和签到奖励未领取，账号异常'));
+                        return new ApiReturn('', 408, '申请失败');
+                    }
+                } else {
+                    $sql = 'INSERT INTO t_withdraw (user_id, withdraw_amount, withdraw_gold, withdraw_status, withdraw_method, wechat_openid) SELECT :user_id, :withdraw_amount,:withdraw_gold, :withdraw_status, :withdraw_method, :wechat_openid FROM DUAL WHERE NOT EXISTS (SELECT withdraw_id FROM t_withdraw WHERE user_id = :user_id AND withdraw_amount = :withdraw_amount AND withdraw_status = :withdraw_status)';
+                    $this->db->exec($sql, array('user_id' => $this->userId, 'withdraw_amount' => $withdrawalAmount, 'withdraw_gold' => $withdrawalGold, 'withdraw_method' => 'wechat', 'withdraw_status' => 'pending', 'wechat_openid' => $payInfo['openid']));
+                }
                 return new ApiReturn('');
             } else {
                 return new ApiReturn('', 407, '请先绑定微信账户');

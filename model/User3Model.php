@@ -26,7 +26,11 @@ class User3Model extends User2Model {
         $userInfo = $this->db->getRow($sql, $data);
 
         if (isset($deviceInfo['versionCode']) && $deviceInfo['versionCode'] >= 230) {
-            $newInfo = array('activity_award_min' => 5000, 'activity_status' => 1);
+            if ($deviceInfo['versionCode'] >= 232) {
+                $newInfo = array('activity_award_min' => 88000, 'activity_status' => 1);
+            } else {
+                $newInfo = array('activity_award_min' => 5000, 'activity_status' => 1);
+            }
         } else {
             $sql = 'SELECT activity_award_min, activity_status FROM t_activity WHERE activity_type = "newer"';
             $newInfo = $this->db->getRow($sql);
@@ -58,6 +62,8 @@ class User3Model extends User2Model {
                 'appSource' => ($userInfo['reyun_app_name'] ?: $userInfo['app_name']) . '_' . ($userInfo['compaign_id'] ?? ''),// 渠道号 来源热云
                 'compaignId' => $userInfo['compaign_id'],// 子渠道号 来源热云
                 'newerGold' => $receiveNewer ? 0 : $newInfo['activity_award_min'],
+                'withdrawTime' => (strtotime($userInfo['create_time']) + 600) * 1000,
+                'serverTime' => time() * 1000
             );
         } else {
             $invitedClass = new Invited();
@@ -92,6 +98,8 @@ class User3Model extends User2Model {
                 'appSource' => ($reyunAppName['app_name'] ?? ($deviceInfo['source'] ?? '')) . '_' . ($reyunAppName['compaign_id'] ?? ''),
                 'compaignId' => $reyunAppName['compaign_id'] ?? '',// 子渠道号 来源热云
                 'newerGold' => $newInfo['activity_status'] ? $newInfo['activity_award_min'] : 0,
+                'withdrawTime' => (time() + 600) * 1000,
+                'serverTime' => time() * 1000
             );
         }
     }
