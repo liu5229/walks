@@ -322,13 +322,17 @@ Class Walk2Controller extends WalkController {
             }
             if (isset($payInfo['unionid']) && $payInfo['unionid'] && isset($payInfo['openid']) && $payInfo['openid']) {
                 //1元提现只能一次 to do
-                if (in_array($withdrawalAmount, array(0.3, 1, 5, 20))) {
+                if (in_array($withdrawalAmount, array(1, 5, 20))) {
                     $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $this->userId, $withdrawalAmount)) {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
                 }
                 if (0.3 == $withdrawalAmount) {
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount IN (0.3, 1) AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    if ($this->db->getOne($sql, $this->userId)) {
+                        return new ApiReturn('', 405, '新用户首次提现专享');
+                    }
                     // 判断是否领取新手红包和签到奖励，个数为0 拉黑，个数为1 进入排队，个数为2以上可提现。
                     $withdrawVideoCount = $this->model->gold->withdrawVideoCount($this->userId);
                     if ($withdrawVideoCount) {
