@@ -329,7 +329,7 @@ Class Walk2Controller extends WalkController {
                     }
                 }
                 if (0.3 == $withdrawalAmount) {
-                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount IN (0.3, 1) AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND (withdraw_amount = 1 OR withdraw_amount = 0.3) AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $this->userId)) {
                         return new ApiReturn('', 405, '新用户首次提现专享');
                     }
