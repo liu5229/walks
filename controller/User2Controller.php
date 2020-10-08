@@ -228,7 +228,7 @@ Class User2Controller extends UserController {
         if ($versionCode >= 232) {
             foreach (array(0.3, 20, 30, 50, 80, 100) as $withdraw) {
                 if (0.3 == $withdraw) {
-                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount IN (0.3, 1) AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE (withdraw_amount = 0.3 OR withdraw_amount = 1) AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $userId)) {
                         continue;
                     }
