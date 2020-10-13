@@ -234,7 +234,7 @@ Class User2Controller extends UserController {
                     }
                 }
                 if (20 == $withdraw) {
-                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = ? AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE (withdraw_amount = 5 OR withdraw_amount = 20) AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $withdraw, $userId)) {
                         continue;
                     }
