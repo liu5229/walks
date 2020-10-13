@@ -4,9 +4,7 @@
 //  一小时执行一次
 require_once __DIR__ . '/../init.inc.php';
 
-$db = new NewPdo('mysql:dbname=' . DB_DATABASE . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USERNAME, DB_PASSWORD);
-$db->exec("SET time_zone = '+8:00'");
-$db->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+$db = Db::getDbInstance();
 
 $model = new Model();
 $wechatPay = new Wxpay();
