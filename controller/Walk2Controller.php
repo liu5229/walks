@@ -305,6 +305,10 @@ Class Walk2Controller extends WalkController {
             if ($versionCode >= 232) {
                 $withdrawList = array(0.3, 20, 30, 50, 80, 100);
             } else {
+                $newerCount = $this->model->gold->newerCount($this->userId);
+                if ($newerCount > 10000) {
+                    return new ApiReturn('', 409, '申请失败,请升级到最新版本');
+                }
                 $withdrawList =  array(1, 5, 15, 30, 50, 100);
             }
             if (!in_array($withdrawalAmount, $withdrawList)) {

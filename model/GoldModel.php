@@ -170,6 +170,12 @@ class GoldModel extends AbstractModel
         return $this->db->getOne($sql, $userId);
     }
 
+    public function newerCount ($userId) {
+        $this->setTableByuserId($userId);
+        $sql = 'SELECT IFNULL(change_gold, 0) FROM ' . $this->goldTable . ' WHERE user_id = ? AND gold_source = ?';
+        return $this->db->getOne($sql, $userId, 'newer');
+    }
+
     protected function setTableByuserId ($userId) {
         $userId = (int) $userId;
         $this->goldTable = 't_gold_' . ($userId % 100 + 1);
