@@ -303,7 +303,7 @@ Class Walk2Controller extends WalkController {
             }
             $versionCode = $_SERVER['HTTP_VERSION_CODE'] ?? 0;
             if ($versionCode >= 232) {
-                $withdrawList = array(0.3, 20, 30, 50, 80, 100);
+                $withdrawList = array(0.3, 50, 100, 150, 200);
             } else {
                 $newerCount = $this->model->gold->newerCount($this->userId);
                 if ($newerCount > 10000) {
@@ -348,14 +348,9 @@ Class Walk2Controller extends WalkController {
                         break;
                     case 1:
                     case 5:
+                    case 50:
                         $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND withdraw_amount = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                         if ($this->db->getOne($sql, $this->userId, $withdrawalAmount)) {
-                            return new ApiReturn('', 405, '新用户首次提现专享');
-                        }
-                        break;
-                    case 20:
-                        $sql = 'SELECT COUNT(*) FROM t_withdraw WHERE user_id = ? AND (withdraw_amount = 5 OR withdraw_amount = 20) AND (withdraw_status = "pending" OR withdraw_status = "success")';
-                        if ($this->db->getOne($sql, $this->userId)) {
                             return new ApiReturn('', 405, '新用户首次提现专享');
                         }
                         break;

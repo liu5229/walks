@@ -226,15 +226,16 @@ Class User2Controller extends UserController {
 
         $versionCode = $_SERVER['HTTP_VERSION_CODE'] ?? 0;
         if ($versionCode >= 232) {
-            foreach (array(0.3, 20, 30, 50, 80, 100) as $withdraw) {
+            // 修改为0.3  50  100  150  200 20201014
+            foreach (array(0.3, 50, 100, 150, 200) as $withdraw) {
                 if (0.3 == $withdraw) {
                     $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE (withdraw_amount = 0.3 OR withdraw_amount = 1) AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $userId)) {
                         continue;
                     }
                 }
-                if (20 == $withdraw) {
-                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE (withdraw_amount = 5 OR withdraw_amount = 20) AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
+                if (50 == $withdraw) {
+                    $sql = 'SELECT COUNT(withdraw_id) FROM t_withdraw WHERE withdraw_amount = 50 AND user_id = ? AND (withdraw_status = "pending" OR withdraw_status = "success")';
                     if ($this->db->getOne($sql, $userId)) {
                         continue;
                     }
